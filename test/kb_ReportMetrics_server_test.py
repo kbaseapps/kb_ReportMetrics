@@ -91,7 +91,7 @@ class kb_ReportMetricsTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    @unittest.skip("skipped test_run_count_genome_features")
+    #@unittest.skip("skipped test_run_count_genome_features")
     def test_run_count_genome_features(self):
         # First set input parameters
         m_params =     {
@@ -110,7 +110,7 @@ class kb_ReportMetricsTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    @unittest.skip("skipped test_run_count_genbank_genome_features")
+    #@unittest.skip("skipped test_run_count_genbank_genome_features")
     def test_run_count_genbank_genome_features(self):
         # First set input parameters
         m_params =     {
@@ -141,7 +141,7 @@ class kb_ReportMetricsTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    #@unittest.skip("skipped test_run_refseq_genome_counts")
+    @unittest.skip("skipped test_run_refseq_genome_counts")
     def test_run_refseq_genome_counts(self):
         # First set input parameters
         m_params = {

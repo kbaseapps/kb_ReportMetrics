@@ -25,7 +25,7 @@
     "behavior": {
         "service-mapping": {
             "url": "",
-            "name":"kb_Metrics",
+            "name":"kb_ReportMetrics",
             "method": "count_genome_features",
             "input_mapping": [
                 {

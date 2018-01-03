@@ -10,7 +10,6 @@ from KBaseReport.KBaseReportClient import KBaseReport
 from kb_ReportMetrics.core.genome_feature_stats import genome_feature_stats
 from kb_ReportMetrics.core.report_utils import report_utils
 from kb_ReportMetrics.core.UJS_CAT_NJS_DataUtils import UJS_CAT_NJS_DataUtils
-from kb_ReportMetrics.metricsdb_controller import MetricsMongoDBController
 #END_HEADER
 
 
@@ -32,7 +31,7 @@ This KBase SDK module implements methods for generating reports on various KBase
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_ReportMetrics.git"
-    GIT_COMMIT_HASH = "12f460b46d1ac829ec483d6d66ac85c7a7f6398e"
+    GIT_COMMIT_HASH = "38157bbd0feb1d0c3708614e8efdb6dc732da3dc"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
