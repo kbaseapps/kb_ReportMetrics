@@ -470,6 +470,7 @@ class UJS_CAT_NJS_DataUtils:
              u'type': u'a'
         }
         """
+        self.init_clients(token)
         # Pull the data
         log("Fetching the exec_aggr stats data from Catalog API...")
         aggr_stats = self.cat_client.get_exec_aggr_stats({})
