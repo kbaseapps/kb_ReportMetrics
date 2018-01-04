@@ -1,9 +1,9 @@
 #
 # define display information
 #
-name: Report Metrics
+name: Report Job Execution Stats
 tooltip: |
-      Generete report metrics
+        Report Job Execution Stats
 screenshots: []
 
 icon: null
@@ -29,9 +29,9 @@ suggestions:
 parameters :
     stats_name :
         ui-name : |
-            Metric Name
+            Stats Name
         short-hint : |
-            The name of the metrics to generate report for
+            The name of the stats to generate report for
 
 description : |
-    <p>This method provids the metric report.</p>
+    <p>This method provids the report of job execution statistics.</p>

@@ -45,7 +45,7 @@
         "service-mapping": {
             "url": "",
             "name":"kb_ReportMetrics",
-            "method": "report_metrics",
+            "method": "report_exec_stats",
             "input_mapping": [
                 {
                     "input_parameter": "stats_name",

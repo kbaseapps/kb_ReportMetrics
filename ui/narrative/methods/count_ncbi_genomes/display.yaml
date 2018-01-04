@@ -1,7 +1,7 @@
 #
 # define display information
 #
-name: Refseq Genome Counts
+name: NCBI Genome Counts
 tooltip: |
     Provide the total count of all NCBI refseq genomes of given domain and criteria
 screenshots: []

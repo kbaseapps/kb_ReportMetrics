@@ -37,6 +37,14 @@ module kb_ReportMetrics {
             mapping <string, int> map_of_ints;
     */
     typedef structure {
+        string genome_source;
+        string genome_domain;
+        string refseq_category;
+        string workspace_name;
+        bool create_report;
+    } GenomeCountParams;
+
+    typedef structure {
         list <string> genbank_file_urls;
         string file_format;
         string genome_source;
@@ -45,7 +53,6 @@ module kb_ReportMetrics {
         string workspace_name;
         bool create_report;
     } FeatureCountParams;
-
 
     /*
         Here is the definition of the output of the function.  The output
@@ -65,24 +72,16 @@ module kb_ReportMetrics {
         Apps that run in the Narrative, your function should have the 
         'authentication required' modifier.
     */
+
+    funcdef count_ncbi_genomes(GenomeCountParams params)
+        returns (StatResults return_records) authentication required;
+
     funcdef count_ncbi_genome_features(FeatureCountParams params)
         returns (StatResults return_records) authentication required;
 
     funcdef count_genome_features(FeatureCountParams params)
         returns (StatResults return_records) authentication required;
 
-
-    typedef structure {
-        string genome_source;
-        string genome_domain;
-        string refseq_category;
-        string workspace_name;
-        bool create_report;
-    } GenomeCountParams;
-
-
-    funcdef refseq_genome_counts(GenomeCountParams params)
-        returns (StatResults return_records) authentication required;
 
 
     typedef structure {
@@ -91,8 +90,7 @@ module kb_ReportMetrics {
         bool create_report;
     } StatsReportParams;
 
-
-    funcdef report_metrics(StatsReportParams params)
+    funcdef report_exec_stats(StatsReportParams params)
         returns (StatResults return_records) authentication required;
 
     funcdef dummy_test0(StatsReportParams params)

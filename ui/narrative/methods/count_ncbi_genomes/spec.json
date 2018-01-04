@@ -105,7 +105,7 @@
         "service-mapping": {
             "url": "",
             "name":"kb_ReportMetrics",
-            "method": "refseq_genome_counts",
+            "method": "count_ncbi_genomes",
             "input_mapping": [
                 {
                     "narrative_system_variable": "workspace",

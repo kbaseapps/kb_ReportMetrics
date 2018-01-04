@@ -1,7 +1,7 @@
 #
 # define display information
 #
-name: RefSeq Genome Feature Counts and Stats
+name: NCBI Genome Feature Counts and Stats
 tooltip: |
     Provide the total feature counts, mean/median/max lengths for each feature type appearing in the refseq genome genbank file 
 screenshots: []
