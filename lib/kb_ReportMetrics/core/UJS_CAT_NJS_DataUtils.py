@@ -78,7 +78,14 @@ def _unix_time_millis(dt):
 class UJS_CAT_NJS_DataUtils:
 
     def __init__(self, config, provenance):
+	pprint("configuration details:\n" + pformat(config))
         self.workspace_url = config['workspace-url']
+        self.job_service_url = config['job-service-url']
+        self.njsw_url = config['njsw-url']
+        self.auth_service_url = config['auth-service-url']
+	self.catalog_url = config['kbase-endpoint']+'/catalog'
+	self.user_profile_url = config['kbase-endpoint']+'/user_profile/rpc'
+
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.token = os.environ['KB_AUTH_TOKEN']
         self.provenance = provenance
@@ -602,34 +609,17 @@ class UJS_CAT_NJS_DataUtils:
 
     def init_clients(self):
         self.ws_client = Workspace(self.workspace_url)
-        '''
-        #for prod
-        self.cat_client = Catalog('https://kbase.us/services/catalog', auth_svc='https://kbase.us/services/auth/')
-        self.njs_client = NarrativeJobService('https://kbase.us/services/njs_wrapper', auth_svc='https://kbase.us/services/auth/')
-        self.ujs_client = UserAndJobState('https://kbase.us/services/userandjobstate', auth_svc='https://kbase.us/services/auth/')
-        self.uprf_client = UserProfile('https://kbase.us/services/user_profile/rpc', auth_svc='https://kbase.us/services/auth/')
-
-        '''
-        #fpr ci
-        self.cat_client = Catalog('https://ci.kbase.us/services/catalog', auth_svc='https://ci.kbase.us/services/auth/')
-        self.njs_client = NarrativeJobService('https://ci.kbase.us/services/njs_wrapper', auth_svc='https://ci.kbase.us/services/auth/')
-        self.ujs_client = UserAndJobState('https://ci.kbase.us/services/userandjobstate', auth_svc='https://ci.kbase.us/services/auth/')
-        self.uprf_client = UserProfile('https://ci.kbase.us/services/user_profile/rpc', auth_svc='https://ci.kbase.us/services/auth/')
+        self.cat_client = Catalog(self.catalog_url, auth_svc=self.auth_service_url)
+        self.njs_client = NarrativeJobService(self.njsw_url, auth_svc=self.auth_service_url)
+        self.ujs_client = UserAndJobState(self.job_service_url, auth_svc=self.auth_service_url)
+        self.uprf_client = UserProfile(self.user_profile_url, auth_svc=self.auth_service_url)
 
     def init_clients_withToken(self, token):
         self.ws_client = Workspace(self.workspace_url, token=token)
-        '''
-        #for prod
-        self.cat_client = Catalog('https://kbase.us/services/catalog', auth_svc='https://kbase.us/services/auth/', token=token)
-        self.njs_client = NarrativeJobService('https://kbase.us/services/njs_wrapper', auth_svc='https://kbase.us/services/auth/', token=token)
-        self.ujs_client = UserAndJobState('https://kbase.us/services/userandjobstate', auth_svc='https://kbase.us/services/auth/', token=token)
-        self.uprf_client = UserProfile('https://kbase.us/services/user_profile/rpc', auth_svc='https://kbase.us/services/auth/', token=token)
-        '''
-        #for ci 
-        self.cat_client = Catalog('https://ci.kbase.us/services/catalog', auth_svc='https://ci.kbase.us/services/auth/', token=token)
-        self.njs_client = NarrativeJobService('https://ci.kbase.us/services/njs_wrapper', auth_svc='https://ci.kbase.us/services/auth/', token=token)
-        self.ujs_client = UserAndJobState('https://ci.kbase.us/services/userandjobstate', auth_svc='https://ci.kbase.us/services/auth/', token=token)
-        self.uprf_client = UserProfile('https://ci.kbase.us/services/user_profile/rpc', auth_svc='https://ci.kbase.us/services/auth/', token=token)
+        self.cat_client = Catalog(self.catalog_url, auth_svc=self.auth_service_url, token=token)
+        self.njs_client = NarrativeJobService(self.njsw_url, auth_svc=self.auth_service_url, token=token)
+        self.ujs_client = UserAndJobState(self.job_service_url, auth_svc=self.auth_service_url, token=token)
+        self.uprf_client = UserProfile(self.user_profile_url, auth_svc=self.auth_service_url, token=token)
 
     def process_app_parameters(self, params):
         if params.get('user_ids', None) is None:
