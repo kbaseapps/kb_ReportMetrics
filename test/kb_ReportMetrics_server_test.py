@@ -78,20 +78,8 @@ class kb_ReportMetricsTest(unittest.TestCase):
         return self.__class__.ctx
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    def load_fasta_file(self, filename, obj_name, contents):
-        f = open(filename, 'w')
-        f.write(contents)
-        f.close()
-        assemblyUtil = AssemblyUtil(self.callback_url)
-        assembly_ref = assemblyUtil.save_assembly_from_fasta({'file': {'path': filename},
-                                                              'workspace_name': self.getWsName(),
-                                                              'assembly_name': obj_name
-                                                              })
-        return assembly_ref
-
-    # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    #@unittest.skip("skipped test_run_count_genome_features")
+    @unittest.skip("skipped test_run_count_genome_features")
     def test_run_count_genome_features(self):
         # First set input parameters
         m_params =     {
@@ -110,7 +98,7 @@ class kb_ReportMetricsTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    #@unittest.skip("skipped test_run_count_genbank_genome_features")
+    @unittest.skip("skipped test_run_count_genbank_genome_features")
     def test_run_count_genbank_genome_features(self):
         # First set input parameters
         m_params =     {
@@ -170,7 +158,7 @@ class kb_ReportMetricsTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    @unittest.skip("skipped test_run_report_metrics")
+    #@unittest.skip("skipped test_run_report_metrics")
     def test_run_report_metrics(self):
         m_params = {
             'stats_name': 'exec_stats',#'exec_aggr_stats','exec_aggr_table','user_job_states'

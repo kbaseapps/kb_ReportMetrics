@@ -87,10 +87,11 @@ class UJS_CAT_NJS_DataUtils:
         _mkdir_p(self.scratch)
 
         self.metrics_dir = os.path.join(self.scratch, str(uuid.uuid4()))
+        self.init_clients()
         _mkdir_p(self.metrics_dir)
 
 
-    def generate_app_metrics(self, input_params, token):
+    def generate_app_metrics(self, input_params):#, token):
         """
         generate_app_metrics: get app job state data with structure as the following example:
         [
@@ -144,8 +145,6 @@ class UJS_CAT_NJS_DataUtils:
           ......
         ]
         """
-        self.init_clients(token)
-
         params = self.process_app_parameters(input_params)
         user_ids = params['user_ids']
         time_start = params['time_start']
@@ -470,7 +469,6 @@ class UJS_CAT_NJS_DataUtils:
              u'type': u'a'
         }
         """
-        self.init_clients(token)
         # Pull the data
         log("Fetching the exec_aggr stats data from Catalog API...")
         aggr_stats = self.cat_client.get_exec_aggr_stats({})
@@ -602,7 +600,15 @@ class UJS_CAT_NJS_DataUtils:
         return ujs_arr
 
 
-    def init_clients(self, token):
+    def init_clients(self):
+        self.ws_client = Workspace(self.workspace_url)
+        self.cat_client = Catalog('https://kbase.us/services/catalog', auth_svc='https://kbase.us/services/auth/')
+        self.njs_client = NarrativeJobService('https://kbase.us/services/njs_wrapper', auth_svc='https://kbase.us/services/auth/')
+        self.ujs_client = UserAndJobState('https://kbase.us/services/userandjobstate', auth_svc='https://kbase.us/services/auth/')
+        self.uprf_client = UserProfile('https://kbase.us/services/user_profile/rpc', auth_svc='https://kbase.us/services/auth/')
+
+
+    def init_clients_withToken(self, token):
         self.ws_client = Workspace(self.workspace_url, token=token)
         #self.cat_client = Catalog(self.callback_url)
         self.cat_client = Catalog('https://kbase.us/services/catalog', auth_svc='https://kbase.us/services/auth/', token=token)
@@ -652,7 +658,7 @@ class UJS_CAT_NJS_DataUtils:
         return params
 
 
-    def generate_user_metrics(self, input_params, token):
+    def generate_user_metrics(self, input_params):#, token):
         """
         generate_user_metrics: get user data with structure as the following example:
         [
@@ -671,8 +677,6 @@ class UJS_CAT_NJS_DataUtils:
          ......
         ]
         """
-        self.init_clients(token)
-
         params = self.process_user_parameters(input_params)
         user_filter = params['filter_str']
         time_start = params['time_start']
