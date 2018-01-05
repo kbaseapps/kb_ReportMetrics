@@ -27,7 +27,7 @@ suggestions:
 # Configure the display and description of parameters
 #
 parameters :
-    genbank_file_urls :
+    genome_file_urls :
         ui-name : |
             Genome Files with full paths
         short-hint : |
