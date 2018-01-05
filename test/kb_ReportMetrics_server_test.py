@@ -79,7 +79,7 @@ class kb_ReportMetricsTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    #@unittest.skip("skipped test_run_count_ncbi_genomes")
+    @unittest.skip("skipped test_run_count_ncbi_genomes")
     def test_run_count_ncbi_genomes(self):
         # First set input parameters
         m_params = {
@@ -95,7 +95,7 @@ class kb_ReportMetricsTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    @unittest.skip("skipped test_run_count_genome_features")
+    #@unittest.skip("skipped test_run_count_genome_features")
     def test_run_count_genome_features_from_files(self):
         # First set input parameters
         m_params =     {
@@ -114,7 +114,7 @@ class kb_ReportMetricsTest(unittest.TestCase):
         # First set input parameters
         m_params =     {
             'workspace_name': self.getWsName(),
-            'genome_files': [],
+            'genome_file_urls': [],
             'genome_source': 'refseq',
             'genome_domain': 'bacteria',#'archaea',#'bacteria','plant','fungi'
             'refseq_category': 'reference',#'representative','na',
@@ -131,7 +131,7 @@ class kb_ReportMetricsTest(unittest.TestCase):
         # First set input parameters
         m_params =     {
             'workspace_name': self.getWsName(),
-            'genome_files': ['ftp.ensemblgenomes.org/pub/release-37/plants/genbank/corchorus_capsularis/Corchorus_capsularis.CCACVL1_1.0.37.nonchromosomal.dat.gz'],
+            'genome_file_urls': ['ftp.ensemblgenomes.org/pub/release-37/plants/genbank/corchorus_capsularis/Corchorus_capsularis.CCACVL1_1.0.37.nonchromosomal.dat.gz'],
             'create_report': 0
         }
         # Second, call your implementation

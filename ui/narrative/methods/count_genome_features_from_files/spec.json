@@ -11,7 +11,7 @@
     },
     "parameters": [ 
         {
-            "id": "genbank_file_urls",
+            "id": "genome_file_urls",
             "optional": false,
             "advanced": false,
             "allow_multiple": true,
@@ -37,8 +37,8 @@
                     "target_property": "create_report"
                 },
                 {
-                    "input_parameter": "genbank_file_urls",
-                    "target_property": "genbank_file_urls"
+                    "input_parameter": "genome_file_urls",
+                    "target_property": "genome_file_urls"
                 }
             ],
             "output_mapping": [

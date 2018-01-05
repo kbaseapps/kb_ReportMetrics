@@ -29,7 +29,7 @@ suggestions:
 parameters :
     genbank_file_urls :
         ui-name : |
-            Genbank Files with full paths
+            Genome Files with full paths
         short-hint : |
             The file locations where the genome file can be downloaded from
 
