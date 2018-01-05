@@ -1,7 +1,7 @@
 #
 # define display information
 #
-name: Genbank Genome Feature Counts and Stats
+name: Genome Feature Counts and Stats from Files
 tooltip: |
     Provide the total feature counts, mean/median/max lengths for each feature type appearing in each of the given genbank files and calculate stats across all genomes
 screenshots: []

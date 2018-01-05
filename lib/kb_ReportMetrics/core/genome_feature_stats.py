@@ -43,7 +43,7 @@ def _mkdir_p(path):
 
 class genome_feature_stats:
     PARAM_IN_WS = 'workspace_name'
-    PARAM_IN_GENBANK_FILES = 'genbank_file_urls'
+    PARAM_IN_GENOME_FILES = 'genome_file_urls'
 
     def __init__(self, config, provenance):
         self.workspace_url = config['workspace-url']
@@ -62,18 +62,18 @@ class genome_feature_stats:
         self.ws_client = Workspace(self.workspace_url, token=self.token)
         self.kbr = KBaseReport(self.callback_url)
 
-        self.count_dir = os.path.join(self.scratch, str(uuid.uuid4()))
-        _mkdir_p(self.count_dir)
+        self.genome_count_dir = os.path.join(self.scratch, str(uuid.uuid4()))
+        _mkdir_p(self.genome_count_dir)
 
 
-    def count_genome_features(self, params):
-        if params.get(self.PARAM_IN_GENBANK_FILES, None) is None:
-            raise ValueError(self.PARAM_IN_GENBANK_FILES +
+    def count_genome_features_from_files(self, params):
+        if params.get(self.PARAM_IN_GENOME_FILES, None) is None:
+            raise ValueError(self.PARAM_IN_GENOME_FILES +
                         ' parameter is mandatory and has at least one string value')
-        if type(params[self.PARAM_IN_GENBANK_FILES]) != list:
-            raise ValueError(self.PARAM_IN_GENBANK_FILES + ' must be a list')
+        if type(params[self.PARAM_IN_GENOME_FILES]) != list:
+            raise ValueError(self.PARAM_IN_GENOME_FILES + ' must be a list')
 
-        gn_files = params[self.PARAM_IN_GENBANK_FILES]
+        gn_files = params[self.PARAM_IN_GENOME_FILES]
         if params.get('file_format', None) is None:
             params['file_format'] = 'genbank'
 
@@ -91,13 +91,13 @@ class genome_feature_stats:
             return returnVal
 
         #write stats per genome
-        count_file_full_path = os.path.join(self.count_dir, 'Feature_Counts.json')
+        count_file_full_path = os.path.join(self.genome_count_dir, 'Feature_Counts.json')
         with open(count_file_full_path, 'w') as count_file:
             json.dump(genome_stats, count_file)
 
         #write overall stats across genomes
         stats_across_genomes = self._feature_counts_across_genomes(genome_raw_counts)
-        all_count_full_path = os.path.join(self.count_dir, 'Overall_Feature_Counts.json')
+        all_count_full_path = os.path.join(self.genome_count_dir, 'Overall_Feature_Counts.json')
         with open(all_count_full_path, 'w') as all_count_file:
             i = 0
             for ftc in stats_across_genomes['across_genomes_feature_counts']:
@@ -107,7 +107,7 @@ class genome_feature_stats:
                 i += 1
 
         if params['create_report'] == 1:
-            report_info = self.generate_feature_report(self.count_dir, stats_across_genomes['across_genomes_feature_counts'], params)
+            report_info = self.generate_feature_report(self.genome_count_dir, stats_across_genomes['across_genomes_feature_counts'], params)
 
             returnVal = {
                 'report_name': report_info['name'],
@@ -177,14 +177,14 @@ class genome_feature_stats:
             return returnVal
 
         #write stats per genome
-        count_file_full_path = os.path.join(self.count_dir, '{}_{}_{}_Feature_Counts.json'.format(
+        count_file_full_path = os.path.join(self.genome_count_dir, '{}_{}_{}_Feature_Counts.json'.format(
                         params['genome_source'], params['genome_domain'], params['refseq_category']))
         with open(count_file_full_path, 'w') as count_file:
             json.dump(genome_stats, count_file)
 
         #write overall stats across genomes
         stats_across_genomes = self._feature_counts_across_genomes(genome_raw_counts)
-        all_count_full_path = os.path.join(self.count_dir, '{}_{}_{}_Overall_Feature_Counts.json'.format(
+        all_count_full_path = os.path.join(self.genome_count_dir, '{}_{}_{}_Overall_Feature_Counts.json'.format(
                         params['genome_source'], params['genome_domain'], params['refseq_category']))
         with open(all_count_full_path, 'w') as all_count_file:
             i = 0
@@ -195,7 +195,7 @@ class genome_feature_stats:
                 i += 1
 
         if params['create_report'] == 1:
-            report_info = self.generate_feature_report(self.count_dir, stats_across_genomes['across_genomes_feature_counts'], params)
+            report_info = self.generate_feature_report(self.genome_count_dir, stats_across_genomes['across_genomes_feature_counts'], params)
             returnVal = {
                 'report_name': report_info['name'],
                 'report_ref': report_info['ref']
@@ -1021,7 +1021,7 @@ class genome_feature_stats:
         return ncbi_genomes
 
 
-    def count_refseq_genomes(self, input_params):
+    def count_ncbi_genomes(self, input_params):
         params = self.validate_parameters(input_params)
 
         ncbi_gns = self._list_ncbi_genomes(params['genome_source'],
@@ -1036,7 +1036,7 @@ class genome_feature_stats:
             return returnVal
 
         if params['create_report'] == 1:
-            report_info = self.generate_genome_report(self.count_dir, ncbi_gns, params)
+            report_info = self.generate_genome_report(self.genome_count_dir, ncbi_gns, params)
 
             returnVal = {
                 'report_name': report_info['name'],
