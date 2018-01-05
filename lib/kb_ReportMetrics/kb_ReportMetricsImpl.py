@@ -31,7 +31,7 @@ This KBase SDK module implements methods for generating reports on various KBase
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_ReportMetrics.git"
-    GIT_COMMIT_HASH = "9de955bc4d567b6eb5856833e7a22de7a0ac979e"
+    GIT_COMMIT_HASH = "45c8cf8ddfeae6e99b53ae5cc4b1db9c057a99c0"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -84,7 +84,7 @@ This KBase SDK module implements methods for generating reports on various KBase
         # return variables are: return_records
         #BEGIN count_ncbi_genomes
         gfs = genome_feature_stats(self.config, ctx.provenance)
-        return_records = gfs.count_refseq_genomes(params)
+        return_records = gfs.count_ncbi_genomes(params)
         #END count_ncbi_genomes
 
         # At some point might do deeper type checking...
@@ -97,7 +97,7 @@ This KBase SDK module implements methods for generating reports on various KBase
     def count_ncbi_genome_features(self, ctx, params):
         """
         :param params: instance of type "FeatureCountParams" -> structure:
-           parameter "genbank_file_urls" of list of String, parameter
+           parameter "genome_file_urls" of list of String, parameter
            "file_format" of String, parameter "genome_source" of String,
            parameter "genome_domain" of String, parameter "refseq_category"
            of String, parameter "workspace_name" of String, parameter
@@ -125,10 +125,10 @@ This KBase SDK module implements methods for generating reports on various KBase
         # return the results
         return [return_records]
 
-    def count_genome_features(self, ctx, params):
+    def count_genome_features_from_files(self, ctx, params):
         """
         :param params: instance of type "FeatureCountParams" -> structure:
-           parameter "genbank_file_urls" of list of String, parameter
+           parameter "genome_file_urls" of list of String, parameter
            "file_format" of String, parameter "genome_source" of String,
            parameter "genome_domain" of String, parameter "refseq_category"
            of String, parameter "workspace_name" of String, parameter
@@ -144,14 +144,14 @@ This KBase SDK module implements methods for generating reports on various KBase
         """
         # ctx is the context object
         # return variables are: return_records
-        #BEGIN count_genome_features
+        #BEGIN count_genome_features_from_files
         gfs = genome_feature_stats(self.config, ctx.provenance)
-        return_records = gfs.count_genome_features(params)
-        #END count_genome_features
+        return_records = gfs.count_genome_features_from_files(params)
+        #END count_genome_features_from_files
 
         # At some point might do deeper type checking...
         if not isinstance(return_records, dict):
-            raise ValueError('Method count_genome_features return value ' +
+            raise ValueError('Method count_genome_features_from_files return value ' +
                              'return_records is not type dict as required.')
         # return the results
         return [return_records]

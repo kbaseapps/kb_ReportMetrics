@@ -79,31 +79,42 @@ class kb_ReportMetricsTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    @unittest.skip("skipped test_run_count_genome_features")
-    def test_run_count_genome_features(self):
+    #@unittest.skip("skipped test_run_count_ncbi_genomes")
+    def test_run_count_ncbi_genomes(self):
         # First set input parameters
-        m_params =     {
+        m_params = {
             'workspace_name': self.getWsName(),
-            'genbank_file_urls': ['ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz','ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/008/725/GCF_000008725.1_ASM872v1/GCF_000008725.1_ASM872v1_genomic.gbff.gz','ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz'],
+            'genome_source': 'refseq',
+            'genome_domain': 'fungi',#'archaea',#'bacteria','plant','fungi'
+            'refseq_category': 'reference', #'reference','representative','na',
             'create_report': 1
         }
         # Second, call your implementation
-        ret = self.getImpl().count_genome_features(self.getContext(), m_params)
-
-        # Validate the returned data
-        #self.assertEqual(ret[0]['n_initial_contigs'], 3)
-        #self.assertEqual(ret[0]['n_contigs_removed'], 1)
-        #self.assertEqual(ret[0]['n_contigs_remaining'], 2)
+        ret = self.getImpl().count_ncbi_genomes(self.getContext(), m_params)
 
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    @unittest.skip("skipped test_run_count_genbank_genome_features")
-    def test_run_count_genbank_genome_features(self):
+    @unittest.skip("skipped test_run_count_genome_features")
+    def test_run_count_genome_features_from_files(self):
         # First set input parameters
         m_params =     {
             'workspace_name': self.getWsName(),
-            'genbank_files': [],
+            'genome_file_urls': ['ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz','ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/008/725/GCF_000008725.1_ASM872v1/GCF_000008725.1_ASM872v1_genomic.gbff.gz','ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz'],
+            'create_report': 1
+        }
+        # Second, call your implementation
+        ret = self.getImpl().count_genome_features_from_files(self.getContext(), m_params)
+
+
+    # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
+    # Uncomment to skip this test
+    @unittest.skip("skipped test_run_count_ncbi_genome_features")
+    def test_run_count_ncbi_genome_features(self):
+        # First set input parameters
+        m_params =     {
+            'workspace_name': self.getWsName(),
+            'genome_files': [],
             'genome_source': 'refseq',
             'genome_domain': 'bacteria',#'archaea',#'bacteria','plant','fungi'
             'refseq_category': 'reference',#'representative','na',
@@ -120,27 +131,11 @@ class kb_ReportMetricsTest(unittest.TestCase):
         # First set input parameters
         m_params =     {
             'workspace_name': self.getWsName(),
-            'genbank_files': ['ftp.ensemblgenomes.org/pub/release-37/plants/genbank/corchorus_capsularis/Corchorus_capsularis.CCACVL1_1.0.37.nonchromosomal.dat.gz'],
+            'genome_files': ['ftp.ensemblgenomes.org/pub/release-37/plants/genbank/corchorus_capsularis/Corchorus_capsularis.CCACVL1_1.0.37.nonchromosomal.dat.gz'],
             'create_report': 0
         }
         # Second, call your implementation
-        ret = self.getImpl().count_genome_features(self.getContext(), m_params)
-
-
-    # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    # Uncomment to skip this test
-    @unittest.skip("skipped test_run_refseq_genome_counts")
-    def test_run_refseq_genome_counts(self):
-        # First set input parameters
-        m_params = {
-            'workspace_name': self.getWsName(),
-            'genome_source': 'refseq',
-            'genome_domain': 'fungi',#'archaea',#'bacteria','plant','fungi'
-            'refseq_category': 'reference', #'reference','representative','na',
-            'create_report': 1
-        }
-        # Second, call your implementation
-        ret = self.getImpl().refseq_genome_counts(self.getContext(), m_params)
+        ret = self.getImpl().count_genome_features_from_files(self.getContext(), m_params)
 
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
@@ -158,7 +153,7 @@ class kb_ReportMetricsTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    #@unittest.skip("skipped test_run_report_metrics")
+    @unittest.skip("skipped test_run_report_metrics")
     def test_run_report_metrics(self):
         m_params = {
             'stats_name': 'exec_stats',#'exec_aggr_table','exec_stats','exec_aggr_stats','user_job_states'

@@ -17,10 +17,6 @@ module kb_ReportMetrics {
     */
                     
     typedef int bool;
-                /* An X/Y/Z style reference
-    */
-    typedef string obj_ref;
-
 
     /*
         A 'typedef' can also be used to define compound or container
@@ -45,7 +41,7 @@ module kb_ReportMetrics {
     } GenomeCountParams;
 
     typedef structure {
-        list <string> genbank_file_urls;
+        list <string> genome_file_urls;
         string file_format;
         string genome_source;
         string genome_domain;
@@ -79,7 +75,7 @@ module kb_ReportMetrics {
     funcdef count_ncbi_genome_features(FeatureCountParams params)
         returns (StatResults return_records) authentication required;
 
-    funcdef count_genome_features(FeatureCountParams params)
+    funcdef count_genome_features_from_files(FeatureCountParams params)
         returns (StatResults return_records) authentication required;
 
 
