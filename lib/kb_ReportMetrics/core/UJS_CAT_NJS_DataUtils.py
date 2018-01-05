@@ -78,7 +78,6 @@ def _unix_time_millis(dt):
 class UJS_CAT_NJS_DataUtils:
 
     def __init__(self, config, provenance):
-	pprint("configuration details:\n" + pformat(config))
         self.workspace_url = config['workspace-url']
         self.job_service_url = config['job-service-url']
         self.njsw_url = config['njsw-url']
