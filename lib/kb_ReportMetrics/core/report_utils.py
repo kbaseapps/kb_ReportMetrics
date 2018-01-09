@@ -19,11 +19,7 @@ import errno
 from Bio import Entrez, SeqIO
 from numpy import median, mean, max
 
-from Workspace.WorkspaceClient import Workspace as Workspace
 from KBaseReport.KBaseReportClient import KBaseReport
-from Catalog.CatalogClient import Catalog
-from NarrativeJobService.NarrativeJobServiceClient import NarrativeJobService
-from UserAndJobState.UserAndJobStateClient import UserAndJobState
 from kb_ReportMetrics.core.UJS_CAT_NJS_DataUtils import UJS_CAT_NJS_DataUtils
 
 def log(message, prefix_newline=False):
@@ -61,28 +57,32 @@ def _timestamp_from_utc(date_utc_str):
 class report_utils:
     PARAM_IN_WS = 'workspace_name'
 
-    def __init__(self, config, provenance):
-        self.config = config
-        self.workspace_url = self.config['workspace-url']
-        self.callback_url = os.environ['SDK_CALLBACK_URL']
-        self.token = os.environ['KB_AUTH_TOKEN']
+    def __init__(self, scratch_dir, workspace_url, callback_url, srv_wiz_url,
+				job_service_url, njsw_url, auth_service_url,
+				kbase_endpoint, provenance):
+        self.scratch_dir = scratch_dir
+        self.callback_url = callback_url
+
+        self.workspace_url = workspace_url
+        self.job_service_url = job_service_url
+        self.njsw_url = njsw_url
+        self.auth_service_url = auth_service_url
+	self.srv_wiz_url = srv_wiz_url
+	self.kbase_endpoint = kbase_endpoint
         self.provenance = provenance
 
-        self.scratch = os.path.join(config['scratch'], str(uuid.uuid4()))
-        _mkdir_p(self.scratch)
-
-        if 'shock-url' in config:
-            self.shock_url = config['shock-url']
-        if 'handle-service-url' in config:
-            self.handle_url = config['handle-service-url']
-
-        self.kbr = KBaseReport(self.callback_url)
-        self.statdu = UJS_CAT_NJS_DataUtils(self.config, self.provenance)
-        self.metrics_dir = os.path.join(self.scratch, str(uuid.uuid4()))
+        _mkdir_p(self.scratch_dir)
+        self.metrics_dir = os.path.join(self.scratch_dir, str(uuid.uuid4()))
         _mkdir_p(self.metrics_dir)
 
+	self.statdu = UJS_CAT_NJS_DataUtils(self.workspace_url,
+				self.job_service_url, self.srv_wiz_url,
+				self.njsw_url, self.auth_service_url,
+				self.kbase_endpoint, self.provenance)
+        self.kbr = KBaseReport(self.callback_url)
 
-    def create_exec_stats_reports(self, params):
+
+    def create_metrics_reports(self, params):
         """
         """
         if params.get(self.PARAM_IN_WS, None) is None:
@@ -105,12 +105,8 @@ class report_utils:
             ret_stats = self.statdu.get_exec_aggrStats_from_cat()
         elif stats_name == 'exec_aggr_table':
             ret_stats = self.statdu.get_exec_aggrTable_from_cat()
-        elif stats_name == 'user_job_states':
-            #ws_ids = self.statdu.get_user_workspaces(['qzhang'], 0, 0)
-            #ws_ids = [str(25735), str(25244)]
-            #ws_owners, ws_ids = self.get_user_workspaces(user_ids, time_start, time_end, 0, 0)
-            #ret_stats = self.statdu.get_user_and_job_states(ws_ids)
-            ret_stats = self.statdu.generate_app_metrics(params, self.token)
+        elif stats_name == 'app_stats':
+            ret_stats = self.statdu.get_app_metrics(params)
         else:
             pass
 
@@ -125,9 +121,9 @@ class report_utils:
         col_caps = ['module_name', 'full_app_id', 'number_of_calls', 'number_of_errors',
                         'type', 'time_range', 'total_exec_time', 'total_queue_time']
         if params['create_report'] == 1:
-            report_info = self.generate_report(self.metrics_dir, ret_stats, params)
-            #report_info = self.generate_report(self.metrics_dir, raw_stats, params)
-            #report_info = self.generate_report(self.metrics_dir, aggr_stats, params, col_caps)
+            report_info = self.generate_exec_report(self.metrics_dir, ret_stats, params)
+            #report_info = self.generate_exec_report(self.metrics_dir, raw_stats, params)
+            #report_info = self.generate_exec_report(self.metrics_dir, aggr_stats, params, col_caps)
 
             returnVal = {
                 'report_name': report_info['name'],
@@ -144,13 +140,17 @@ class report_utils:
         report_info = self.kbr.create_extended_report({
                         'message': report_text,
                         'report_object_name': 'kb_ReportMetrics_report_' + str(uuid.uuid4()),
+                        'file_links': output_json_files,
+                        'direct_html_link_index': 0,
+                        'html_links': output_html_files,
+                        'html_window_height': 366,
                         'workspace_name': params[self.PARAM_IN_WS]
                       })
 
         return report_info
 
 
-    def generate_report(self, metrics_dir, data_info, params, col_caps=None):
+    def generate_exec_report(self, metrics_dir, data_info, params, col_caps=None):
         if col_caps is None:
             output_html_files = self._generate_html_report(metrics_dir, data_info)
         else:

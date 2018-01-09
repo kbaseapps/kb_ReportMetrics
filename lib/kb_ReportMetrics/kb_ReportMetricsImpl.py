@@ -31,7 +31,7 @@ This KBase SDK module implements methods for generating reports on various KBase
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_ReportMetrics.git"
-    GIT_COMMIT_HASH = "45c8cf8ddfeae6e99b53ae5cc4b1db9c057a99c0"
+    GIT_COMMIT_HASH = "931c6e7a90a9cf99c8c480edeb3ea461ea0a2f60"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -45,9 +45,20 @@ This KBase SDK module implements methods for generating reports on various KBase
         # Any configuration parameters that are important should be parsed and
         # saved in the constructor.
         #self.callback_url = os.environ['SDK_CALLBACK_URL']
-        self.ws_url = config['workspace-url']
-        self.shared_folder = config['scratch']
         self.config = config
+        self.scratch_dir = os.path.abspath(config['scratch'])
+        self.workspace_url = config['workspace-url']
+        self.job_service_url = config['job-service-url']
+        self.njsw_url = config['njsw-url']
+        self.auth_service_url = config['auth-service-url']
+	self.srv_wiz_url = config['srv-wiz-url']
+	self.kbase_endpoint = config['kbase-endpoint']
+        self.callback_url = os.environ['SDK_CALLBACK_URL']
+
+        if 'shock-url' in config:
+            self.shock_url = config['shock-url']
+        if 'handle-service-url' in config:
+            self.handle_url = config['handle-service-url']
         #END_CONSTRUCTOR
         pass
 
@@ -72,7 +83,7 @@ This KBase SDK module implements methods for generating reports on various KBase
            of String, parameter "workspace_name" of String, parameter
            "create_report" of type "bool" (A boolean - 0 for false, 1 for
            true. @range (0, 1))
-        :returns: instance of type "StatResults" (Here is the definition of
+        :returns: instance of type "StatsResults" (Here is the definition of
            the output of the function.  The output can be used by other SDK
            modules which call your code, or the output visualizations in the
            Narrative.  'report_name' and 'report_ref' are special output
@@ -103,7 +114,7 @@ This KBase SDK module implements methods for generating reports on various KBase
            of String, parameter "workspace_name" of String, parameter
            "create_report" of type "bool" (A boolean - 0 for false, 1 for
            true. @range (0, 1))
-        :returns: instance of type "StatResults" (Here is the definition of
+        :returns: instance of type "StatsResults" (Here is the definition of
            the output of the function.  The output can be used by other SDK
            modules which call your code, or the output visualizations in the
            Narrative.  'report_name' and 'report_ref' are special output
@@ -134,7 +145,7 @@ This KBase SDK module implements methods for generating reports on various KBase
            of String, parameter "workspace_name" of String, parameter
            "create_report" of type "bool" (A boolean - 0 for false, 1 for
            true. @range (0, 1))
-        :returns: instance of type "StatResults" (Here is the definition of
+        :returns: instance of type "StatsResults" (Here is the definition of
            the output of the function.  The output can be used by other SDK
            modules which call your code, or the output visualizations in the
            Narrative.  'report_name' and 'report_ref' are special output
@@ -156,13 +167,21 @@ This KBase SDK module implements methods for generating reports on various KBase
         # return the results
         return [return_records]
 
-    def report_exec_stats(self, ctx, params):
+    def report_metrics(self, ctx, params):
         """
         :param params: instance of type "StatsReportParams" -> structure:
-           parameter "stats_name" of String, parameter "workspace_name" of
-           String, parameter "create_report" of type "bool" (A boolean - 0
-           for false, 1 for true. @range (0, 1))
-        :returns: instance of type "StatResults" (Here is the definition of
+           parameter "stats_name" of String, parameter "user_ids" of list of
+           type "user_id" (A string for the user id), parameter "start_time"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is the difference in time to UTC in the format +/-HHMM,
+           eg: 2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000
+           (UTC time)), parameter "end_time" of type "timestamp" (A time in
+           the format YYYY-MM-DDThh:mm:ssZ, where Z is the difference in time
+           to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500 (EST
+           time) 2013-04-03T08:56:32+0000 (UTC time)), parameter
+           "workspace_name" of String, parameter "create_report" of type
+           "bool" (A boolean - 0 for false, 1 for true. @range (0, 1))
+        :returns: instance of type "StatsResults" (Here is the definition of
            the output of the function.  The output can be used by other SDK
            modules which call your code, or the output visualizations in the
            Narrative.  'report_name' and 'report_ref' are special output
@@ -172,14 +191,18 @@ This KBase SDK module implements methods for generating reports on various KBase
         """
         # ctx is the context object
         # return variables are: return_records
-        #BEGIN report_exec_stats
-        rps = report_utils(self.config, ctx.provenance)
-        return_records = rps.create_exec_stats_reports(params)
-        #END report_exec_stats
+        #BEGIN report_metrics
+        #rps = report_utils(self.config, ctx.provenance)
+        rps = report_utils(self.scratch_dir, self.workspace_url, self.callback_url,
+				self.srv_wiz_url, self.job_service_url,
+				self.njsw_url, self.auth_service_url,
+				self.kbase_endpoint, ctx.provenance())
+        return_records = rps.create_metrics_reports(params)
+        #END report_metrics
 
         # At some point might do deeper type checking...
         if not isinstance(return_records, dict):
-            raise ValueError('Method report_exec_stats return value ' +
+            raise ValueError('Method report_metrics return value ' +
                              'return_records is not type dict as required.')
         # return the results
         return [return_records]
@@ -187,10 +210,18 @@ This KBase SDK module implements methods for generating reports on various KBase
     def dummy_test0(self, ctx, params):
         """
         :param params: instance of type "StatsReportParams" -> structure:
-           parameter "stats_name" of String, parameter "workspace_name" of
-           String, parameter "create_report" of type "bool" (A boolean - 0
-           for false, 1 for true. @range (0, 1))
-        :returns: instance of type "StatResults" (Here is the definition of
+           parameter "stats_name" of String, parameter "user_ids" of list of
+           type "user_id" (A string for the user id), parameter "start_time"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is the difference in time to UTC in the format +/-HHMM,
+           eg: 2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000
+           (UTC time)), parameter "end_time" of type "timestamp" (A time in
+           the format YYYY-MM-DDThh:mm:ssZ, where Z is the difference in time
+           to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500 (EST
+           time) 2013-04-03T08:56:32+0000 (UTC time)), parameter
+           "workspace_name" of String, parameter "create_report" of type
+           "bool" (A boolean - 0 for false, 1 for true. @range (0, 1))
+        :returns: instance of type "StatsResults" (Here is the definition of
            the output of the function.  The output can be used by other SDK
            modules which call your code, or the output visualizations in the
            Narrative.  'report_name' and 'report_ref' are special output

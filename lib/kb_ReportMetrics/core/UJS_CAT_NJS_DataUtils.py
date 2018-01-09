@@ -23,6 +23,7 @@ from Catalog.CatalogClient import Catalog
 from NarrativeJobService.NarrativeJobServiceClient import NarrativeJobService
 from UserAndJobState.UserAndJobStateClient import UserAndJobState
 from UserProfile.UserProfileClient import UserProfile
+from kb_Metrics.kb_MetricsClient import kb_Metrics
 
 
 def log(message, prefix_newline=False):
@@ -70,34 +71,122 @@ def _convert_to_datetime(dt):
             new_dt = _datetime_from_utc(dt)
     return new_dt
 
-def _unix_time_millis(dt):
+def _unix_time_millis_from_datetime(dt):
     epoch = datetime.datetime.utcfromtimestamp(0)
     return int((dt - epoch).total_seconds()*1000)
 
 
 class UJS_CAT_NJS_DataUtils:
 
-    def __init__(self, config, provenance):
-        self.workspace_url = config['workspace-url']
-        self.job_service_url = config['job-service-url']
-        self.njsw_url = config['njsw-url']
-        self.auth_service_url = config['auth-service-url']
-	self.catalog_url = config['kbase-endpoint']+'/catalog'
-	self.user_profile_url = config['kbase-endpoint']+'/user_profile/rpc'
-
-        self.callback_url = os.environ['SDK_CALLBACK_URL']
-        self.token = os.environ['KB_AUTH_TOKEN']
+    def __init__(self, workspace_url, job_service_url, srv_wiz_url,
+		njsw_url, auth_service_url, kbase_endpoint, provenance):
+        self.workspace_url = workspace_url
+        self.job_service_url = job_service_url
+        self.njsw_url = njsw_url
+        self.auth_service_url = auth_service_url
+	self.srv_wiz_url = srv_wiz_url
+	self.catalog_url = kbase_endpoint + '/catalog'
+	self.user_profile_url = kbase_endpoint + '/user_profile/rpc'
         self.provenance = provenance
 
-        self.scratch = os.path.join(config['scratch'], str(uuid.uuid4()))
-        _mkdir_p(self.scratch)
+        #initialize service clients
+        self.ws_client = Workspace(self.workspace_url)
+        self.cat_client = Catalog(self.catalog_url, auth_svc=self.auth_service_url)
+        self.njs_client = NarrativeJobService(self.njsw_url, auth_svc=self.auth_service_url)
+        self.ujs_client = UserAndJobState(self.job_service_url, auth_svc=self.auth_service_url)
+        self.uprf_client = UserProfile(self.user_profile_url, auth_svc=self.auth_service_url)
+        self.met_client = kb_Metrics(self.srv_wiz_url)
+	#self.met_url = 'https://ci.kbase.us/dynserv/a57e748e729233bd03ae77686925a541f40a7376.kb-Metrics'
+        #self.met_client = kb_Metrics(self.met_url, auth_svc=self.auth_service_url)
 
-        self.metrics_dir = os.path.join(self.scratch, str(uuid.uuid4()))
-        self.init_clients()
-        _mkdir_p(self.metrics_dir)
+
+    def get_app_metrics(self, input_params):
+        """
+        get_app_metrics: call the dynamic service kb_Metrics to retrieve app metrics
+        and return the following data structure, e.g.,
+	[{
+	u'app_id': u'kb_ReportMetrics/count_genome_features_from_files',
+	u'authparam': u'27951',
+	u'authstrat': u'kbaseworkspace',
+	u'client_groups': [u'njs'],
+	u'complete': True,
+	u'created': 1515173864675,
+	u'creation_time': 1515173864675,
+	u'desc': u'Execution engine job for kb_ReportMetrics.count_genome_features_from_files',
+	u'error': False,
+	u'errormsg': None,
+	u'estcompl': None,
+	u'exec_start_time': 1515173873601,
+	u'finish_time': 1515173991461,
+	u'job_id': u'5a4fb7e8e4b0c23d90df55bf',
+	u'job_input': {
+		u'app_id': u'kb_ReportMetrics/count_genome_features_from_files',
+		u'meta': {u'cell_id': u'6620f8a8-e464-491a-973e-d717cde08847',
+			u'run_id': u'705ca618-1432-4a37-b43b-5c4d736fbdfb',
+			u'tag': u'beta',
+			u'token_id': u'3608feea-7b98-4ad9-8430-472bc67e6c74'},
+		u'method': u'kb_ReportMetrics.count_genome_features_from_files',
+		u'params': [{u'create_report': 1,
+			u'genome_file_urls': [u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz',
+				u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/008/725/GCF_000008725.1_ASM872v1/GCF_000008725.1_ASM872v1_genomic.gbff.gz',
+			u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz'],
+			u'workspace_name': u'qzhang:narrative_1515016322184'}],
+		u'requested_release': None,
+		u'service_ver': u'931c6e7a90a9cf99c8c480edeb3ea461ea0a2f60',
+		u'wsid': 27951},
+	u'job_output': {
+		u'id': u'18552903324',
+		u'result': [{u'report_name': u'kb_Metrics_report_26006057-d85a-4317-a1d6-bba0f7bd291a',
+			u'report_ref': u'27951/79/1'}],
+		u'version': u'1.1'},
+	u'job_state': u'completed',
+	u'maxprog': None,
+	u'meta': [{u'k': u'cell_id',
+		u'v': u'6620f8a8-e464-491a-973e-d717cde08847'},
+		{u'k': u'run_id', u'v': u'705ca618-1432-4a37-b43b-5c4d736fbdfb'},
+		{u'k': u'tag', u'v': u'beta'},
+		{u'k': u'token_id',
+		u'v': u'3608feea-7b98-4ad9-8430-472bc67e6c74'}],
+	u'method': u'kb_ReportMetrics.count_genome_features_from_files',
+	u'modification_time': 1515173991461,
+	u'prog': 0,
+	u'progtype': u'none',
+	u'results': {u'shocknodes': None,
+			u'shockurl': None,
+			u'workspaceids': None,
+			u'workspaceurl': None},
+	u'run_time': 117860,
+	u'service': u'qzhang',
+	u'started': 1515173873601,
+	u'status': u'done',
+	u'time_info': [1515173864675, 1515173991461, None],
+	u'updated': 1515173991461,
+	u'user': u'qzhang',
+	u'wsid': u'27951'},
+	...
+	]
+        """
+        #log("Fetching the metrics data")
+        ret_metrics = []
+        params = self.process_met_parameters(input_params)
+        user_ids = params['user_ids']
+        time_start = params['minTime']
+        time_end = params['maxTime']
+        try:
+            ret_metrics = self.met_client.get_app_metrics({
+                'user_ids': user_ids,
+                'epoch_range': (time_start, time_end)
+            })
+        except Exception as e_met: #RuntimeError:
+            log('kb_Metrics.get_app_metrics raised error:')
+            log(pformat(e_met))
+            return []
+	else: #no exception raised, process the data returned from the service call
+		log(pformat(ret_metrics[0]))
+		return ret_metrics
 
 
-    def generate_app_metrics(self, input_params):#, token):
+    def generate_app_metrics_from_ujs(self, input_params):#, token):
         """
         generate_app_metrics: get app job state data with structure as the following example:
         [
@@ -403,21 +492,23 @@ class UJS_CAT_NJS_DataUtils:
              u'user_id': u'srividya22'
         }
         """
-        # Pull the data
-        #log("Fetching the exec stats data from Catalog API...")
-        raw_stats = self.cat_client.get_exec_raw_stats({})
+        try: #log("Fetching the exec stats data from Catalog API...")
+            raw_stats = self.cat_client.get_exec_raw_stats({})
+        except Exception as e_raw: #RuntimeError:
+            log('kb_Metrics.get_exec_stats_from_cat raised error:')
+            log(pformat(e_raw))
+            return []
+	else:
+	    # Calculate queued_time and run_time (in seconds)
+	    for elem in raw_stats:
+		tc = elem['creation_time']
+		ts = elem['exec_start_time']
+		tf = elem['finish_time']
+		elem['queued_time'] = ts - tc
+		elem['run_time'] = tf - ts
 
-        # Calculate queued_time and run_time (in seconds)
-        for elem in raw_stats:
-            tc = elem['creation_time']
-            ts = elem['exec_start_time']
-            tf = elem['finish_time']
-            elem['queued_time'] = ts - tc
-            elem['run_time'] = tf - ts
-
-        log(pformat(raw_stats[0]))
-
-        return raw_stats
+            log(pformat(raw_stats[0]))
+	    return raw_stats
 
 
     def get_client_groups_from_cat(self):
@@ -451,13 +542,15 @@ class UJS_CAT_NJS_DataUtils:
              u'user': u'umaganapathyswork'
         }
         """
-        # Pull the data
-        log("Fetching the exec_aggr table data from Catalog API...")
-        aggr_tab = self.cat_client.get_exec_aggr_table({})
-
-        log(pformat(aggr_tab[0]))
-
-        return aggr_tab
+        try:#log("Fetching the exec_aggr table data from Catalog API...")
+            aggr_tab = self.cat_client.get_exec_aggr_table({})
+        except Exception as e_aggr: #RuntimeError:
+            log('kb_Metrics.get_exec_aggrTable_from_cat raised error:')
+            log(pformat(e_aggr))
+            return []
+	else:
+	    log(pformat(aggr_tab[0]))
+	    return aggr_tab
 
 
     def get_exec_aggrStats_from_cat(self):
@@ -476,19 +569,21 @@ class UJS_CAT_NJS_DataUtils:
         }
         """
         # Pull the data
-        log("Fetching the exec_aggr stats data from Catalog API...")
-        aggr_stats = self.cat_client.get_exec_aggr_stats({})
-
-        # Convert time from seconds to hours
-        for kb_mod in aggr_stats:
-            te = kb_mod['total_exec_time']
-            tq = kb_mod['total_queue_time']
-            kb_mod['total_exec_time'] = te/3600
-            kb_mod['total_queue_time'] = tq/3600
-
-        log(pformat(aggr_stats[0]))
-
-        return aggr_stats
+        try:#log("Fetching the exec_aggr stats data from Catalog API...")
+            aggr_stats = self.cat_client.get_exec_aggr_stats({})
+        except Exception as e_aggr: #RuntimeError:
+            log('kb_Metrics.get_exec_aggrStats_from_cat raised error:')
+            log(pformat(e_aggr))
+            return []
+	else:
+	    # Convert time from seconds to hours
+	    for kb_mod in aggr_stats:
+		te = kb_mod['total_exec_time']
+		tq = kb_mod['total_queue_time']
+		kb_mod['total_exec_time'] = te/3600
+		kb_mod['total_queue_time'] = tq/3600
+	    log(pformat(aggr_stats[0]))
+	    return aggr_stats
 
 
     def get_module_stats_from_cat(self):
@@ -605,15 +700,8 @@ class UJS_CAT_NJS_DataUtils:
                 #log("After {}".format(pformat(u_j_s['time_info'])))
         return ujs_arr
 
-
-    def init_clients(self):
-        self.ws_client = Workspace(self.workspace_url)
-        self.cat_client = Catalog(self.catalog_url, auth_svc=self.auth_service_url)
-        self.njs_client = NarrativeJobService(self.njsw_url, auth_svc=self.auth_service_url)
-        self.ujs_client = UserAndJobState(self.job_service_url, auth_svc=self.auth_service_url)
-        self.uprf_client = UserProfile(self.user_profile_url, auth_svc=self.auth_service_url)
-
     def init_clients_withToken(self, token):
+        token = token if token else os.environ['KB_AUTH_TOKEN']
         self.ws_client = Workspace(self.workspace_url, token=token)
         self.cat_client = Catalog(self.catalog_url, auth_svc=self.auth_service_url, token=token)
         self.njs_client = NarrativeJobService(self.njsw_url, auth_svc=self.auth_service_url, token=token)
@@ -802,4 +890,39 @@ class UJS_CAT_NJS_DataUtils:
                                 })
 
         return filtered_uprof
+
+    def process_met_parameters(self, params):
+        if params.get('user_ids', None) is None:
+            params['user_ids'] = []
+        else:
+            if not isinstance(params['user_ids'], list):
+                raise ValueError('Variable user_ids' + ' must be a list.')
+	if 'kbasetest' in params['user_ids']:
+		params['user_ids'].remove('kbasetest')
+
+        if (not params.get('start_time', None) is None and
+		not params.get('end_time', None) is None):
+	    params['start_time'] = _convert_to_datetime(params['start_time'])
+	    params['end_time'] = _convert_to_datetime(params['end_time'])
+            params['minTime'] = _unix_time_millis_from_datetime(params['start_time'])
+            params['maxTime'] = _unix_time_millis_from_datetime(params['end_time'])
+        elif (not params.get('start_time', None) is None and
+		params.get('end_time', None) is None):
+	    params['start_time'] = _convert_to_datetime(params['start_time'])
+            params['end_time'] = params['start_time'] + datetime.timedelta(hours=48)
+            params['minTime'] = _unix_time_millis_from_datetime(params['start_time'])
+            params['maxTime'] = _unix_time_millis_from_datetime(params['end_time'])
+        elif (params.get('start_time', None) is None and
+		not params.get('end_time', None) is None):
+	    params['end_time'] = _convert_to_datetime(params['end_time'])
+            params['start_time'] = params['end_time'] - datetime.timedelta(hours=48)
+            params['minTime'] = _unix_time_millis_from_datetime(params['start_time'])
+            params['maxTime'] = _unix_time_millis_from_datetime(params['end_time'])
+        else: #set the most recent 48 hours range
+            maxTime = datetime.datetime.utcnow()
+            minTime = maxTime - datetime.timedelta(hours=48)
+            params['minTime'] = _unix_time_millis_from_datetime(minTime)
+            params['maxTime'] = _unix_time_millis_from_datetime(maxTime)
+        return params
+
 

@@ -60,7 +60,7 @@ module kb_ReportMetrics {
     typedef structure {
         string report_name;
         string report_ref;
-    } StatResults;
+    } StatsResults;
     
     /*
         The actual function is declared using 'funcdef' to specify the name
@@ -70,25 +70,40 @@ module kb_ReportMetrics {
     */
 
     funcdef count_ncbi_genomes(GenomeCountParams params)
-        returns (StatResults return_records) authentication required;
+        returns (StatsResults return_records) authentication required;
 
     funcdef count_ncbi_genome_features(FeatureCountParams params)
-        returns (StatResults return_records) authentication required;
+        returns (StatsResults return_records) authentication required;
 
     funcdef count_genome_features_from_files(FeatureCountParams params)
-        returns (StatResults return_records) authentication required;
+        returns (StatsResults return_records) authentication required;
 
+    /*
+        A string for the user id
+    */
+    typedef string user_id;
 
+    /* 
+        A time in the format YYYY-MM-DDThh:mm:ssZ, where Z is the difference
+        in time to UTC in the format +/-HHMM, eg:
+                2012-12-17T23:24:06-0500 (EST time)
+                2013-04-03T08:56:32+0000 (UTC time)
+    */
+    typedef string timestamp;
 
     typedef structure {
         string stats_name;
+        list<user_id> user_ids;
+        timestamp start_time;
+	timestamp end_time;
         string workspace_name;
         bool create_report;
     } StatsReportParams;
 
-    funcdef report_exec_stats(StatsReportParams params)
-        returns (StatResults return_records) authentication required;
+    funcdef report_metrics(StatsReportParams params)
+        returns (StatsResults return_records) authentication required;
 
     funcdef dummy_test0(StatsReportParams params)
-        returns (StatResults return_records) authentication required;
+        returns (StatsResults return_records) authentication required;
+    
 };
