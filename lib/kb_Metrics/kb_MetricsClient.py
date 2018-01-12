@@ -25,7 +25,7 @@ class kb_Metrics(object):
             password=None, token=None, ignore_authrc=False,
             trust_all_ssl_certificates=False,
             auth_svc='https://kbase.us/services/authorization/Sessions/Login',
-            service_ver='release',
+            service_ver='dev',
             async_job_check_time_ms=100, async_job_check_time_scale_percent=150, 
             async_job_check_max_time_ms=300000):
         if url is None:
@@ -80,15 +80,16 @@ class kb_Metrics(object):
 
     def get_exec_apps(self, params, context=None):
         """
-        :param params: instance of type "UserJobStatsParams" -> structure:
-           parameter "user_ids" of list of type "user_id" (A string for the
-           user id), parameter "epoch_range" of type "epoch_range" -> tuple
-           of size 2: parameter "e_lowerbound" of type "epoch" (A Unix epoch
-           (the time since 00:00:00 1/1/1970 UTC) in milliseconds.),
-           parameter "e_upperbound" of type "epoch" (A Unix epoch (the time
-           since 00:00:00 1/1/1970 UTC) in milliseconds.)
-        :returns: instance of type "ExecAppsResult" -> structure: parameter
-           "user_apps" of unspecified object
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
         """
         job_id = self._get_exec_apps_submit(params, context)
         async_job_check_time = self._client.async_job_check_time
@@ -109,15 +110,16 @@ class kb_Metrics(object):
 
     def get_exec_tasks(self, params, context=None):
         """
-        :param params: instance of type "UserJobStatsParams" -> structure:
-           parameter "user_ids" of list of type "user_id" (A string for the
-           user id), parameter "epoch_range" of type "epoch_range" -> tuple
-           of size 2: parameter "e_lowerbound" of type "epoch" (A Unix epoch
-           (the time since 00:00:00 1/1/1970 UTC) in milliseconds.),
-           parameter "e_upperbound" of type "epoch" (A Unix epoch (the time
-           since 00:00:00 1/1/1970 UTC) in milliseconds.)
-        :returns: instance of type "ExecTasksResult" -> structure: parameter
-           "user_tasks" of unspecified object
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
         """
         job_id = self._get_exec_tasks_submit(params, context)
         async_job_check_time = self._client.async_job_check_time
@@ -138,17 +140,138 @@ class kb_Metrics(object):
 
     def get_user_details(self, params, context=None):
         """
-        :param params: instance of type "UserJobStatsParams" -> structure:
-           parameter "user_ids" of list of type "user_id" (A string for the
-           user id), parameter "epoch_range" of type "epoch_range" -> tuple
-           of size 2: parameter "e_lowerbound" of type "epoch" (A Unix epoch
-           (the time since 00:00:00 1/1/1970 UTC) in milliseconds.),
-           parameter "e_upperbound" of type "epoch" (A Unix epoch (the time
-           since 00:00:00 1/1/1970 UTC) in milliseconds.)
-        :returns: instance of type "UserDetailsResult" -> structure:
-           parameter "user_details" of unspecified object
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
         """
         job_id = self._get_user_details_submit(params, context)
+        async_job_check_time = self._client.async_job_check_time
+        while True:
+            time.sleep(async_job_check_time)
+            async_job_check_time = (async_job_check_time *
+                self._client.async_job_check_time_scale_percent / 100.0)
+            if async_job_check_time > self._client.async_job_check_max_time:
+                async_job_check_time = self._client.async_job_check_max_time
+            job_state = self._check_job(job_id)
+            if job_state['finished']:
+                return job_state['result'][0]
+
+    def _get_total_logins_submit(self, params, context=None):
+        return self._client._submit_job(
+             'kb_Metrics.get_total_logins', [params],
+             self._service_ver, context)
+
+    def get_total_logins(self, params, context=None):
+        """
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
+        """
+        job_id = self._get_total_logins_submit(params, context)
+        async_job_check_time = self._client.async_job_check_time
+        while True:
+            time.sleep(async_job_check_time)
+            async_job_check_time = (async_job_check_time *
+                self._client.async_job_check_time_scale_percent / 100.0)
+            if async_job_check_time > self._client.async_job_check_max_time:
+                async_job_check_time = self._client.async_job_check_max_time
+            job_state = self._check_job(job_id)
+            if job_state['finished']:
+                return job_state['result'][0]
+
+    def _get_user_ws_submit(self, params, context=None):
+        return self._client._submit_job(
+             'kb_Metrics.get_user_ws', [params],
+             self._service_ver, context)
+
+    def get_user_ws(self, params, context=None):
+        """
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
+        """
+        job_id = self._get_user_ws_submit(params, context)
+        async_job_check_time = self._client.async_job_check_time
+        while True:
+            time.sleep(async_job_check_time)
+            async_job_check_time = (async_job_check_time *
+                self._client.async_job_check_time_scale_percent / 100.0)
+            if async_job_check_time > self._client.async_job_check_max_time:
+                async_job_check_time = self._client.async_job_check_max_time
+            job_state = self._check_job(job_id)
+            if job_state['finished']:
+                return job_state['result'][0]
+
+    def _get_user_narratives_submit(self, params, context=None):
+        return self._client._submit_job(
+             'kb_Metrics.get_user_narratives', [params],
+             self._service_ver, context)
+
+    def get_user_narratives(self, params, context=None):
+        """
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
+        """
+        job_id = self._get_user_narratives_submit(params, context)
+        async_job_check_time = self._client.async_job_check_time
+        while True:
+            time.sleep(async_job_check_time)
+            async_job_check_time = (async_job_check_time *
+                self._client.async_job_check_time_scale_percent / 100.0)
+            if async_job_check_time > self._client.async_job_check_max_time:
+                async_job_check_time = self._client.async_job_check_max_time
+            job_state = self._check_job(job_id)
+            if job_state['finished']:
+                return job_state['result'][0]
+
+    def _get_user_numObjs_submit(self, params, context=None):
+        return self._client._submit_job(
+             'kb_Metrics.get_user_numObjs', [params],
+             self._service_ver, context)
+
+    def get_user_numObjs(self, params, context=None):
+        """
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
+        """
+        job_id = self._get_user_numObjs_submit(params, context)
         async_job_check_time = self._client.async_job_check_time
         while True:
             time.sleep(async_job_check_time)
@@ -167,16 +290,16 @@ class kb_Metrics(object):
 
     def get_user_metrics(self, params, context=None):
         """
-        funcdef get_user_metrics(UserMetricsParams params)
-        :param params: instance of type "UserJobStatsParams" -> structure:
-           parameter "user_ids" of list of type "user_id" (A string for the
-           user id), parameter "epoch_range" of type "epoch_range" -> tuple
-           of size 2: parameter "e_lowerbound" of type "epoch" (A Unix epoch
-           (the time since 00:00:00 1/1/1970 UTC) in milliseconds.),
-           parameter "e_upperbound" of type "epoch" (A Unix epoch (the time
-           since 00:00:00 1/1/1970 UTC) in milliseconds.)
-        :returns: instance of type "UserDetailsResult" -> structure:
-           parameter "user_details" of unspecified object
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
         """
         job_id = self._get_user_metrics_submit(params, context)
         async_job_check_time = self._client.async_job_check_time
@@ -197,15 +320,16 @@ class kb_Metrics(object):
 
     def get_user_ujs_results(self, params, context=None):
         """
-        :param params: instance of type "UserJobStatsParams" -> structure:
-           parameter "user_ids" of list of type "user_id" (A string for the
-           user id), parameter "epoch_range" of type "epoch_range" -> tuple
-           of size 2: parameter "e_lowerbound" of type "epoch" (A Unix epoch
-           (the time since 00:00:00 1/1/1970 UTC) in milliseconds.),
-           parameter "e_upperbound" of type "epoch" (A Unix epoch (the time
-           since 00:00:00 1/1/1970 UTC) in milliseconds.)
-        :returns: instance of type "UserJobStatesResult" -> structure:
-           parameter "ujs_results" of unspecified object
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
         """
         job_id = self._get_user_ujs_results_submit(params, context)
         async_job_check_time = self._client.async_job_check_time
@@ -226,15 +350,16 @@ class kb_Metrics(object):
 
     def get_user_job_states(self, params, context=None):
         """
-        :param params: instance of type "UserJobStatsParams" -> structure:
-           parameter "user_ids" of list of type "user_id" (A string for the
-           user id), parameter "epoch_range" of type "epoch_range" -> tuple
-           of size 2: parameter "e_lowerbound" of type "epoch" (A Unix epoch
-           (the time since 00:00:00 1/1/1970 UTC) in milliseconds.),
-           parameter "e_upperbound" of type "epoch" (A Unix epoch (the time
-           since 00:00:00 1/1/1970 UTC) in milliseconds.)
-        :returns: instance of type "UserJobStatesResult" -> structure:
-           parameter "ujs_results" of unspecified object
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
         """
         job_id = self._get_user_job_states_submit(params, context)
         async_job_check_time = self._client.async_job_check_time

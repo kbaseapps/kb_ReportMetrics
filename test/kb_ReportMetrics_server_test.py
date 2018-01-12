@@ -18,8 +18,7 @@ from biokbase.workspace.client import Workspace as workspaceService
 from kb_ReportMetrics.kb_ReportMetricsImpl import kb_ReportMetrics
 from kb_ReportMetrics.kb_ReportMetricsServer import MethodContext
 from kb_ReportMetrics.authclient import KBaseAuth as _KBaseAuth
-
-from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
+from kb_Metrics.kb_MetricsClient import kb_Metrics
 
 class kb_ReportMetricsTest(unittest.TestCase):
 
@@ -52,6 +51,15 @@ class kb_ReportMetricsTest(unittest.TestCase):
         cls.serviceImpl = kb_ReportMetrics(cls.cfg)
         cls.scratch = cls.cfg['scratch']
         cls.callback_url = os.environ['SDK_CALLBACK_URL']
+	cls.srv_wiz_url = cls.cfg['srv-wiz-url']
+	"""
+	for testing to kb_Metrics service
+	cls.met_client = kb_Metrics(url='https://ci.kbase.us/dynserv/a57e748e729233bd03ae77686925a541f40a7376.kb-Metrics', service_ver='beta')
+	cls.ret_metrics = cls.met_client.get_app_metrics({
+                 'user_ids': ['qzhang'],
+                 'epoch_range': (1420083768000,1435677602000)
+        })
+	"""
 
     @classmethod
     def tearDownClass(cls):
@@ -140,10 +148,12 @@ class kb_ReportMetricsTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    @unittest.skip("skipped test_run_dummy_test")
+    @unittest.skip("skipped test_run_eummy_test")
     def test_run_dummy_test(self):
         m_params = {
-            'stats_name': 'user_job_states',
+            'stats_name': 'app_stats',#'user_job_states',
+            'user_ids':[],#['qzhang'],#'user_ids': [],
+            'epoch_range':(1420083768000,1435677602000),#(datetime.datetime(2015, 1, 1), datetime.datetime(2015,6,30)
             'workspace_name': self.getWsName(),
             'create_report': 0
         }
@@ -153,7 +163,7 @@ class kb_ReportMetricsTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    #@unittest.skip("skipped test_run_report_metrics")
+    @unittest.skip("skipped test_run_report_metrics")
     def test_run_report_metrics(self):
         m_params = {
             'stats_name': 'app_stats',#'exec_stats','exec_aggr_table','exec_stats','exec_aggr_stats','user_job_states'

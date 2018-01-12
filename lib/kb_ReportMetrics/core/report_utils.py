@@ -59,7 +59,7 @@ class report_utils:
 
     def __init__(self, scratch_dir, workspace_url, callback_url, srv_wiz_url,
 				job_service_url, njsw_url, auth_service_url,
-				kbase_endpoint, provenance):
+				kbase_endpoint, provenance, token):
         self.scratch_dir = scratch_dir
         self.callback_url = callback_url
 
@@ -70,6 +70,7 @@ class report_utils:
 	self.srv_wiz_url = srv_wiz_url
 	self.kbase_endpoint = kbase_endpoint
         self.provenance = provenance
+	self.token = token
 
         _mkdir_p(self.scratch_dir)
         self.metrics_dir = os.path.join(self.scratch_dir, str(uuid.uuid4()))
@@ -78,7 +79,7 @@ class report_utils:
 	self.statdu = UJS_CAT_NJS_DataUtils(self.workspace_url,
 				self.job_service_url, self.srv_wiz_url,
 				self.njsw_url, self.auth_service_url,
-				self.kbase_endpoint, self.provenance)
+				self.kbase_endpoint, self.provenance, self.token)
         self.kbr = KBaseReport(self.callback_url)
 
 

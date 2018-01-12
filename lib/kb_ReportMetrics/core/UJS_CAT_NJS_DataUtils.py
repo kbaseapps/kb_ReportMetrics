@@ -79,7 +79,7 @@ def _unix_time_millis_from_datetime(dt):
 class UJS_CAT_NJS_DataUtils:
 
     def __init__(self, workspace_url, job_service_url, srv_wiz_url,
-		njsw_url, auth_service_url, kbase_endpoint, provenance):
+		njsw_url, auth_service_url, kbase_endpoint, provenance, token):
         self.workspace_url = workspace_url
         self.job_service_url = job_service_url
         self.njsw_url = njsw_url
@@ -95,9 +95,9 @@ class UJS_CAT_NJS_DataUtils:
         self.njs_client = NarrativeJobService(self.njsw_url, auth_svc=self.auth_service_url)
         self.ujs_client = UserAndJobState(self.job_service_url, auth_svc=self.auth_service_url)
         self.uprf_client = UserProfile(self.user_profile_url, auth_svc=self.auth_service_url)
-        self.met_client = kb_Metrics(self.srv_wiz_url)
-	#self.met_url = 'https://ci.kbase.us/dynserv/a57e748e729233bd03ae77686925a541f40a7376.kb-Metrics'
-        #self.met_client = kb_Metrics(self.met_url, auth_svc=self.auth_service_url)
+        #self.met_client = kb_Metrics(self.srv_wiz_url, token=token, auth_svc=self.auth_service_url)
+	self.met_url = 'https://ci.kbase.us/dynserv/a57e748e729233bd03ae77686925a541f40a7376.kb-Metrics'
+        self.met_client = kb_Metrics(url=self.met_url, auth_svc=self.auth_service_url, token=token)
 
 
     def get_app_metrics(self, input_params):
@@ -173,18 +173,17 @@ class UJS_CAT_NJS_DataUtils:
         time_start = params['minTime']
         time_end = params['maxTime']
         try:
-            ret_metrics = self.met_client.get_app_metrics({
-                'user_ids': user_ids,
-                'epoch_range': (time_start, time_end)
-            })
-        except Exception as e_met: #RuntimeError:
+            ret_metrics = self.met_client.get_app_metrics({})
+                #'user_ids': user_ids,
+                #'epoch_range': (time_start, time_end)
+            #})
+        except Exception as e_met: #RuntimeError
             log('kb_Metrics.get_app_metrics raised error:')
-            log(pformat(e_met))
+            log(e_met)
             return []
 	else: #no exception raised, process the data returned from the service call
 		log(pformat(ret_metrics[0]))
 		return ret_metrics
-
 
     def generate_app_metrics_from_ujs(self, input_params):#, token):
         """
