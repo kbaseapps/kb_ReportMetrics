@@ -69,7 +69,5 @@ class kb_ReportMetricsTest(unittest.TestCase):
     #@unittest.skip("skipped test_sscce")
     def test_sscce(self):
 	met_client = kb_Metrics(url='https://ci.kbase.us/dynserv/a57e748e729233bd03ae77686925a541f40a7376.kb-Metrics', token=environ.get('KB_AUTH_TOKEN', None),service_ver='beta')
-	ret_metrics = met_client.get_app_metrics({
-                 'user_ids': ['qzhang'],
-                 'epoch_range': (1420083768000,1435677602000)
-	})
+	ret_metrics = met_client.get_app_metrics({})
+
