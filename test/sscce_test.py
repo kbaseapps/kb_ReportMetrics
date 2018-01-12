@@ -60,14 +60,12 @@ class kb_ReportMetricsTest(unittest.TestCase):
             cls.wsClient.delete_workspace({'workspace': cls.wsName})
             print('Test workspace was deleted')
 
-    def getContext(self):
-        return self.__class__.ctx
-
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
     #for testing to kb_Metrics service
     #@unittest.skip("skipped test_sscce")
     def test_sscce(self):
-	met_client = kb_Metrics(url='https://ci.kbase.us/dynserv/a57e748e729233bd03ae77686925a541f40a7376.kb-Metrics', token=environ.get('KB_AUTH_TOKEN', None),service_ver='beta')
+	met_client = kb_Metrics(url='https://ci.kbase.us/dynserv/a57e748e729233bd03ae77686925a541f40a7376.kb-Metrics', 
+				token=environ.get('KB_AUTH_TOKEN', None),service_ver='beta')
 	ret_metrics = met_client.get_app_metrics({})
 
