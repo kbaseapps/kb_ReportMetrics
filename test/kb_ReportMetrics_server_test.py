@@ -152,18 +152,18 @@ class kb_ReportMetricsTest(unittest.TestCase):
     def test_run_dummy_test(self):
         m_params = {
             'stats_name': 'app_stats',#'user_job_states',
-            'user_ids':[],#['qzhang'],#'user_ids': [],
+            'user_ids':['qzhang'],#'user_ids': [],
             'epoch_range':(1420083768000,1435677602000),#(datetime.datetime(2015, 1, 1), datetime.datetime(2015,6,30)
             'workspace_name': self.getWsName(),
             'create_report': 0
         }
         # Second, call your implementation
         ret = self.getImpl().dummy_test0(self.getContext(), m_params)
-        print(pformat(ret[0]))
+        print(ret[0])
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
-    @unittest.skip("skipped test_run_report_metrics")
+    #@unittest.skip("skipped test_run_report_metrics")
     def test_run_report_metrics(self):
         m_params = {
             'stats_name': 'app_stats',#'exec_stats','exec_aggr_table','exec_stats','exec_aggr_stats','user_job_states'

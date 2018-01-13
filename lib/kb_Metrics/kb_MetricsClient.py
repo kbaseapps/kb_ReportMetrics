@@ -15,7 +15,6 @@ try:
 except:
     # no they aren't
     from baseclient import BaseClient as _BaseClient  # @Reimport
-import time
 
 
 class kb_Metrics(object):
@@ -25,28 +24,16 @@ class kb_Metrics(object):
             password=None, token=None, ignore_authrc=False,
             trust_all_ssl_certificates=False,
             auth_svc='https://kbase.us/services/authorization/Sessions/Login',
-            service_ver='dev',
-            async_job_check_time_ms=100, async_job_check_time_scale_percent=150, 
-            async_job_check_max_time_ms=300000):
+            service_ver='dev'):
         if url is None:
-            raise ValueError('A url is required')
+            url = 'https://kbase.us/services/service_wizard'
         self._service_ver = service_ver
         self._client = _BaseClient(
             url, timeout=timeout, user_id=user_id, password=password,
             token=token, ignore_authrc=ignore_authrc,
             trust_all_ssl_certificates=trust_all_ssl_certificates,
             auth_svc=auth_svc,
-            async_job_check_time_ms=async_job_check_time_ms,
-            async_job_check_time_scale_percent=async_job_check_time_scale_percent,
-            async_job_check_max_time_ms=async_job_check_max_time_ms)
-
-    def _check_job(self, job_id):
-        return self._client._check_job('kb_Metrics', job_id)
-
-    def _get_app_metrics_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_Metrics.get_app_metrics', [params],
-             self._service_ver, context)
+            lookup_url=True)
 
     def get_app_metrics(self, params, context=None):
         """
@@ -61,22 +48,9 @@ class kb_Metrics(object):
         :returns: instance of type "AppMetricsResult" -> structure: parameter
            "job_states" of unspecified object
         """
-        job_id = self._get_app_metrics_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
-
-    def _get_exec_apps_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_Metrics.get_exec_apps', [params],
-             self._service_ver, context)
+        return self._client.call_method(
+            'kb_Metrics.get_app_metrics',
+            [params], self._service_ver, context)
 
     def get_exec_apps(self, params, context=None):
         """
@@ -91,22 +65,9 @@ class kb_Metrics(object):
         :returns: instance of type "MetricsOutput" -> structure: parameter
            "metrics_result" of unspecified object
         """
-        job_id = self._get_exec_apps_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
-
-    def _get_exec_tasks_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_Metrics.get_exec_tasks', [params],
-             self._service_ver, context)
+        return self._client.call_method(
+            'kb_Metrics.get_exec_apps',
+            [params], self._service_ver, context)
 
     def get_exec_tasks(self, params, context=None):
         """
@@ -121,22 +82,9 @@ class kb_Metrics(object):
         :returns: instance of type "MetricsOutput" -> structure: parameter
            "metrics_result" of unspecified object
         """
-        job_id = self._get_exec_tasks_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
-
-    def _get_user_details_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_Metrics.get_user_details', [params],
-             self._service_ver, context)
+        return self._client.call_method(
+            'kb_Metrics.get_exec_tasks',
+            [params], self._service_ver, context)
 
     def get_user_details(self, params, context=None):
         """
@@ -151,22 +99,9 @@ class kb_Metrics(object):
         :returns: instance of type "MetricsOutput" -> structure: parameter
            "metrics_result" of unspecified object
         """
-        job_id = self._get_user_details_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
-
-    def _get_total_logins_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_Metrics.get_total_logins', [params],
-             self._service_ver, context)
+        return self._client.call_method(
+            'kb_Metrics.get_user_details',
+            [params], self._service_ver, context)
 
     def get_total_logins(self, params, context=None):
         """
@@ -181,22 +116,9 @@ class kb_Metrics(object):
         :returns: instance of type "MetricsOutput" -> structure: parameter
            "metrics_result" of unspecified object
         """
-        job_id = self._get_total_logins_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
-
-    def _get_user_ws_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_Metrics.get_user_ws', [params],
-             self._service_ver, context)
+        return self._client.call_method(
+            'kb_Metrics.get_total_logins',
+            [params], self._service_ver, context)
 
     def get_user_ws(self, params, context=None):
         """
@@ -211,22 +133,9 @@ class kb_Metrics(object):
         :returns: instance of type "MetricsOutput" -> structure: parameter
            "metrics_result" of unspecified object
         """
-        job_id = self._get_user_ws_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
-
-    def _get_user_narratives_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_Metrics.get_user_narratives', [params],
-             self._service_ver, context)
+        return self._client.call_method(
+            'kb_Metrics.get_user_ws',
+            [params], self._service_ver, context)
 
     def get_user_narratives(self, params, context=None):
         """
@@ -241,22 +150,9 @@ class kb_Metrics(object):
         :returns: instance of type "MetricsOutput" -> structure: parameter
            "metrics_result" of unspecified object
         """
-        job_id = self._get_user_narratives_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
-
-    def _get_user_numObjs_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_Metrics.get_user_numObjs', [params],
-             self._service_ver, context)
+        return self._client.call_method(
+            'kb_Metrics.get_user_narratives',
+            [params], self._service_ver, context)
 
     def get_user_numObjs(self, params, context=None):
         """
@@ -271,22 +167,9 @@ class kb_Metrics(object):
         :returns: instance of type "MetricsOutput" -> structure: parameter
            "metrics_result" of unspecified object
         """
-        job_id = self._get_user_numObjs_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
-
-    def _get_user_metrics_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_Metrics.get_user_metrics', [params],
-             self._service_ver, context)
+        return self._client.call_method(
+            'kb_Metrics.get_user_numObjs',
+            [params], self._service_ver, context)
 
     def get_user_metrics(self, params, context=None):
         """
@@ -301,22 +184,9 @@ class kb_Metrics(object):
         :returns: instance of type "MetricsOutput" -> structure: parameter
            "metrics_result" of unspecified object
         """
-        job_id = self._get_user_metrics_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
-
-    def _get_user_ujs_results_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_Metrics.get_user_ujs_results', [params],
-             self._service_ver, context)
+        return self._client.call_method(
+            'kb_Metrics.get_user_metrics',
+            [params], self._service_ver, context)
 
     def get_user_ujs_results(self, params, context=None):
         """
@@ -331,22 +201,9 @@ class kb_Metrics(object):
         :returns: instance of type "MetricsOutput" -> structure: parameter
            "metrics_result" of unspecified object
         """
-        job_id = self._get_user_ujs_results_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
-
-    def _get_user_job_states_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_Metrics.get_user_job_states', [params],
-             self._service_ver, context)
+        return self._client.call_method(
+            'kb_Metrics.get_user_ujs_results',
+            [params], self._service_ver, context)
 
     def get_user_job_states(self, params, context=None):
         """
@@ -361,28 +218,10 @@ class kb_Metrics(object):
         :returns: instance of type "MetricsOutput" -> structure: parameter
            "metrics_result" of unspecified object
         """
-        job_id = self._get_user_job_states_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
+        return self._client.call_method(
+            'kb_Metrics.get_user_job_states',
+            [params], self._service_ver, context)
 
     def status(self, context=None):
-        job_id = self._client._submit_job('kb_Metrics.status', 
-            [], self._service_ver, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
+        return self._client.call_method('kb_Metrics.status',
+                                        [], self._service_ver, context)

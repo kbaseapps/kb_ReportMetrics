@@ -196,7 +196,7 @@ This KBase SDK module implements methods for generating reports on various KBase
         rps = report_utils(self.scratch_dir, self.workspace_url, self.callback_url,
 				self.srv_wiz_url, self.job_service_url,
 				self.njsw_url, self.auth_service_url,
-				self.kbase_endpoint, ctx.provenance())
+				self.kbase_endpoint, ctx.provenance(), ctx['token'])
         return_records = rps.create_metrics_reports(params)
         #END report_metrics
 
@@ -232,13 +232,19 @@ This KBase SDK module implements methods for generating reports on various KBase
         # ctx is the context object
         # return variables are: return_records
         #BEGIN dummy_test0
+	'''
 	statdu = UJS_CAT_NJS_DataUtils(self.workspace_url,
 				self.job_service_url, self.srv_wiz_url,
 				self.njsw_url, self.auth_service_url,
 				self.kbase_endpoint, ctx.provenance(), ctx['token'])
         return_records = statdu.get_app_metrics(params)
+	'''
         #rps = report_utils(self.config, ctx.provenance(), ctx['token'])
-        #return_records = rps.create_stats_report(params)
+        rps = report_utils(self.scratch_dir, self.workspace_url, self.callback_url,
+				self.srv_wiz_url, self.job_service_url,
+				self.njsw_url, self.auth_service_url,
+				self.kbase_endpoint, ctx.provenance(), ctx['token'])
+        return_records = rps.create_metrics_reports(params)
         #END dummy_test0
 
         # At some point might do deeper type checking...
