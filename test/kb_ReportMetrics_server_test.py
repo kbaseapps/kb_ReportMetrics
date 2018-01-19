@@ -166,12 +166,12 @@ class kb_ReportMetricsTest(unittest.TestCase):
     #@unittest.skip("skipped test_run_report_metrics")
     def test_run_report_metrics(self):
         m_params = {
-            'stats_name': 'app_stats',#'exec_stats','exec_aggr_table','exec_stats','exec_aggr_stats','user_job_states'
+            'stats_name': 'user_ws',#user_details','app_stats''exec_stats','exec_aggr_table','exec_stats','exec_aggr_stats','user_job_states'
             'user_ids':[],#['qzhang'],#'user_ids': [],
             'epoch_range':(1420083768000,1435677602000),#(datetime.datetime(2015, 1, 1), datetime.datetime(2015,6,30)
             #'epoch_range':(1420083768000,1451606549000)#(datetime.datetime(2015, 1, 1), datetime.datetime(2016,1,1)
             'workspace_name': self.getWsName(),
-            'create_report': 0
+            'create_report':1 
         }
         # Second, call your implementation
         ret = self.getImpl().report_metrics(self.getContext(), m_params)

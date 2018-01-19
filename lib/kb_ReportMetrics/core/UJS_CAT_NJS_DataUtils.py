@@ -106,7 +106,7 @@ class UJS_CAT_NJS_DataUtils:
         and return the following data structure, e.g.,
 	[{
 	...
-	]
+	}]
         """
         #log("Fetching the metrics data")
         ret_metrics = []
@@ -114,13 +114,38 @@ class UJS_CAT_NJS_DataUtils:
         user_ids = params['user_ids']
         time_start = params['minTime']
         time_end = params['maxTime']
+
+	stats_name = params['stats_name']
         try:
-            ret_metrics = self.met_client.get_user_ws({
-                'user_ids': user_ids,
-                'epoch_range': (time_start, time_end)
-            })
+	    if stats_name == 'user_details':
+		ret_metrics = self.met_client.get_user_details({
+		'user_ids': user_ids,
+		'epoch_range': (time_start, time_end)
+		})
+	    elif stats_name == 'user_ws':
+		ret_metrics = self.met_client.get_user_ws({
+		'user_ids': user_ids,
+		'epoch_range': (time_start, time_end)
+		})
+	    elif stats_name == 'user_narratives':
+		ret_metrics = self.met_client.get_user_narratives({
+		'user_ids': user_ids,
+		'epoch_range': (time_start, time_end)
+		})
+	    elif stats_name == 'user_numObjs': 
+		ret_metrics = self.met_client.get_user_numObjs({
+		'user_ids': user_ids,
+		'epoch_range': (time_start, time_end)
+		})
+	    elif stats_name == 'total_logins':
+		ret_metrics = self.met_client.get_total_logins({
+		'user_ids': user_ids,
+		'epoch_range': (time_start, time_end)
+		})
+	    else:
+		pass
         except Exception as e_met: #RuntimeError
-            log('kb_Metrics.get_app_metrics raised error:')
+            log('kb_Metrics.get_user_metrics raised error:')
             log(e_met)
             return []
 	else: #no exception raised, process the data returned from the service call

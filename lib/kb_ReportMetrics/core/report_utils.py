@@ -108,11 +108,9 @@ class report_utils:
             ret_stats = self.statdu.get_exec_aggrTable_from_cat()
         elif stats_name == 'app_stats':
             ret_stats = self.statdu.get_app_metrics(params)
-        elif (stats_name == 'user_ws' or 
-		stats_name == 'user_narrativess' or
-		stats_name == 'user_numObjs'):
-            ret_stats = self.statdu.get_user_metrics(params, stats_name)
-	    self._write_stats_files(ret_stats, stats_name)
+        elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
+            ret_stats = self.statdu.get_user_metrics(params)
+	    self._write_stats_files(ret_stats['metrics_result'], stats_name)
         else:
             pass
 
@@ -129,10 +127,10 @@ class report_utils:
         if params['create_report'] == 1:
 	    if stats_name == 'app_stats':
 		report_info = self.generate_app_report(self.metrics_dir, ret_stats, params)
+            elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
+		report_info = self.generate_user_report(self.metrics_dir, ret_stats, params)
 	    else:
 		report_info = self.generate_exec_report(self.metrics_dir, ret_stats, params)
-		#report_info = self.generate_exec_report(self.metrics_dir, raw_stats, params)
-		#report_info = self.generate_exec_report(self.metrics_dir, aggr_stats, params, col_caps)
 
             returnVal = {
                 'report_name': report_info['name'],
@@ -141,20 +139,41 @@ class report_utils:
 
         return returnVal
 
-
     def _write_stats_files(self, stats_data, stats_name):
 	json_full_path = os.path.join(self.metrics_dir, '{}_metrics.json'.format(stats_name))
 	tsv_full_path = os.path.join(self.metrics_dir, '{}_metrics.csv'.format(stats_name))
 	with open(json_full_path, 'w') as metrics_json:
 	    json.dump(stats_data, metrics_json)
  
-	stats_data = dict((k, v.encode('utf-8') if isinstance(v, unicode) else v) for k, v in stats_data.iteritems())
-	enc_data = stats_data['job_states']
+	enc_data = stats_data#dict((k, v.encode('utf-8') if isinstance(v, unicode) else v) for k, v in stats_data.iteritems())
 	with open(tsv_full_path, 'wb') as metrics_tsv:
 	    dw = csv.DictWriter(metrics_tsv, fieldnames=sorted(enc_data[0].keys()), delimiter='\t')
 	    dw.writeheader()
 	    dw.writerows(enc_data)
 
+    def generate_user_report(self, metrics_dir, data_info, params, col_caps=None):
+        if col_caps is None:
+            pass#output_html_files = self._generate_html_report(metrics_dir, data_info)
+        else:
+            pass#output_html_files = self._generate_html_report(metrics_dir, data_info, col_caps)
+
+        output_files = self._generate_output_file_list(metrics_dir)
+
+        # create report
+        report_text = 'Summary of {} metrics for {}:\n\n'.format(params['stats_name'],
+			','.join(params['user_ids']) if len(params['user_ids'])>0 else 'all_users')
+
+        report_info = self.kbr.create_extended_report({
+                        'message': report_text,
+                        'report_object_name': 'kb_ReportMetrics_report_' + str(uuid.uuid4()),
+                        'file_links': output_files,
+                        #'direct_html_link_index': 0,
+                        #'html_links': output_html_files,
+                        'html_window_height': 366,
+                        'workspace_name': params[self.PARAM_IN_WS]
+                      })
+
+        return report_info
 
     def generate_app_report(self, metrics_dir, data_info, params, col_caps=None):
         if col_caps is None:
