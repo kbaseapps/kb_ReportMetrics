@@ -94,7 +94,7 @@
             "id": "start_time",
             "optional": true,
             "advanced": false,
-            "allow_multiple": true,
+            "allow_multiple": false,
             "default_values": null,
             "field_type": "text"
         },
@@ -102,7 +102,7 @@
             "id": "end_time",
             "optional": true,
             "advanced": false,
-            "allow_multiple": true,
+            "allow_multiple": false,
             "default_values": null,
             "field_type": "text"
         }
