@@ -20,10 +20,46 @@
             "dropdown_options":{
                 "options": [
                 {
+                  "display": "UD (user_details)",
+                  "value": "user_details",
+                  "id": "UD",
+                  "ui_name": "UD (user_details)"
+                },
+                {
+                  "display": "UW (user_ws)",
+                  "value": "user_ws",
+                  "id": "UW",
+                  "ui_name": "UW (user_ws)"
+                },
+                {
+                  "display": "UN (user_narratives)",
+                  "value": "user_narratives",
+                  "id": "UN",
+                  "ui_name": "UN (user_narratives)"
+                },
+                {
+                  "display": "UO (user_numObjs)",
+                  "value": "user_numObjs",
+                  "id": "UO",
+                  "ui_name": "UO (user_numObjs)"
+                },
+                {
+                  "display": "TL (total_logins)",
+                  "value": "total_logins",
+                  "id": "TL",
+                  "ui_name": "TL (total_logins)"
+                },
+                {
                   "display": "AM (app_metrics)",
                   "value": "app_stats",
                   "id": "AM",
                   "ui_name": "AM (app_metrics)"
+                },
+                {
+                  "value": "exec_stats",
+                  "display": "ES (exec_stats)",
+                  "id": "ES",
+                  "ui_name": "ES (exec_stats)"
                 },
                 {
                   "display": "AS (aggr_stats)",
