@@ -1,0 +1,54 @@
+#
+# define display information
+#
+name: Report Metrics
+tooltip: |
+      Generete report metrics
+screenshots: []
+
+icon: null
+
+#
+# define a set of similar methods that might be useful to the user
+#
+suggestions:
+    apps:
+        related:
+            []
+        next:
+            []
+    methods:
+        related:
+            []
+        next:
+            []
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    stats_name :
+        ui-name : |
+            Metric Name
+        short-hint : |
+            The name of the metrics to generate report for
+
+    user_ids :
+        ui-name : |
+            user_ids
+        short-hint : |
+            KBaser user_ids
+
+    start_time :
+        ui-name : |
+            start_time
+        short-hint : |
+            Starting time
+
+    end_time :
+        ui-name : |
+            end_time
+        short-hint : |
+            Ending time
+description : |
+    <p>This method provids the metric report.</p>
