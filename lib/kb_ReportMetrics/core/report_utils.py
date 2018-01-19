@@ -1,6 +1,6 @@
 import time
 import datetime
-import json
+import csv, json
 import os
 import re
 import copy
@@ -60,7 +60,7 @@ class report_utils:
     def __init__(self, scratch_dir, workspace_url, callback_url, srv_wiz_url,
 				job_service_url, njsw_url, auth_service_url,
 				kbase_endpoint, provenance, token):
-        self.scratch_dir = scratch_dir
+        self.scratch = scratch_dir
         self.callback_url = callback_url
 
         self.workspace_url = workspace_url
@@ -72,8 +72,8 @@ class report_utils:
         self.provenance = provenance
 	self.token = token
 
-        _mkdir_p(self.scratch_dir)
-        self.metrics_dir = os.path.join(self.scratch_dir, str(uuid.uuid4()))
+        _mkdir_p(self.scratch)
+        self.metrics_dir = os.path.join(self.scratch, str(uuid.uuid4()))
         _mkdir_p(self.metrics_dir)
 
 	self.statdu = UJS_CAT_NJS_DataUtils(self.workspace_url,
@@ -108,6 +108,7 @@ class report_utils:
             ret_stats = self.statdu.get_exec_aggrTable_from_cat()
         elif stats_name == 'app_stats':
             ret_stats = self.statdu.get_app_metrics(params)
+	    self._write_stats_files(ret_stats, stats_name)
         else:
             pass
 
@@ -122,9 +123,12 @@ class report_utils:
         col_caps = ['module_name', 'full_app_id', 'number_of_calls', 'number_of_errors',
                         'type', 'time_range', 'total_exec_time', 'total_queue_time']
         if params['create_report'] == 1:
-            report_info = self.generate_exec_report(self.metrics_dir, ret_stats, params)
-            #report_info = self.generate_exec_report(self.metrics_dir, raw_stats, params)
-            #report_info = self.generate_exec_report(self.metrics_dir, aggr_stats, params, col_caps)
+	    if stats_name == 'app_stats':
+		report_info = self.generate_app_report(self.metrics_dir, ret_stats, params)
+	    else:
+		report_info = self.generate_exec_report(self.metrics_dir, ret_stats, params)
+		#report_info = self.generate_exec_report(self.metrics_dir, raw_stats, params)
+		#report_info = self.generate_exec_report(self.metrics_dir, aggr_stats, params, col_caps)
 
             returnVal = {
                 'report_name': report_info['name'],
@@ -134,16 +138,37 @@ class report_utils:
         return returnVal
 
 
-    def generate_app_report(self, metrics_dir, data_info, params):
+    def _write_stats_files(self, stats_data, stats_name):
+	json_full_path = os.path.join(self.metrics_dir, '{}_metrics.json'.format(stats_name))
+	tsv_full_path = os.path.join(self.metrics_dir, '{}_metrics.csv'.format(stats_name))
+	with open(json_full_path, 'w') as metrics_json:
+	    json.dump(stats_data, metrics_json)
+ 
+	stats_data = dict((k, v.encode('utf-8') if isinstance(v, unicode) else v) for k, v in stats_data.iteritems())
+	enc_data = stats_data['job_states']
+	with open(tsv_full_path, 'wb') as metrics_tsv:
+	    dw = csv.DictWriter(metrics_tsv, fieldnames=sorted(enc_data[0].keys()), delimiter='\t')
+	    dw.writeheader()
+	    dw.writerows(enc_data)
+
+
+    def generate_app_report(self, metrics_dir, data_info, params, col_caps=None):
+        if col_caps is None:
+            pass#output_html_files = self._generate_html_report(metrics_dir, data_info)
+        else:
+            pass#output_html_files = self._generate_html_report(metrics_dir, data_info, col_caps)
+
+        output_files = self._generate_output_file_list(metrics_dir)
+
         # create report
-        report_text = 'Summary of app metrics for {}:\n\n'.format(params['ws_ids'])
+        report_text = 'Summary of app metrics for {}:\n\n'.format(','.join(params['user_ids']))
 
         report_info = self.kbr.create_extended_report({
                         'message': report_text,
                         'report_object_name': 'kb_ReportMetrics_report_' + str(uuid.uuid4()),
-                        'file_links': output_json_files,
-                        'direct_html_link_index': 0,
-                        'html_links': output_html_files,
+                        'file_links': output_files,
+                        #'direct_html_link_index': 0,
+                        #'html_links': output_html_files,
                         'html_window_height': 366,
                         'workspace_name': params[self.PARAM_IN_WS]
                       })
