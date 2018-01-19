@@ -122,15 +122,15 @@
                     "target_property": "workspace_name"
                 },
                 {
-                    "constant_value": [],
+                    "input_parameter": "user_ids",
                     "target_property": "user_ids"
                 },
                 {
-                    "constant_value": null,
+                    "input_parameter": "start_time",
                     "target_property": "start_time"
                 },
                 {
-                    "constant_value": null,
+                    "input_parameter": "end_time",
                     "target_property": "end_time"
                 },
                 {
