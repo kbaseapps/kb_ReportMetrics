@@ -108,6 +108,10 @@ class report_utils:
             ret_stats = self.statdu.get_exec_aggrTable_from_cat()
         elif stats_name == 'app_stats':
             ret_stats = self.statdu.get_app_metrics(params)
+        elif (stats_name == 'user_ws' or 
+		stats_name == 'user_narrativess' or
+		stats_name == 'user_numObjs'):
+            ret_stats = self.statdu.get_user_metrics(params, stats_name)
 	    self._write_stats_files(ret_stats, stats_name)
         else:
             pass
@@ -161,7 +165,8 @@ class report_utils:
         output_files = self._generate_output_file_list(metrics_dir)
 
         # create report
-        report_text = 'Summary of app metrics for {}:\n\n'.format(','.join(params['user_ids']))
+        report_text = 'Summary of app metrics for {}:\n\n'.format(
+			','.join(params['user_ids']) if len(params['user_ids'])>0 else 'all_users')
 
         report_info = self.kbr.create_extended_report({
                         'message': report_text,

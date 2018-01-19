@@ -100,6 +100,35 @@ class UJS_CAT_NJS_DataUtils:
         #self.met_client = kb_Metrics(url=self.met_url, auth_svc=self.auth_service_url, token=token)
 
 
+    def get_user_metrics(self, input_params):
+        """
+        get_user_metrics: call the dynamic service kb_Metrics to retrieve app metrics
+        and return the following data structure, e.g.,
+	[{
+	...
+	]
+        """
+        #log("Fetching the metrics data")
+        ret_metrics = []
+        params = self.process_met_parameters(input_params)
+        user_ids = params['user_ids']
+        time_start = params['minTime']
+        time_end = params['maxTime']
+        try:
+            ret_metrics = self.met_client.get_user_ws({
+                'user_ids': user_ids,
+                'epoch_range': (time_start, time_end)
+            })
+        except Exception as e_met: #RuntimeError
+            log('kb_Metrics.get_app_metrics raised error:')
+            log(e_met)
+            return []
+	else: #no exception raised, process the data returned from the service call
+	    if(len(ret_metrics) > 1):
+		log(pformat(ret_metrics[:2]))
+	    return ret_metrics
+
+
     def get_app_metrics(self, input_params):
         """
         get_app_metrics: call the dynamic service kb_Metrics to retrieve app metrics
