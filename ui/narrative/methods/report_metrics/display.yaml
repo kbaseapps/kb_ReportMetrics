@@ -29,7 +29,7 @@ suggestions:
 parameters :
     stats_name :
         ui-name : |
-            Metric Name
+            Metric Name<font color=red>*</font>
         short-hint : |
             The name of the metrics to generate report for
 
@@ -51,4 +51,4 @@ parameters :
         short-hint : |
             Ending time
 description : |
-    <p>This method provids the metric report.</p>
+    <p>This method provids the user/app metric reports according to metric type selections.</p>
