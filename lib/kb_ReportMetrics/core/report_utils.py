@@ -94,11 +94,6 @@ class report_utils:
 
         stats_name = params['stats_name']
 
-        cat_calls = {
-            'exec_stats': 'get_exec_stats_from_cat',
-            'exec_aggr_stats': 'get_exec_aggrStats_from_cat',
-            'exec_aggr_table': 'get_exec_aggrTable_from_cat'
-        }
         ret_stats = []
         if stats_name == 'exec_stats':
             ret_stats = self.statdu.get_exec_stats_from_cat()
@@ -110,7 +105,7 @@ class report_utils:
             ret_stats = self.statdu.get_app_metrics(params)
         elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
             ret_stats = self.statdu.get_user_metrics(params)
-	    self._write_stats_files(ret_stats['metrics_result'], stats_name)
+	    self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
         else:
             pass
 
@@ -139,7 +134,7 @@ class report_utils:
 
         return returnVal
 
-    def _write_stats_files(self, stats_data, stats_name):
+    def _write_stats_json_tsv_files(self, stats_data, stats_name):
 	json_full_path = os.path.join(self.metrics_dir, '{}_metrics.json'.format(stats_name))
 	tsv_full_path = os.path.join(self.metrics_dir, '{}_metrics.csv'.format(stats_name))
 	with open(json_full_path, 'w') as metrics_json:
