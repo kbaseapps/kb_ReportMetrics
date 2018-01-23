@@ -41,18 +41,6 @@ def _mkdir_p(path):
         else:
             raise
 
-def ceildiv(a, b):
-    """
-    celldiv: get the ceiling division of two integers, by reversing the floor division
-    """
-    return -(-a // b)
-
-def _datetime_from_utc(date_utc_str):
-    return datetime.datetime.strptime(date_utc_str,'%Y-%m-%dT%H:%M:%S+0000')
-
-def _timestamp_from_utc(date_utc_str):
-    dt = _datetime_from_utc(date_utc_str)
-    return int(time.mktime(dt.timetuple())*1000) #in microseconds
 
 class report_utils:
     PARAM_IN_WS = 'workspace_name'
@@ -137,6 +125,7 @@ class report_utils:
     def _write_stats_json_tsv_files(self, stats_data, stats_name):
 	json_full_path = os.path.join(self.metrics_dir, '{}_metrics.json'.format(stats_name))
 	tsv_full_path = os.path.join(self.metrics_dir, '{}_metrics.tsv'.format(stats_name))
+
 	with open(json_full_path, 'w') as metrics_json:
 	    json.dump(stats_data, metrics_json)
  

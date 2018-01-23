@@ -100,6 +100,13 @@ class UJS_CAT_NJS_DataUtils:
         #self.met_client = kb_Metrics(url=self.met_url, auth_svc=self.auth_service_url, token=token)
 
 
+    def convert_millis_to_utcdate(self, src_list, dt_list):
+	for dr in src_list:
+	    for dt in dt_list:
+		if (dt in dr and isinstance(dr[dt], int)):
+        	    dr[dt] = datetime.datetime.utcfromtimestamp(dr[dt] / 1000)
+	return src_list
+
     def get_user_metrics(self, input_params):
         """
         get_user_metrics: call the dynamic service kb_Metrics to retrieve app metrics
@@ -122,6 +129,7 @@ class UJS_CAT_NJS_DataUtils:
 		'user_ids': user_ids,
 		'epoch_range': (time_start, time_end)
 		})
+		ret_metrics = self.convert_millis_to_utcdate(ret_metrics, ['create', 'login'])
 	    elif stats_name == 'user_ws':
 		ret_metrics = self.met_client.get_user_ws({
 		'user_ids': user_ids,
