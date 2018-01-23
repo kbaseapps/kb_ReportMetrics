@@ -105,6 +105,7 @@ class UJS_CAT_NJS_DataUtils:
 	    for dt in dt_list:
 		if (dt in dr and isinstance(dr[dt], int)):
         	    dr[dt] = datetime.datetime.utcfromtimestamp(dr[dt] / 1000)
+		    dr[dt] = dr[dt].__str__()
 	return src_list
 
     def get_user_metrics(self, input_params):
@@ -129,7 +130,8 @@ class UJS_CAT_NJS_DataUtils:
 		'user_ids': user_ids,
 		'epoch_range': (time_start, time_end)
 		})
-		ret_metrics = self.convert_millis_to_utcdate(ret_metrics, ['create', 'login'])
+		ret_metrics['metrics_result'] = self.convert_millis_to_utcdate(
+					ret_metrics['metrics_result'], ['create', 'login'])
 	    elif stats_name == 'user_ws':
 		ret_metrics = self.met_client.get_user_ws({
 		'user_ids': user_ids,
