@@ -136,7 +136,7 @@ class report_utils:
 
     def _write_stats_json_tsv_files(self, stats_data, stats_name):
 	json_full_path = os.path.join(self.metrics_dir, '{}_metrics.json'.format(stats_name))
-	tsv_full_path = os.path.join(self.metrics_dir, '{}_metrics.csv'.format(stats_name))
+	tsv_full_path = os.path.join(self.metrics_dir, '{}_metrics.tsv'.format(stats_name))
 	with open(json_full_path, 'w') as metrics_json:
 	    json.dump(stats_data, metrics_json)
  
