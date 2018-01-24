@@ -112,7 +112,12 @@ class report_utils:
 	    if stats_name == 'app_stats':
 		report_info = self.generate_app_report(self.metrics_dir, ret_stats, params)
             elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
-		report_info = self.generate_user_report(self.metrics_dir, ret_stats['metrics_result'], params)
+		if stats_name == 'user_details':
+		    col_caps = ['user', 'email', 'display', 'create', 'login', 'roles']
+		else:
+		    col_caps = None
+		report_info = self.generate_user_report(self.metrics_dir,
+				ret_stats['metrics_result'], params, col_caps)
 	    elif stats_name in ['exec_stats', 'exec_aggr_stats', 'exec_aggr_table']:
 		report_info = self.generate_exec_report(self.metrics_dir, ret_stats, params)
 	    else:
@@ -164,10 +169,10 @@ class report_utils:
 
         """
         #log('start generating html report')
-        html_report = list()
-        html_file_path = self._write_user_html(out_dir, dt_info)
-
         rpt_title = 'User metrics report with charts'
+
+        html_report = list()
+        html_file_path = self._write_user_html(out_dir, dt_info, rpt_title)
 
         #log(html_file_path['html_file'])
         html_report.append({'path': html_file_path['html_path'],
@@ -178,9 +183,9 @@ class report_utils:
 
         return html_report
 
-    def _write_user_html(self, out_dir, input_dt):
-        log('\nInput json with {} data item(s)\n'.format(len(input_dt)))
-        dt = input_dt[0:200]#For the sake of testing, limit the rows for datatable
+    def _write_user_html(self, out_dir, input_dt, rpt_title):
+        #log('\nInput json with {} data item(s)\n'.format(len(input_dt)))
+        #dt = input_dt[0:200]#For the sake of testing, limit the rows for datatable
 	#pprint(dt)
 
         headContent = self._write_headContent()
@@ -189,7 +194,7 @@ class report_utils:
 
         dashboard = self._write_dashboard()
 
-        footContent = self._write_footcontent()
+        footContent = self._write_footcontent(rpt_title)
 
         html_str = headContent + callbackFunc + dashboard + footContent
         log(html_str)
@@ -200,6 +205,7 @@ class report_utils:
                 html_file.write(html_str)
 
         return {'html_file': html_str, 'html_path': html_file_path}
+
 
     def generate_app_report(self, metrics_dir, data_info, params, col_caps=None):
         if col_caps is None:
@@ -428,7 +434,7 @@ class report_utils:
         return callback_func
 
 
-    def _write_charts(self):
+    def _write_user_charts(self):
         cat_picker = ("\nvar categoryPicker = new google.visualization.ControlWrapper({\n"
                 "controlType: 'CategoryFilter',\n"
                 "containerId: 'cat_picker_div',\n"
@@ -491,8 +497,145 @@ class report_utils:
             "          }\n"
             "});\n")
 
-        #return cat_picker + time_slider + line_chart + num_slider2 + pie_chart + tab_chart
         return cat_picker + tab_chart
+
+
+    def _write_charts(self):
+        cat_picker = ("\nvar categoryPicker = new google.visualization.ControlWrapper({\n"
+                "controlType: 'CategoryFilter',\n"
+                "containerId: 'cat_picker_div',\n"
+                "options: {\n"
+                "//filterColumnIndex: 0, // filter by this column\n"
+                "filterColumnLabel: 'user_id',\n"
+                "ui: {\n"
+                "    caption: 'Choose a value',\n"
+                "    sortValues: true,\n"
+                "    allowNone: true,\n"
+                "    allowMultiple: true,\n"
+                "    allowTyping: true\n"
+                "  }\n"
+                "},\n"
+                "// Define an initial state, i.e. a set of metrics to be initially selected.\n"
+                "//state: {'selectedValues': ['KBaseRNASeq', 'MEGAHIT', 'fba_tools']}\n"
+                "state: {'selectedValues': ['qzhang', 'srividya22']}\n"
+            "});\n")
+
+        time_slider = ("\n//Create a range slider, passing some options\n"
+            "var timeRangeSlider = new google.visualization.ControlWrapper({\n"
+                "'controlType': 'NumberRangeFilter',\n"
+                "'containerId': 'number_filter_div',\n"
+                "'options': {\n"
+                "'filterColumnLabel': 'run_time',\n"
+                "'minValue': 0,\n"
+                "'maxValue': 3600\n"
+                "},\n"
+                "'state': {'lowValue': 5, 'highValue': 600}\n"
+                "});\n")
+
+        num_slider1 = ("\n//Create a range slider, passing some options\n"
+            "var numRangeSlider = new google.visualization.ControlWrapper({\n"
+                "'controlType': 'NumberRangeFilter',\n"
+                "'containerId': 'number_filter_div1',\n"
+                "'options': {\n"
+                "'filterColumnLabel': 'run_time',\n"
+                "'minValue': 0,\n"
+                "'maxValue': 3600\n"
+                "},\n"
+                "'state': {'lowValue': 5, 'highValue': 600}\n"
+                "});\n")
+
+        line_chart = ("var lineChart = new google.visualization.ChartWrapper({\n"
+                "'chartType' : 'Line',\n"
+                "'containerId' : 'line_div',\n"
+                "'options': {\n"
+                "'width': 600,\n"
+                "'height': 300,\n"
+                "'hAxis': {\n"
+                "'title': 'app id'\n"
+                "},\n"
+                "'vAxis': {\n"
+                "'title': 'Seconds'\n"
+                "},\n"
+                "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15}\n"
+                "},\n"
+                "'view': {'columns': [6, 9, 10]}\n"
+                "});\n")
+
+        num_slider2 = ("\n//Create a range slider, passing some options\n"
+                "var callsRangeSlider = new google.visualization.ControlWrapper({\n"
+                "'controlType': 'NumberRangeFilter',\n"
+                "'containerId': 'number_filter_div2',\n"
+                "'options': {\n"
+                "'filterColumnLabel': 'queued_time',\n"
+                "'minValue': 1,\n"
+                "'maxValue': 20000\n"
+                "},\n"
+                "'state': {'lowValue': 1000, 'highValue': 10000}\n"
+                "});\n")
+
+        pie_chart = ("\n//Create a pie chart, passing some options\n"
+                "var pieChart = new google.visualization.ChartWrapper({\n"
+                "'chartType': 'PieChart',\n"
+                "'containerId': 'chart_div',\n"
+                "'options': {\n"
+                "'width': 300,\n"
+                "'height': 300,\n"
+                "'pieSliceText': 'value', //'label',\n"
+                "'legend': 'none',\n"
+                "'is3D': true,\n"
+                "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15},\n"
+                "'title': 'Set your chart title, e.g., Number of calls per module'\n"
+                "},\n"
+                "// The pie chart will use the columns 'module_name' and 'number_of_calls'\n"
+                "// out of all the available ones.\n"
+                "'view': {'columns': [6, 9]}\n"
+                "});\n")
+
+        tab_chart = ("\n//create a list of columns for the table chart\n"
+            "var filterColumns = [{\n"
+            "// this column aggregates all of the data into one column for use with the string filter\n"
+            "type: 'string',\n"
+            "calc: function (dt, row) {\n"
+            "for (var i = 0, vals = [], cols = dt.getNumberOfColumns(); i < cols; i++) {\n"
+            "    vals.push(dt.getFormattedValue(row, i));\n"
+            "}\n"
+            "return vals.join('\\n');\n"
+            "}\n"
+            "}];\n"
+            "var tab_columns = [];\n"
+            "for (var j = 0, dcols = data.getNumberOfColumns(); j < dcols; j++) {\n"
+            "    filterColumns.push(j);\n"
+            "    tab_columns.push(j+1);\n"
+            "}\n"
+            "var stringFilter = new google.visualization.ControlWrapper({\n"
+            "    controlType: 'StringFilter',\n"
+            "    containerId: 'string_filter_div',\n"
+            "    options: {\n"
+            "        filterColumnIndex: 0,\n"
+            "        matchType: 'any',\n"
+            "        caseSensitive: false,\n"
+            "        ui: {\n"
+            "            label: 'Search table:'\n"
+            "           }\n"
+            "    },\n"
+            "    view: {\n"
+            "               columns: filterColumns\n"
+            "          }\n"
+            "});\n"
+            "var table = new google.visualization.ChartWrapper({\n"
+            "    chartType: 'Table',\n"
+            "    containerId: 'table_div',\n"
+            "    options: {\n"
+            "        showRowNumber: true,\n"
+            "        page: 'enable',\n"
+            "        pageSize: 20\n"
+            "    },\n"
+            "    view: {\n"
+            "               columns: tab_columns\n"
+            "          }\n"
+            "});\n")
+
+        return cat_picker + time_slider + line_chart + num_slider2 + pie_chart + tab_chart
 
 
     def _write_dashboard(self):
@@ -512,8 +655,7 @@ class report_utils:
 
         return dash_components + dashboard
 
-    def _write_footcontent(self):
-        report_title = "Report_title_here"
+    def _write_footcontent(self, report_title="Report_title_here"):
         footContent = "</script></head>\n<body>\n"
         footContent += "<h4>" + report_title + "</h4>\n"
         footContent += "  <div id='dashboard_div'>\n" \
