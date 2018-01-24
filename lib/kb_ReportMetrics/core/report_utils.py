@@ -94,6 +94,7 @@ class report_utils:
         elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
             ret_stats = self.statdu.get_user_metrics(params)
 	    self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
+	    #pprint(ret_stats['metrics_result'])
         else:
             pass
 
@@ -111,9 +112,11 @@ class report_utils:
 	    if stats_name == 'app_stats':
 		report_info = self.generate_app_report(self.metrics_dir, ret_stats, params)
             elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
-		report_info = self.generate_user_report(self.metrics_dir, ret_stats, params)
-	    else:
+		report_info = self.generate_user_report(self.metrics_dir, ret_stats['metrics_result'], params)
+	    elif stats_name in ['exec_stats', 'exec_aggr_stats', 'exec_aggr_table']:
 		report_info = self.generate_exec_report(self.metrics_dir, ret_stats, params)
+	    else:
+		pass
 
             returnVal = {
                 'report_name': report_info['name'],
@@ -129,18 +132,14 @@ class report_utils:
 	with open(json_full_path, 'w') as metrics_json:
 	    json.dump(stats_data, metrics_json)
  
-	enc_data = stats_data#dict((k, v.encode('utf-8') if isinstance(v, unicode) else v) for k, v in stats_data.iteritems())
+	enc_data = stats_data
 	with open(tsv_full_path, 'wb') as metrics_tsv:
 	    dw = csv.DictWriter(metrics_tsv, fieldnames=sorted(enc_data[0].keys()), delimiter='\t')
 	    dw.writeheader()
 	    dw.writerows(enc_data)
 
-    def generate_user_report(self, metrics_dir, data_info, params, col_caps=None):
-        if col_caps is None:
-            pass#output_html_files = self._generate_html_report(metrics_dir, data_info)
-        else:
-            pass#output_html_files = self._generate_html_report(metrics_dir, data_info, col_caps)
-
+    def generate_user_report(self, metrics_dir, data_info, params):
+	output_html_files = self._generate_user_html_report(metrics_dir, data_info)
         output_files = self._generate_output_file_list(metrics_dir)
 
         # create report
@@ -151,13 +150,56 @@ class report_utils:
                         'message': report_text,
                         'report_object_name': 'kb_ReportMetrics_report_' + str(uuid.uuid4()),
                         'file_links': output_files,
-                        #'direct_html_link_index': 0,
-                        #'html_links': output_html_files,
+                        'direct_html_link_index': 0,
+                        'html_links': output_html_files,
                         'html_window_height': 366,
                         'workspace_name': params[self.PARAM_IN_WS]
                       })
 
         return report_info
+
+    def _generate_user_html_report(self, out_dir, dt_info):
+        """
+        _generate_user_html_report: generate html report given the json data
+
+        """
+        #log('start generating html report')
+        html_report = list()
+        html_file_path = self._write_user_html(out_dir, dt_info)
+
+        rpt_title = 'User metrics report with charts'
+
+        #log(html_file_path['html_file'])
+        html_report.append({'path': html_file_path['html_path'],
+                            'name': rpt_title,
+                            'label': rpt_title,
+                            'description': 'The user metrics report with charts'
+                        })
+
+        return html_report
+
+    def _write_user_html(self, out_dir, input_dt):
+        log('\nInput json with {} data item(s)\n'.format(len(input_dt)))
+        dt = input_dt[0:200]#For the sake of testing, limit the rows for datatable
+	#pprint(dt)
+
+        headContent = self._write_headContent()
+
+        callbackFunc = self._write_callback_function(dt)
+
+        dashboard = self._write_dashboard()
+
+        footContent = self._write_footcontent()
+
+        html_str = headContent + callbackFunc + dashboard + footContent
+        log(html_str)
+
+        html_file_path = os.path.join(out_dir, 'user_report_charts.html')
+
+        with open(html_file_path, 'w') as html_file:
+                html_file.write(html_str)
+
+        return {'html_file': html_str, 'html_path': html_file_path}
 
     def generate_app_report(self, metrics_dir, data_info, params, col_caps=None):
         if col_caps is None:
@@ -336,6 +378,8 @@ class report_utils:
                         col_type = 'string'
                     elif col_type == 'bool':
                         col_type = 'boolean'
+                    elif col_type == 'list':
+                        col_type = 'string'
                     else:
                         col_type = 'number'
                     callback_func += "data.addColumn('" + col_type + "','" + k + "');\n"
@@ -352,6 +396,8 @@ class report_utils:
                 if (d_type == 'str' or d_type == 'unicode'):
                     if dt[c] is None:
                         d_rows.append('"None"')
+                    elif dt[c] == '':
+			d_rows.append('""')
                     else:
                         d_rows.append('"' + dt[c] + '"')
                 elif d_type == 'bool':
@@ -359,9 +405,17 @@ class report_utils:
                         d_rows.append('true')
                     else:
                         d_rows.append('false')
+                elif d_type == 'list':
+                    if (dt[c] == [] or dt[c] is None):
+			d_rows.append('""')
+                    else:
+		        dt[c] = '/'.join(dt[c])
+                        d_rows.append('"' + dt[c] + '"')
                 else:
                     if dt[c] is None:
                         d_rows.append('"None"')
+                    elif dt[c] == '':
+			d_rows.append('""')
                     else:
                         d_rows.append(str(dt[c]))
 
@@ -380,7 +434,7 @@ class report_utils:
                 "containerId: 'cat_picker_div',\n"
                 "options: {\n"
                 "//filterColumnIndex: 0, // filter by this column\n"
-                "filterColumnLabel: 'user_id',\n"
+                "filterColumnLabel: 'user',\n"
                 "ui: {\n"
                 "    caption: 'Choose a value',\n"
                 "    sortValues: true,\n"
@@ -390,80 +444,8 @@ class report_utils:
                 "  }\n"
                 "},\n"
                 "// Define an initial state, i.e. a set of metrics to be initially selected.\n"
-                "//state: {'selectedValues': ['KBaseRNASeq', 'MEGAHIT', 'fba_tools']}\n"
                 "state: {'selectedValues': ['qzhang', 'srividya22']}\n"
             "});\n")
-
-        time_slider = ("\n//Create a range slider, passing some options\n"
-            "var timeRangeSlider = new google.visualization.ControlWrapper({\n"
-                "'controlType': 'NumberRangeFilter',\n"
-                "'containerId': 'number_filter_div',\n"
-                "'options': {\n"
-                "'filterColumnLabel': 'run_time',\n"
-                "'minValue': 0,\n"
-                "'maxValue': 3600\n"
-                "},\n"
-                "'state': {'lowValue': 5, 'highValue': 600}\n"
-                "});\n")
-
-        num_slider1 = ("\n//Create a range slider, passing some options\n"
-            "var numRangeSlider = new google.visualization.ControlWrapper({\n"
-                "'controlType': 'NumberRangeFilter',\n"
-                "'containerId': 'number_filter_div1',\n"
-                "'options': {\n"
-                "'filterColumnLabel': 'run_time',\n"
-                "'minValue': 0,\n"
-                "'maxValue': 3600\n"
-                "},\n"
-                "'state': {'lowValue': 5, 'highValue': 600}\n"
-                "});\n")
-
-        line_chart = ("var lineChart = new google.visualization.ChartWrapper({\n"
-                "'chartType' : 'Line',\n"
-                "'containerId' : 'line_div',\n"
-                "'options': {\n"
-                "'width': 600,\n"
-                "'height': 300,\n"
-                "'hAxis': {\n"
-                "'title': 'app id'\n"
-                "},\n"
-                "'vAxis': {\n"
-                "'title': 'Seconds'\n"
-                "},\n"
-                "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15}\n"
-                "},\n"
-                "'view': {'columns': [6, 9, 10]}\n"
-                "});\n")
-
-        num_slider2 = ("\n//Create a range slider, passing some options\n"
-                "var callsRangeSlider = new google.visualization.ControlWrapper({\n"
-                "'controlType': 'NumberRangeFilter',\n"
-                "'containerId': 'number_filter_div2',\n"
-                "'options': {\n"
-                "'filterColumnLabel': 'queued_time',\n"
-                "'minValue': 1,\n"
-                "'maxValue': 20000\n"
-                "},\n"
-                "'state': {'lowValue': 1000, 'highValue': 10000}\n"
-                "});\n")
-
-        pie_chart = ("\n//Create a pie chart, passing some options\n"
-                "var pieChart = new google.visualization.ChartWrapper({\n"
-                "'chartType': 'PieChart',\n"
-                "'containerId': 'chart_div',\n"
-                "'options': {\n"
-                "'width': 300,\n"
-                "'height': 300,\n"
-                "'pieSliceText': 'value', //'label',\n"
-                "'legend': 'none',\n"
-                "'is3D': true,\n"
-                "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15},\n"
-                "'title': 'Set your chart title, e.g., Number of calls per module'\n"
-                "},\n"
-                "// The pie chart will use the columns 'module_name' and 'number_of_calls'\n"
-                "// out of all the available ones.\n"
-                "'view': {'columns': [6, 9]}\n"
-                "});\n")
 
         tab_chart = ("\n//create a list of columns for the table chart\n"
             "var filterColumns = [{\n"
@@ -509,7 +491,8 @@ class report_utils:
             "          }\n"
             "});\n")
 
-        return cat_picker + time_slider + line_chart + num_slider2 + pie_chart + tab_chart
+        #return cat_picker + time_slider + line_chart + num_slider2 + pie_chart + tab_chart
+        return cat_picker + tab_chart
 
 
     def _write_dashboard(self):
@@ -578,7 +561,7 @@ class report_utils:
 
     def _generate_html_report(self, out_dir, dt_info, col_caps=None):
         """
-        _generate_html_report: generate html report given the json data in feat_counts
+        _generate_html_report: generate html report given the json data
 
         """
         #log('start generating html report')

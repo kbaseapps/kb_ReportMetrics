@@ -166,10 +166,10 @@ class kb_ReportMetricsTest(unittest.TestCase):
     #@unittest.skip("skipped test_run_report_metrics")
     def test_run_report_metrics(self):
         m_params = {
-            'stats_name': 'user_ws',#user_details','app_stats''exec_stats','exec_aggr_table','exec_stats','exec_aggr_stats','user_job_states'
+            'stats_name': 'user_details',#user_ws','app_stats''exec_stats','exec_aggr_table','exec_stats','exec_aggr_stats','user_job_states'
             'user_ids':[],#['qzhang'],#'user_ids': [],
-            'epoch_range':(1420083768000,1435677602000),#(datetime.datetime(2015, 1, 1), datetime.datetime(2015,6,30)
-            #'epoch_range':(1420083768000,1451606549000)#(datetime.datetime(2015, 1, 1), datetime.datetime(2016,1,1)
+            'start_time': '2017-08-27T17:29:37+0000',
+	    'end_time': '2017-12-27T17:29:37+0000',
             'workspace_name': self.getWsName(),
             'create_report':1 
         }
