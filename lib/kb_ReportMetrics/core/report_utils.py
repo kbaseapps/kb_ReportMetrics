@@ -143,8 +143,8 @@ class report_utils:
 	    dw.writeheader()
 	    dw.writerows(enc_data)
 
-    def generate_user_report(self, metrics_dir, data_info, params):
-	output_html_files = self._generate_user_html_report(metrics_dir, data_info)
+    def generate_user_report(self, metrics_dir, data_info, params, col_caps=None):
+	output_html_files = self._generate_user_html_report(metrics_dir, data_info, col_caps)
         output_files = self._generate_output_file_list(metrics_dir)
 
         # create report
@@ -163,16 +163,16 @@ class report_utils:
 
         return report_info
 
-    def _generate_user_html_report(self, out_dir, dt_info):
+    def _generate_user_html_report(self, out_dir, dt_info, col_caps=None):
         """
         _generate_user_html_report: generate html report given the json data
 
         """
         #log('start generating html report')
-        rpt_title = 'User metrics report with charts'
+        rpt_title = 'User details report with charts'
 
         html_report = list()
-        html_file_path = self._write_user_html(out_dir, dt_info, rpt_title)
+        html_file_path = self._write_user_html(out_dir, dt_info, rpt_title, col_caps)
 
         #log(html_file_path['html_file'])
         html_report.append({'path': html_file_path['html_path'],
@@ -183,14 +183,17 @@ class report_utils:
 
         return html_report
 
-    def _write_user_html(self, out_dir, input_dt, rpt_title):
+    def _write_user_html(self, out_dir, input_dt, rpt_title, col_caps=None):
         #log('\nInput json with {} data item(s)\n'.format(len(input_dt)))
         #dt = input_dt[0:200]#For the sake of testing, limit the rows for datatable
 	#pprint(dt)
 
         headContent = self._write_headContent()
 
-        callbackFunc = self._write_callback_function(dt)
+        if col_caps is None:
+            callbackFunc = self._write_callback_function(input_dt)
+        else:
+            callbackFunc = self._write_callback_function(input_dt, col_caps)
 
         dashboard = self._write_dashboard()
 
@@ -637,6 +640,21 @@ class report_utils:
 
         return cat_picker + time_slider + line_chart + num_slider2 + pie_chart + tab_chart
 
+
+    def _write_user_dashboard(self):
+        """
+        _write_dashboard: writes the dashboard layout and bind controls with charts
+        """
+        #the dashboard components (table, charts and filters)
+        dash_components = self._write_user_charts()
+        dashboard = ("\n"
+            "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
+            "dashboard.bind([categoryPicker], [table]);\n"
+            "dashboard.bind([stringFilter], [table]);\n"
+            "dashboard.draw(data);\n"
+        "}\n")
+
+        return dash_components + dashboard
 
     def _write_dashboard(self):
         """
