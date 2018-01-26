@@ -14,12 +14,20 @@ MAINTAINER KBase Developer
 RUN pip install coverage
 
 # update security libraries in the base image
-RUN pip install cffi --upgrade \
-    && pip install pyopenssl --upgrade \
-    && pip install ndg-httpsclient --upgrade \
-    && pip install pyasn1 --upgrade \
-    && pip install requests --upgrade \
-    && pip install 'requests[security]' --upgrade
+#RUN pip install cffi --upgrade \
+#    && pip install pyopenssl --upgrade \
+#    && pip install ndg-httpsclient --upgrade \
+#    && pip install pyasn1 --upgrade \
+#    && pip install requests --upgrade \
+#    && pip install 'requests[security]' --upgrade
+
+# Update certs
+RUN apt-get update
+RUN apt-get install ca-certificates
+# Fix Python SSL warnings for python < 2.7.9 (system python on Trusty is 2.7.6)
+# https://github.com/pypa/pip/issues/4098
+RUN pip install pip==8.1.2
+RUN pip install --disable-pip-version-check requests requests_toolbelt pyopenssl --upgrade
 
 # -----------------------------------------
 
