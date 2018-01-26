@@ -93,8 +93,8 @@ class report_utils:
             ret_stats = self.statdu.get_app_metrics(params)
         elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
             ret_stats = self.statdu.get_user_metrics(params)
-	    self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
-	    #pprint(ret_stats['metrics_result'])
+            self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
+            #pprint(ret_stats['metrics_result'])
         else:
             pass
 
@@ -113,7 +113,7 @@ class report_utils:
 		report_info = self.generate_app_report(self.metrics_dir, ret_stats, params)
             elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
 		if stats_name == 'user_details':
-		    col_caps = ['user', 'email', 'display', 'create', 'login', 'roles']
+		    col_caps = ['user_id', 'email_address', 'full_name', 'account_created', 'most_recent_login', 'roles']
 		else:
 		    col_caps = None
 		report_info = self.generate_user_report(self.metrics_dir,
@@ -443,7 +443,7 @@ class report_utils:
                 "containerId: 'cat_picker_div',\n"
                 "options: {\n"
                 "//filterColumnIndex: 0, // filter by this column\n"
-                "filterColumnLabel: 'user',\n"
+                "filterColumnLabel: 'user_id',\n"
                 "ui: {\n"
                 "    caption: 'Choose a value',\n"
                 "    sortValues: true,\n"

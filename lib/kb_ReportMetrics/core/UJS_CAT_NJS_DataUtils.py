@@ -130,8 +130,8 @@ class UJS_CAT_NJS_DataUtils:
 		'user_ids': user_ids,
 		'epoch_range': (time_start, time_end)
 		})
-		ret_metrics['metrics_result'] = self.convert_millis_to_utcdate(
-					ret_metrics['metrics_result'], ['create', 'login'])
+                ret_metrics['metrics_result'] = self.convert_millis_to_utcdate(
+                            ret_metrics['metrics_result'], ['account_created', 'most_recent_login'])
 	    elif stats_name == 'user_ws':
 		ret_metrics = self.met_client.get_user_ws({
 		'user_ids': user_ids,
