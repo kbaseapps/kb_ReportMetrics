@@ -184,10 +184,6 @@ class report_utils:
         return html_report
 
     def _write_user_html(self, out_dir, input_dt, rpt_title, col_caps=None):
-        #log('\nInput json with {} data item(s)\n'.format(len(input_dt)))
-        #dt = input_dt[0:200]#For the sake of testing, limit the rows for datatable
-	#pprint(dt)
-
         headContent = self._write_headContent()
 
         if col_caps is None:
@@ -444,7 +440,7 @@ class report_utils:
                 "containerId: 'cat_picker_div',\n"
                 "options: {\n"
                 "//filterColumnIndex: 0, // filter by this column\n"
-                "filterColumnLabel: " + col_name + ",\n"
+                "filterColumnLabel: '" + col_name + "',\n"
                 "ui: {\n"
                 "    caption: 'Choose a value',\n"
                 "    sortValues: true,\n"
@@ -466,7 +462,7 @@ class report_utils:
             "    controlType: 'StringFilter',\n"
             "    containerId: 'string_filter_div',\n"
             "    options: {\n"
-            "        filterColumnLabel: " + filter_name + ", //filterColumnIndex: 0,\n"
+            "        filterColumnLabel: '" + filter_field + "', //filterColumnIndex: 0,\n"
             "        matchType: 'any',\n"
             "        caseSensitive: false,\n"
             "        ui: {\n"
