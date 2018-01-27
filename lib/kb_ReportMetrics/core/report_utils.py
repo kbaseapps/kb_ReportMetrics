@@ -137,9 +137,12 @@ class report_utils:
 	with open(json_full_path, 'w') as metrics_json:
 	    json.dump(stats_data, metrics_json)
  
-	enc_data = stats_data
+	enc_data = []
+	for sd in stats_data:
+	    #produce a new dictionary, which replaces the values with the encoded values
+	    enc_data.append(dict((k, v.encode('utf-8') if isinstance(v, unicode) else v) for k, v in sd.iteritems()))
 	with open(tsv_full_path, 'wb') as metrics_tsv:
-	    dw = csv.DictWriter(metrics_tsv, fieldnames=sorted(enc_data[0].keys()), delimiter='\t')
+	    dw = csv.DictWriter(metrics_tsv, fieldnames=enc_data[0].keys(), delimiter='\t')
 	    dw.writeheader()
 	    dw.writerows(enc_data)
 
