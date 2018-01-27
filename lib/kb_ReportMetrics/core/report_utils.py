@@ -24,7 +24,8 @@ from kb_ReportMetrics.core.UJS_CAT_NJS_DataUtils import UJS_CAT_NJS_DataUtils
 
 def log(message, prefix_newline=False):
     """Logging function, provides a hook to suppress or redirect log messages."""
-    print(('\n' if prefix_newline else '') + '{0:.2f}'.format(time.time()) + ': ' + str(message))
+    print(('\n' if prefix_newline else '') + '{0:.2f}'.format(time.time())
+		+ ': ' + message.encode('utf-8'))
 
 
 def _mkdir_p(path):
@@ -199,7 +200,7 @@ class report_utils:
         footContent = self._write_footcontent(rpt_title)
 
         html_str = headContent + callbackFunc + dashboard + footContent
-        #log(html_str)
+        log(html_str)
 
         html_file_path = os.path.join(out_dir, 'user_report_charts.html')
 
