@@ -205,7 +205,7 @@ class report_utils:
         html_file_path = os.path.join(out_dir, 'user_report_charts.html')
 
         with open(html_file_path, 'w') as html_file:
-                html_file.write(html_str)
+                html_file.write(html_str.encode('utf-8'))
 
         return {'html_file': html_str, 'html_path': html_file_path}
 
