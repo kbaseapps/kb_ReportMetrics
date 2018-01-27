@@ -408,6 +408,8 @@ class report_utils:
                     elif dt[c] == '':
 			d_rows.append('""')
                     else:
+			regex = re.compile(r'(#|")')
+			dt[c] = regex.sub('_', dt[c])
                         d_rows.append('"' + dt[c] + '"')
                 elif d_type == 'bool':
                     if dt[c]:
