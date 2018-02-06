@@ -168,8 +168,8 @@ class kb_ReportMetricsTest(unittest.TestCase):
         m_params = {
             'stats_name': 'user_details',#user_ws','app_stats''exec_stats','exec_aggr_table','exec_stats','exec_aggr_stats','user_job_states'
             'user_ids':[],#['qzhang'],#'user_ids': [],
-            'start_time': '2017-08-27T17:29:37+0000',
-	    'end_time': '2017-12-27T17:29:37+0000',
+            'start_time': '2017-7-1T00:00:00+0000',
+	    'end_time': '2018-2-28T17:29:37+0000',
             'workspace_name': self.getWsName(),
             'create_report':1 
         }

@@ -94,8 +94,9 @@ class report_utils:
             ret_stats = self.statdu.get_app_metrics(params)
         elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
             ret_stats = self.statdu.get_user_metrics(params)
-            self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
-            #pprint(ret_stats['metrics_result'])
+	    if len(ret_stats['metrics_result']) > 0:
+		#pprint(ret_stats['metrics_result'])
+		self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
         else:
             pass
 
@@ -104,7 +105,7 @@ class report_utils:
             "report_name": None
         }
 
-        if len(ret_stats) == 0:
+        if len(ret_stats['metrics_result']) == 0:
             return returnVal
 
         col_caps = ['module_name', 'full_app_id', 'number_of_calls', 'number_of_errors',
@@ -114,7 +115,7 @@ class report_utils:
 		report_info = self.generate_app_report(self.metrics_dir, ret_stats, params)
             elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
 		if stats_name == 'user_details':
-		    col_caps = ['user_id', 'email_address', 'full_name', 'account_created', 'most_recent_login', 'roles']
+		    col_caps = ['username', 'email', 'full_name', 'signup_at', 'last_signin_at', 'roles', 'kbase_staff']
 		else:
 		    col_caps = None
 		report_info = self.generate_user_report(self.metrics_dir,
@@ -608,9 +609,9 @@ class report_utils:
         _write_user_dashboard: writes the dashboard layout and bind controls with charts
         """
         #the dashboard components (table, charts and filters)
-        dash_components = (self._write_category_picker('user_id')
-				+ self._write_string_filter('filterColumns', 'stringFilter', 'user_id')
-				+ self._write_table_chart('user_id'))
+        dash_components = (self._write_category_picker('username')
+				+ self._write_string_filter('filterColumns', 'stringFilter', 'username')
+				+ self._write_table_chart('username'))
         dashboard = ("\n"
             "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
             "dashboard.bind([categoryPicker], [table]);\n"

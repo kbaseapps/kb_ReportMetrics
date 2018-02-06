@@ -29,6 +29,8 @@ RUN apt-get install ca-certificates
 RUN pip install pip==8.1.2
 RUN pip install --disable-pip-version-check requests requests_toolbelt pyopenssl --upgrade
 
+#RUN pip easy_install -U pymongo
+RUN pip install pymongo --upgrade
 # -----------------------------------------
 
 COPY ./ /kb/module

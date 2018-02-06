@@ -26,56 +26,6 @@ from UserProfile.UserProfileClient import UserProfile
 from kb_Metrics.kb_MetricsClient import kb_Metrics
 
 
-def log(message, prefix_newline=False):
-    """Logging function, provides a hook to suppress or redirect log messages."""
-    print(('\n' if prefix_newline else '') + '{0:.2f}'.format(time.time()) + ': ' + str(message))
-
-
-def _mkdir_p(path):
-    """
-    _mkdir_p: make directory for given path
-    """
-    if not path:
-        return
-    try:
-        os.makedirs(path)
-    except OSError as exc:
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise
-
-def ceildiv(a, b):
-    """
-    celldiv: get the ceiling division of two integers, by reversing the floor division
-    """
-    return -(-a // b)
-
-def _datetime_from_utc(date_utc_str):
-    try:#for u'2017-08-27T17:29:37+0000'
-        dt = datetime.datetime.strptime(date_utc_str,'%Y-%m-%dT%H:%M:%S+0000')
-    except ValueError as v_er:#for ISO-formatted date & time, e.g., u'2015-02-15T22:31:47.763Z'
-        dt = datetime.datetime.strptime(date_utc_str,'%Y-%m-%dT%H:%M:%S.%fZ')
-    return dt
-
-def _timestamp_from_utc(date_utc_str):
-    dt = _datetime_from_utc(date_utc_str)
-    return int(time.mktime(dt.timetuple())*1000) #in microseconds
-
-def _convert_to_datetime(dt):
-    new_dt = dt
-    if (not isinstance(dt, datetime.date) and not isinstance(dt, datetime.datetime)):
-        if isinstance(dt, int):
-            new_dt = datetime.datetime.utcfromtimestamp(dt / 1000)
-        else:
-            new_dt = _datetime_from_utc(dt)
-    return new_dt
-
-def _unix_time_millis_from_datetime(dt):
-    epoch = datetime.datetime.utcfromtimestamp(0)
-    return int((dt - epoch).total_seconds()*1000)
-
-
 class UJS_CAT_NJS_DataUtils:
 
     def __init__(self, workspace_url, job_service_url, srv_wiz_url,
@@ -100,17 +50,9 @@ class UJS_CAT_NJS_DataUtils:
         #self.met_client = kb_Metrics(url=self.met_url, auth_svc=self.auth_service_url, token=token)
 
 
-    def convert_millis_to_utcdate(self, src_list, dt_list):
-	for dr in src_list:
-	    for dt in dt_list:
-		if (dt in dr and isinstance(dr[dt], int)):
-        	    dr[dt] = datetime.datetime.utcfromtimestamp(dr[dt] / 1000)
-		    dr[dt] = dr[dt].__str__()
-	return src_list
-
     def get_user_metrics(self, input_params):
         """
-        get_user_metrics: call the dynamic service kb_Metrics to retrieve app metrics
+        get_user_metrics: call the dynamic service kb_Metrics to retrieve user metrics
         and return the following data structure, e.g.,
 	[{
 	...
@@ -130,8 +72,8 @@ class UJS_CAT_NJS_DataUtils:
 		'user_ids': user_ids,
 		'epoch_range': (time_start, time_end)
 		})
-                ret_metrics['metrics_result'] = self.convert_millis_to_utcdate(
-                            ret_metrics['metrics_result'], ['account_created', 'most_recent_login'])
+                ret_metrics['metrics_result'] = convert_millis_to_utcdate(
+                            ret_metrics['metrics_result'], ['signup_at', 'last_signin_at'])
 	    elif stats_name == 'user_ws':
 		ret_metrics = self.met_client.get_user_ws({
 		'user_ids': user_ids,
@@ -157,7 +99,7 @@ class UJS_CAT_NJS_DataUtils:
         except Exception as e_met: #RuntimeError
             log('kb_Metrics.get_user_metrics raised error:')
             log(e_met)
-            return []
+            return {'metrics_result': []}
 	else: #no exception raised, process the data returned from the service call
 	    if(len(ret_metrics) > 1):
 		log(pformat(ret_metrics[:2]))
@@ -813,7 +755,7 @@ class UJS_CAT_NJS_DataUtils:
         return params
 
 
-    def generate_user_metrics(self, input_params):#, token):
+    def generate_user_metrics(self, input_params):
         """
         generate_user_metrics: get user data with structure as the following example:
         [
@@ -990,3 +932,62 @@ class UJS_CAT_NJS_DataUtils:
         return params
 
 
+## utility functions
+def log(message, prefix_newline=False):
+    """Logging function, provides a hook to suppress or redirect log messages."""
+    print(('\n' if prefix_newline else '') + '{0:.2f}'.format(time.time()) + ': ' + str(message))
+
+
+def _mkdir_p(path):
+    """
+    _mkdir_p: make directory for given path
+    """
+    if not path:
+        return
+    try:
+        os.makedirs(path)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
+
+def ceildiv(a, b):
+    """
+    celldiv: get the ceiling division of two integers, by reversing the floor division
+    """
+    return -(-a // b)
+
+def _datetime_from_utc(date_utc_str):
+    time_format_one = '%Y-%m-%dT%H:%M:%S+0000'
+    time_format_two = '%Y-%m-%dT%H:%M:%S.%fZ'
+    try:#for u'2017-08-27T17:29:37+0000'
+        dt = datetime.datetime.strptime(date_utc_str, time_format_one)
+    except ValueError as v_er:#for ISO-formatted date & time, e.g., u'2015-02-15T22:31:47.763Z'
+        dt = datetime.datetime.strptime(date_utc_str, time_format_two)
+    return dt
+
+def _timestamp_from_utc(date_utc_str):
+    dt = _datetime_from_utc(date_utc_str)
+    return int(time.mktime(dt.timetuple())*1000) #in miliseconds
+
+def _convert_to_datetime(dt):
+    new_dt = dt
+    if (not isinstance(dt, datetime.date) and not isinstance(dt, datetime.datetime)):
+        if isinstance(dt, int):
+            new_dt = datetime.datetime.utcfromtimestamp(dt / 1000)
+        else:
+            new_dt = _datetime_from_utc(dt)
+    return new_dt
+
+def _unix_time_millis_from_datetime(dt):
+    epoch = datetime.datetime.utcfromtimestamp(0)
+    return int((dt - epoch).total_seconds()*1000)
+
+def convert_millis_to_utcdate(src_list, dt_list):
+    for dr in src_list:
+	for dt in dt_list:
+	    if (dt in dr and isinstance(dr[dt], int)):
+		dr[dt] = datetime.datetime.utcfromtimestamp(dr[dt] / 1000)
+		dr[dt] = dr[dt].__str__()
+    return src_list
