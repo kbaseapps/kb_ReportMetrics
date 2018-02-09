@@ -150,7 +150,7 @@ class report_utils:
 	    dw.writerows(enc_data)
 
     def generate_user_report(self, metrics_dir, data_info, params, col_caps=None):
-	output_html_files = self._generate_user_html_report(metrics_dir, data_info, col_caps)
+	output_html_files = self._generate_user_html_report(metrics_dir, data_info, params, col_caps)
         output_files = self._generate_output_file_list(metrics_dir)
 
         # create report
@@ -169,16 +169,17 @@ class report_utils:
 
         return report_info
 
-    def _generate_user_html_report(self, out_dir, dt_info, col_caps=None):
+    def _generate_user_html_report(self, out_dir, dt_info, params, col_caps=None):
         """
         _generate_user_html_report: generate html report given the json data
 
         """
         #log('start generating html report')
-        rpt_title = 'User details report'
+	stats_name = params['stats_name']
+        rpt_title = 'Metrics report on {}'.format(stats_name)
 
         html_report = list()
-        html_file_path = self._write_user_html(out_dir, dt_info, rpt_title, col_caps)
+        html_file_path = self._write_user_html(out_dir, dt_info, rpt_title, stats_name, col_caps)
 
         #log(html_file_path['html_file'])
         html_report.append({'path': html_file_path['html_path'],
@@ -189,7 +190,7 @@ class report_utils:
 
         return html_report
 
-    def _write_user_html(self, out_dir, input_dt, rpt_title, col_caps=None):
+    def _write_user_html(self, out_dir, input_dt, rpt_title, stats_nm, col_caps=None):
         headContent = self._write_headContent()
 
         if col_caps is None:
@@ -197,7 +198,7 @@ class report_utils:
         else:
             callbackFunc = self._write_callback_function(input_dt, col_caps)
 
-        dashboard = self._write_user_dashboard()
+        dashboard = self._write_user_dashboard(stats_nm)
 
         footContent = self._write_footcontent(rpt_title)
 
@@ -484,7 +485,7 @@ class report_utils:
 
 	return str_filter
 
-    def _write_table_chart(self, col_name):
+    def _write_table_chart(self):
         tab_chart = ("\n//create a list of columns for the table chart\n"
             "var filterColumns = [{\n"
             "// this column aggregates all of the data into one column for use with the string filter\n"
@@ -605,20 +606,28 @@ class report_utils:
         return cat_picker + time_slider + line_chart + num_slider2 + pie_chart + tab_chart
 
 
-    def _write_user_dashboard(self):
+    def _write_user_dashboard(self, stats_nm):
         """
         _write_user_dashboard: writes the dashboard layout and bind controls with charts
         """
         #the dashboard components (table, charts and filters)
-        dash_components = (self._write_category_picker('username')
-				+ self._write_string_filter('filterColumns', 'stringFilter', 'username')
-				+ self._write_table_chart('username'))
-        dashboard = ("\n"
-            "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
-            "dashboard.bind([categoryPicker], [table]);\n"
-            "dashboard.bind([stringFilter], [table]);\n"
-            "dashboard.draw(data);\n"
-        "}\n")
+	if stats_nm == 'user_details':
+	    cat_picker_nm = 'username'
+            dash_components = (self._write_category_picker(cat_picker_nm)
+				+ self._write_string_filter('filterColumns', 'stringFilter', cat_picker_nm)
+				+ self._write_table_chart())
+	    dashboard = ("\n"
+		    "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
+		    "dashboard.bind([categoryPicker], [table]);\n"
+		    "dashboard.bind([stringFilter], [table]);\n"
+		    "dashboard.draw(data);\n"
+		"}\n")
+	else:
+            dash_components = self._write_table_chart()
+	    dashboard = ("\n"
+		    "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
+		    "dashboard.draw(data);\n"
+		"}\n")
 
         return dash_components + dashboard
 
