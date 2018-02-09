@@ -31,7 +31,7 @@ This KBase SDK module implements methods for generating reports on various KBase
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_ReportMetrics.git"
-    GIT_COMMIT_HASH = "931c6e7a90a9cf99c8c480edeb3ea461ea0a2f60"
+    GIT_COMMIT_HASH = "fcff380e7ef00714834e5cbd027f9e5d9639e84b"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block

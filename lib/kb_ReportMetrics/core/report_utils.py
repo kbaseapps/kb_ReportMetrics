@@ -95,7 +95,7 @@ class report_utils:
         elif stats_name in ['user_details', 'user_counts_per_day', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
             ret_stats = self.statdu.get_user_metrics(params)
 	    if len(ret_stats['metrics_result']) > 0:
-		#pprint(ret_stats['metrics_result'])
+		pprint(ret_stats['metrics_result'])
 		self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
         else:
             pass

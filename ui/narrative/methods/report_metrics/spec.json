@@ -20,6 +20,12 @@
             "dropdown_options":{
                 "options": [
                 {
+                  "display": "UC (user_counts_per_day)",
+                  "value": "user_counts_per_day",
+                  "id": "UC",
+                  "ui_name": "UC (user_counts_per_day)"
+                },
+                {
                   "display": "UD (user_details)",
                   "value": "user_details",
                   "id": "UD",
