@@ -164,57 +164,57 @@ public class KbReportMetricsClient {
     }
 
     /**
-     * <p>Original spec-file function name: count_ncbi_genome_features</p>
+     * <p>Original spec-file function name: count_ncbi_genomes</p>
      * <pre>
      * The actual function is declared using 'funcdef' to specify the name
      * and input/return arguments to the function.  For all typical KBase
      * Apps that run in the Narrative, your function should have the 
      * 'authentication required' modifier.
      * </pre>
-     * @param   params   instance of type {@link us.kbase.kbreportmetrics.FeatureCountParams FeatureCountParams}
-     * @return   parameter "return_records" of type {@link us.kbase.kbreportmetrics.StatResults StatResults}
-     * @throws IOException if an IO exception occurs
-     * @throws JsonClientException if a JSON RPC exception occurs
-     */
-    public StatResults countNcbiGenomeFeatures(FeatureCountParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
-        List<Object> args = new ArrayList<Object>();
-        args.add(params);
-        TypeReference<List<StatResults>> retType = new TypeReference<List<StatResults>>() {};
-        List<StatResults> res = caller.jsonrpcCall("kb_ReportMetrics.count_ncbi_genome_features", args, retType, true, true, jsonRpcContext, this.serviceVersion);
-        return res.get(0);
-    }
-
-    /**
-     * <p>Original spec-file function name: count_genome_features</p>
-     * <pre>
-     * </pre>
-     * @param   params   instance of type {@link us.kbase.kbreportmetrics.FeatureCountParams FeatureCountParams}
-     * @return   parameter "return_records" of type {@link us.kbase.kbreportmetrics.StatResults StatResults}
-     * @throws IOException if an IO exception occurs
-     * @throws JsonClientException if a JSON RPC exception occurs
-     */
-    public StatResults countGenomeFeatures(FeatureCountParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
-        List<Object> args = new ArrayList<Object>();
-        args.add(params);
-        TypeReference<List<StatResults>> retType = new TypeReference<List<StatResults>>() {};
-        List<StatResults> res = caller.jsonrpcCall("kb_ReportMetrics.count_genome_features", args, retType, true, true, jsonRpcContext, this.serviceVersion);
-        return res.get(0);
-    }
-
-    /**
-     * <p>Original spec-file function name: refseq_genome_counts</p>
-     * <pre>
-     * </pre>
      * @param   params   instance of type {@link us.kbase.kbreportmetrics.GenomeCountParams GenomeCountParams}
-     * @return   parameter "return_records" of type {@link us.kbase.kbreportmetrics.StatResults StatResults}
+     * @return   parameter "return_records" of type {@link us.kbase.kbreportmetrics.StatsResults StatsResults}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public StatResults refseqGenomeCounts(GenomeCountParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public StatsResults countNcbiGenomes(GenomeCountParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<List<StatResults>> retType = new TypeReference<List<StatResults>>() {};
-        List<StatResults> res = caller.jsonrpcCall("kb_ReportMetrics.refseq_genome_counts", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        TypeReference<List<StatsResults>> retType = new TypeReference<List<StatsResults>>() {};
+        List<StatsResults> res = caller.jsonrpcCall("kb_ReportMetrics.count_ncbi_genomes", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: count_ncbi_genome_features</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbreportmetrics.FeatureCountParams FeatureCountParams}
+     * @return   parameter "return_records" of type {@link us.kbase.kbreportmetrics.StatsResults StatsResults}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public StatsResults countNcbiGenomeFeatures(FeatureCountParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<StatsResults>> retType = new TypeReference<List<StatsResults>>() {};
+        List<StatsResults> res = caller.jsonrpcCall("kb_ReportMetrics.count_ncbi_genome_features", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: count_genome_features_from_files</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbreportmetrics.FeatureCountParams FeatureCountParams}
+     * @return   parameter "return_records" of type {@link us.kbase.kbreportmetrics.StatsResults StatsResults}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public StatsResults countGenomeFeaturesFromFiles(FeatureCountParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<StatsResults>> retType = new TypeReference<List<StatsResults>>() {};
+        List<StatsResults> res = caller.jsonrpcCall("kb_ReportMetrics.count_genome_features_from_files", args, retType, true, true, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -223,15 +223,15 @@ public class KbReportMetricsClient {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.kbreportmetrics.StatsReportParams StatsReportParams}
-     * @return   parameter "return_records" of type {@link us.kbase.kbreportmetrics.StatResults StatResults}
+     * @return   parameter "return_records" of type {@link us.kbase.kbreportmetrics.StatsResults StatsResults}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public StatResults reportMetrics(StatsReportParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public StatsResults reportMetrics(StatsReportParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<List<StatResults>> retType = new TypeReference<List<StatResults>>() {};
-        List<StatResults> res = caller.jsonrpcCall("kb_ReportMetrics.report_metrics", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        TypeReference<List<StatsResults>> retType = new TypeReference<List<StatsResults>>() {};
+        List<StatsResults> res = caller.jsonrpcCall("kb_ReportMetrics.report_metrics", args, retType, true, true, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -240,15 +240,15 @@ public class KbReportMetricsClient {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.kbreportmetrics.StatsReportParams StatsReportParams}
-     * @return   parameter "return_records" of type {@link us.kbase.kbreportmetrics.StatResults StatResults}
+     * @return   parameter "return_records" of type {@link us.kbase.kbreportmetrics.StatsResults StatsResults}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public StatResults dummyTest0(StatsReportParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public StatsResults dummyTest0(StatsReportParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<List<StatResults>> retType = new TypeReference<List<StatResults>>() {};
-        List<StatResults> res = caller.jsonrpcCall("kb_ReportMetrics.dummy_test0", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        TypeReference<List<StatsResults>> retType = new TypeReference<List<StatsResults>>() {};
+        List<StatsResults> res = caller.jsonrpcCall("kb_ReportMetrics.dummy_test0", args, retType, true, true, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 

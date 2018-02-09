@@ -333,18 +333,18 @@ class Application(object):
         self.serverlog.set_log_level(6)
         self.rpc_service = JSONRPCServiceCustom()
         self.method_authentication = dict()
+        self.rpc_service.add(impl_kb_ReportMetrics.count_ncbi_genomes,
+                             name='kb_ReportMetrics.count_ncbi_genomes',
+                             types=[dict])
+        self.method_authentication['kb_ReportMetrics.count_ncbi_genomes'] = 'required'  # noqa
         self.rpc_service.add(impl_kb_ReportMetrics.count_ncbi_genome_features,
                              name='kb_ReportMetrics.count_ncbi_genome_features',
                              types=[dict])
         self.method_authentication['kb_ReportMetrics.count_ncbi_genome_features'] = 'required'  # noqa
-        self.rpc_service.add(impl_kb_ReportMetrics.count_genome_features,
-                             name='kb_ReportMetrics.count_genome_features',
+        self.rpc_service.add(impl_kb_ReportMetrics.count_genome_features_from_files,
+                             name='kb_ReportMetrics.count_genome_features_from_files',
                              types=[dict])
-        self.method_authentication['kb_ReportMetrics.count_genome_features'] = 'required'  # noqa
-        self.rpc_service.add(impl_kb_ReportMetrics.refseq_genome_counts,
-                             name='kb_ReportMetrics.refseq_genome_counts',
-                             types=[dict])
-        self.method_authentication['kb_ReportMetrics.refseq_genome_counts'] = 'required'  # noqa
+        self.method_authentication['kb_ReportMetrics.count_genome_features_from_files'] = 'required'  # noqa
         self.rpc_service.add(impl_kb_ReportMetrics.report_metrics,
                              name='kb_ReportMetrics.report_metrics',
                              types=[dict])
