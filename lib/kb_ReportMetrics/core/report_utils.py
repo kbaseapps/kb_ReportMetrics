@@ -113,7 +113,7 @@ class report_utils:
         if params['create_report'] == 1:
 	    if stats_name == 'app_stats':
 		report_info = self.generate_app_report(self.metrics_dir, ret_stats, params)
-            elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
+            elif stats_name in ['user_details', 'user_counts_per_day', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
 		if stats_name == 'user_details':
 		    col_caps = ['username', 'email', 'full_name', 'signup_at', 'last_signin_at', 'roles', 'kbase_staff']
 		else:
@@ -123,7 +123,8 @@ class report_utils:
 	    elif stats_name in ['exec_stats', 'exec_aggr_stats', 'exec_aggr_table']:
 		report_info = self.generate_exec_report(self.metrics_dir, ret_stats, params)
 	    else:
-		pass
+		report_info['name'] = None
+		report_info['ref'] = None
 
             returnVal = {
                 'report_name': report_info['name'],
