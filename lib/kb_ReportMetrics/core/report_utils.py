@@ -92,7 +92,7 @@ class report_utils:
             ret_stats = self.statdu.get_exec_aggrTable_from_cat()
         elif stats_name == 'app_stats':
             ret_stats = self.statdu.get_app_metrics(params)
-        elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
+        elif stats_name in ['user_details', 'user_counts_per_day', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
             ret_stats = self.statdu.get_user_metrics(params)
 	    if len(ret_stats['metrics_result']) > 0:
 		#pprint(ret_stats['metrics_result'])
