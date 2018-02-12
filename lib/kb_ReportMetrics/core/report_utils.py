@@ -604,7 +604,7 @@ class report_utils:
 	    dashboard = ("\n"
 		    "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
 		    "dashboard.bind([categoryPicker], [table]);\n"
-		    "dashboard.bind([" + filter_nm + "], [table]);\n"
+		    "dashboard.bind([" + strfilter_nm + "], [table]);\n"
 		    "dashboard.draw(data);\n"
 		"}\n")
 	elif stats_nm == 'user_counts_per_day':
