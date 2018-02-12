@@ -613,7 +613,7 @@ class report_utils:
 	    slider_nm = 'numRangeSlider1'
             dash_components = (self._write_string_filter('filterColumns', strfilter_nm, field_nm)
 				+ self._write_NumRangeFilter(slider_nm, 'number_filter_div1',
-							'numOfUsers', 1, 3600, 5, 600)
+							'numOfUsers', 1, 100, 1, 50)
 				+ self._write_line_chart('lineChart', 'line_div',
 							660, 500, 'user counts per day', [0,1])
 				+ self._write_table_chart('table_div'))
@@ -643,7 +643,7 @@ class report_utils:
 
         return dash_components + dashboard
 
-    def _write_footcontent(self, stats_nm="", report_title="Report_title_here"):
+    def _write_footcontent(self, report_title="Report_title_here", stats_nm=''):
         footContent = "</script></head>\n<body>\n"
         footContent += "<h4>" + report_title + "</h4>\n"
         footContent += "  <div id='dashboard_div'>\n"
