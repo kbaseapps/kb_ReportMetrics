@@ -475,7 +475,7 @@ class report_utils:
             "        matchType: 'any',\n"
             "        caseSensitive: false,\n"
             "        ui: {\n"
-            "            label: 'Search table:'\n"
+            "            label: 'Search data:'\n"
             "           }\n"
             "    },\n"
             "    view: {\n"
@@ -485,7 +485,8 @@ class report_utils:
 
 	return str_filter
 
-    def _write_table_chart(self):
+
+    def _write_table_chart(self, tab_div):
         tab_chart = ("\n//create a list of columns for the table chart\n"
             "var filterColumns = [{\n"
             "// this column aggregates all of the data into one column for use with the string filter\n"
@@ -504,7 +505,7 @@ class report_utils:
             "}\n"
             "var table = new google.visualization.ChartWrapper({\n"
             "    chartType: 'Table',\n"
-            "    containerId: 'table_div',\n"
+            "    containerId: '" + tab_div + "',\n"
             "    options: {\n"
             "        showRowNumber: true,\n"
             "        page: 'enable',\n"
@@ -517,91 +518,74 @@ class report_utils:
 
 	return tab_chart
 
-    def _write_pie_chart(self):
+    def _write_pie_chart(self, pc_nm, pc_div, w, h, ttl, cols):
         pie_chart = ("\n//Create a pie chart, passing some options\n"
-                "var pieChart = new google.visualization.ChartWrapper({\n"
+                "var " + pc_nm + " = new google.visualization.ChartWrapper({\n"
                 "'chartType': 'PieChart',\n"
-                "'containerId': 'chart_div',\n"
+                "'containerId': '" + pc_div + "',\n"
                 "'options': {\n"
-                "'width': 300,\n"
-                "'height': 300,\n"
+                "'width': " + str(w) + ",\n"
+                "'height': " + str(h), ",\n"
                 "'pieSliceText': 'value', //'label',\n"
                 "'legend': 'none',\n"
                 "'is3D': true,\n"
                 "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15},\n"
-                "'title': 'Set your chart title, e.g., Number of calls per module'\n"
+                "'title': '" + ttl + "'\n"
                 "},\n"
-                "// The pie chart will use the columns 'module_name' and 'number_of_calls'\n"
-                "// out of all the available ones.\n"
-                "'view': {'columns': [6, 9]}\n"
+                "'view': {'columns': [" + ",".join(cols) + "]}\n"
                 "});\n")
 
 	return pie_chart
 
-    def _write_line_chart(self):
-	line_chart = ("var lineChart = new google.visualization.ChartWrapper({\n"
+    def _write_line_chart(self, lc_nm, lc_div, w, h, ttl, cols):
+        line_chart = ("\n//Create a line chart, passing some options\n"
+		"var " + lc_nm + " = new google.visualization.ChartWrapper({\n"
                 "'chartType' : 'Line',\n"
-                "'containerId' : 'line_div',\n"
+                "'containerId' : '" + lc_div + "',\n"
                 "'options': {\n"
-                "'width': 600,\n"
-                "'height': 300,\n"
+                "'width': " + str(w) + ",\n"
+                "'height': " + str(h) + ",\n"
                 "'hAxis': {\n"
-                "'title': 'app id'\n"
+                "'title': '" + ttl + "'\n"
                 "},\n"
                 "'vAxis': {\n"
                 "'title': 'Seconds'\n"
                 "},\n"
                 "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15}\n"
                 "},\n"
-                "'view': {'columns': [6, 9, 10]}\n"
+                "'view': {'columns': [" + ",".join(cols) + "]}\n"
                 "});\n")
 
 	return line_chart
 
+    def _write_NumRangeFilter(self, filter_nm, containerId, col_label, minVal, maxVal, lowVal, highVal):
+        num_slider = ("\n//Create a range slider, passing some options\n"
+                "var " + filter_nm + " = new google.visualization.ControlWrapper({\n"
+                "'controlType': 'NumberRangeFilter',\n"
+                "'containerId': '" + containerId + "',\n"
+                "'options': {\n"
+                "'filterColumnLabel': '" + col_label + "',\n"
+                "'minValue': " + str(minVal) + ",\n"
+                "'maxValue': " + str(maxVal) + "\n"
+                "},\n"
+                "'state': {'lowValue': " + str(lowVal) + ", 'highValue': " + str(highVal) + "}\n"
+                "});\n")
+	return num_slider
+
+
     def _write_charts(self):
         cat_picker = self._write_category_picker('user')
 
-        time_slider = ("\n//Create a range slider, passing some options\n"
-            "var timeRangeSlider = new google.visualization.ControlWrapper({\n"
-                "'controlType': 'NumberRangeFilter',\n"
-                "'containerId': 'number_filter_div',\n"
-                "'options': {\n"
-                "'filterColumnLabel': 'run_time',\n"
-                "'minValue': 0,\n"
-                "'maxValue': 3600\n"
-                "},\n"
-                "'state': {'lowValue': 5, 'highValue': 600}\n"
-                "});\n")
+        time_slider = self._write_NumRangeFilter('timeRangeSlider', 'number_filter_div',
+						'run_time', 1, 3600, 5, 600)
 
-        num_slider1 = ("\n//Create a range slider, passing some options\n"
-            "var numRangeSlider = new google.visualization.ControlWrapper({\n"
-                "'controlType': 'NumberRangeFilter',\n"
-                "'containerId': 'number_filter_div1',\n"
-                "'options': {\n"
-                "'filterColumnLabel': 'run_time',\n"
-                "'minValue': 0,\n"
-                "'maxValue': 3600\n"
-                "},\n"
-                "'state': {'lowValue': 5, 'highValue': 600}\n"
-                "});\n")
+        num_slider2 = self._write_NumRangeFilter('queueTimeRangeSlider', 'number_filter_div2',
+				'queued_time', 1, 20000, 1000, 10000)
 
-        line_chart = self._write_pie_chart()
-
-        num_slider2 = ("\n//Create a range slider, passing some options\n"
-                "var callsRangeSlider = new google.visualization.ControlWrapper({\n"
-                "'controlType': 'NumberRangeFilter',\n"
-                "'containerId': 'number_filter_div2',\n"
-                "'options': {\n"
-                "'filterColumnLabel': 'queued_time',\n"
-                "'minValue': 1,\n"
-                "'maxValue': 20000\n"
-                "},\n"
-                "'state': {'lowValue': 1000, 'highValue': 10000}\n"
-                "});\n")
-
-        pie_chart = self._write_pie_chart()
-	str_filter = self._write_string_filter('filterColumns', 'stringFilter', 'user')
-        tab_chart = str_filter + self._write_table_chart()
+        line_chart = self._write_line_chart('lineChart', 'line_div', 600, 300, 'app_id', [6, 9, 10])
+        pie_chart = self._write_pie_chart('pieChart', 'pie_div', 300, 300, 'set_your_own_title', [3,4])
+	str_filter = self._write_string_filter('filterColumns', 'stringFilter', 'username')
+        tab_chart = str_filter + self._write_table_chart('table_div')
 
         return cat_picker + time_slider + line_chart + num_slider2 + pie_chart + tab_chart
 
@@ -612,20 +596,31 @@ class report_utils:
         """
         #the dashboard components (table, charts and filters)
 	if stats_nm == 'user_details':
-	    cat_picker_nm = 'username'
-            dash_components = (self._write_category_picker(cat_picker_nm)
-				+ self._write_string_filter('filterColumns', 'stringFilter', cat_picker_nm)
-				+ self._write_table_chart())
+	    field_nm = 'username'
+	    strfilter_nm = field_nm + 'Filter'
+            dash_components = (self._write_category_picker(field_nm)
+				+ self._write_string_filter('filterColumns', strfilter_nm, field_nm)
+				+ self._write_table_chart('table_div'))
 	    dashboard = ("\n"
 		    "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
 		    "dashboard.bind([categoryPicker], [table]);\n"
-		    "dashboard.bind([stringFilter], [table]);\n"
+		    "dashboard.bind([" + filter_nm + "], [table]);\n"
 		    "dashboard.draw(data);\n"
 		"}\n")
-	else:
-            dash_components = self._write_table_chart()
+	elif stats_nm == 'user_counts_per_day':
+	    field_nm = 'yyyy-mm-dd'
+	    strfilter_nm = field_nm + 'Filter'
+	    slide_nm = 'numRangeSlider1'
+            dash_components = (self._write_string_filter('filterColumns', strfilter_nm, field_nm)
+				+ self._write_NumRangeFilter(slider_nm, 'number_filter_div1'
+							'numOfUsers', 1, 3600, 5, 600)
+				+ self._write_line_chart('lineChart', 'line_div',
+							660, 500, 'user counts per day', [0,1])
+				+ self._write_table_chart('table_div'))
 	    dashboard = ("\n"
 		    "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
+		    "dashboard.bind([" + slider_nm + "," + filter_nm + "], [table]);\n"
+		    "dashboard.bind([" + slider_nm + "," + filter_nm + "], [lineChart]);\n"
 		    "dashboard.draw(data);\n"
 		"}\n")
 
