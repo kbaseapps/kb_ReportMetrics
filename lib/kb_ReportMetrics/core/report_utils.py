@@ -532,7 +532,7 @@ class report_utils:
                 "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15},\n"
                 "'title': '" + ttl + "'\n"
                 "},\n"
-                "'view': {'columns': [" + ",".join(cols) + "]}\n"
+                "'view': {'columns': [" + ",".join(str(x) for x in cols) + "]}\n"
                 "});\n")
 
 	return pie_chart
@@ -553,7 +553,7 @@ class report_utils:
                 "},\n"
                 "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15}\n"
                 "},\n"
-                "'view': {'columns': [" + ",".join(cols) + "]}\n"
+                "'view': {'columns': [" + ",".join(str(x) for x in cols) + "]}\n"
                 "});\n")
 
 	return line_chart
