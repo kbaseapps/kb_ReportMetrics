@@ -609,7 +609,7 @@ class report_utils:
 		"}\n")
 	elif stats_nm == 'user_counts_per_day':
 	    field_nm = 'yyyy-mm-dd'
-	    strfilter_nm = field_nm + 'Filter'
+	    strfilter_nm = field_nm.replace('-', '_') + 'Filter'
 	    slider_nm = 'numRangeSlider1'
             dash_components = (self._write_string_filter('filterColumns', strfilter_nm, field_nm)
 				+ self._write_NumRangeFilter(slider_nm, 'number_filter_div1',
