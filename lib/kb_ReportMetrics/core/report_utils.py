@@ -610,7 +610,7 @@ class report_utils:
 	elif stats_nm == 'user_counts_per_day':
 	    field_nm = 'yyyy-mm-dd'
 	    strfilter_nm = field_nm + 'Filter'
-	    slide_nm = 'numRangeSlider1'
+	    slider_nm = 'numRangeSlider1'
             dash_components = (self._write_string_filter('filterColumns', strfilter_nm, field_nm)
 				+ self._write_NumRangeFilter(slider_nm, 'number_filter_div1'
 							'numOfUsers', 1, 3600, 5, 600)
