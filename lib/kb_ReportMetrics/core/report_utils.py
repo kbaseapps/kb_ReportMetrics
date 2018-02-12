@@ -612,7 +612,7 @@ class report_utils:
 	    strfilter_nm = field_nm + 'Filter'
 	    slider_nm = 'numRangeSlider1'
             dash_components = (self._write_string_filter('filterColumns', strfilter_nm, field_nm)
-				+ self._write_NumRangeFilter(slider_nm, 'number_filter_div1'
+				+ self._write_NumRangeFilter(slider_nm, 'number_filter_div1',
 							'numOfUsers', 1, 3600, 5, 600)
 				+ self._write_line_chart('lineChart', 'line_div',
 							660, 500, 'user counts per day', [0,1])
