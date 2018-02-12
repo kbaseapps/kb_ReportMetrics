@@ -619,8 +619,8 @@ class report_utils:
 				+ self._write_table_chart('table_div'))
 	    dashboard = ("\n"
 		    "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
-		    "dashboard.bind([" + slider_nm + "," + filter_nm + "], [table]);\n"
-		    "dashboard.bind([" + slider_nm + "," + filter_nm + "], [lineChart]);\n"
+		    "dashboard.bind([" + slider_nm + "," + strfilter_nm + "], [table]);\n"
+		    "dashboard.bind([" + slider_nm + "," + strfilter_nm + "], [lineChart]);\n"
 		    "dashboard.draw(data);\n"
 		"}\n")
 
