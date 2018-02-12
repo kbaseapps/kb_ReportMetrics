@@ -200,7 +200,7 @@ class report_utils:
 
         dashboard = self._write_user_dashboard(stats_nm)
 
-        footContent = self._write_footcontent(rpt_title)
+        footContent = self._write_footcontent(rpt_title, stats_nm)
 
         html_str = headContent + callbackFunc + dashboard + footContent
         log(html_str)
@@ -643,11 +643,20 @@ class report_utils:
 
         return dash_components + dashboard
 
-    def _write_footcontent(self, report_title="Report_title_here"):
+    def _write_footcontent(self, stats_nm="", report_title="Report_title_here"):
         footContent = "</script></head>\n<body>\n"
         footContent += "<h4>" + report_title + "</h4>\n"
-        footContent += "  <div id='dashboard_div'>\n" \
-                "<div id='cat_picker_div'></div>\n" \
+        footContent += "  <div id='dashboard_div'>\n"
+
+	if stats_nm == 'user_counts_per_day':
+	    footContent += "<table class='columns'><tr>\n" \
+        	"<td width='30%'><div id='string_filter_div'></div></td>\n" \
+        	"<td><div id='number_filter_div1'></div></td></tr>\n" \
+        	"<tr><td><div id='table_div'></div></td>\n" \
+        	"<td><div id='line_div'></div></td>\n" \
+        	"</tr></table>\n"
+	else:
+            footContent += "<div id='cat_picker_div'></div>\n" \
                 "<div id='number_filter_div'></div>\n" \
                 "<div style='display: inline-block'>\n" \
                 "<div id='number_filter_div1'></div>\n" \
@@ -658,8 +667,9 @@ class report_utils:
                 "<div id='line_div'></div>\n" \
                 "</div>\n" \
                 "<div id='string_filter_div'></div>\n" \
-                "<div id='table_div'></div>\n" \
-                "</div>\n</body>\n</html>"
+                "<div id='table_div'></div>\n"
+
+	footContent += "</div>\n</body>\n</html>"
 
         return footContent
 
