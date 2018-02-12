@@ -203,7 +203,7 @@ class report_utils:
         footContent = self._write_footcontent(rpt_title, stats_nm)
 
         html_str = headContent + callbackFunc + dashboard + footContent
-        log(html_str)
+        #log(html_str)
 
         html_file_path = os.path.join(out_dir, 'user_report_charts.html')
 
@@ -689,9 +689,9 @@ class report_utils:
         footContent = self._write_footcontent()
 
         html_str = headContent + callbackFunc + dashboard + footContent
-        log(html_str)
+        #log(html_str)
 
-        html_file_path = os.path.join(out_dir, 'report_charts.html')
+        html_file_path = os.path.join(out_dir, 'metrics_report_charts.html')
 
         with open(html_file_path, 'w') as html_file:
                 html_file.write(html_str)
