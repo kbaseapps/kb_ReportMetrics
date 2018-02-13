@@ -587,7 +587,7 @@ class report_utils:
 	str_filter = self._write_string_filter('filterColumns', 'stringFilter', 'username')
         tab_chart = str_filter + self._write_table_chart('table_div')
 
-        return cat_picker + time_slider + line_chart + num_slider2 + pie_chart + tab_chart
+        return cat_picker + tab_chart + time_slider + line_chart + num_slider2 + pie_chart
 
 
     def _write_user_dashboard(self, stats_nm):
@@ -599,8 +599,8 @@ class report_utils:
 	    field_nm = 'username'
 	    strfilter_nm = field_nm + 'Filter'
             dash_components = (self._write_category_picker(field_nm)
-				+ self._write_string_filter('filterColumns', strfilter_nm, field_nm)
-				+ self._write_table_chart('table_div'))
+				+ self._write_table_chart('table_div')
+				+ self._write_string_filter('filterColumns', strfilter_nm, field_nm))
 	    dashboard = ("\n"
 		    "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
 		    "dashboard.bind([categoryPicker], [table]);\n"
@@ -611,12 +611,12 @@ class report_utils:
 	    field_nm = 'yyyy-mm-dd'
 	    strfilter_nm = field_nm.replace('-', '_') + 'Filter'
 	    slider_nm = 'numRangeSlider1'
-            dash_components = (self._write_string_filter('filterColumns', strfilter_nm, field_nm)
+            dash_components = (self._write_table_chart('table_div')
+				+ self._write_string_filter('filterColumns', strfilter_nm, field_nm)
 				+ self._write_NumRangeFilter(slider_nm, 'number_filter_div1',
 							'numOfUsers', 1, 100, 1, 50)
 				+ self._write_line_chart('lineChart', 'line_div',
-							660, 500, 'user counts per day', [0,1])
-				+ self._write_table_chart('table_div'))
+							660, 500, 'user counts per day', [0,1]))
 	    dashboard = ("\n"
 		    "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
 		    "dashboard.bind([" + slider_nm + "," + strfilter_nm + "], [table]);\n"
