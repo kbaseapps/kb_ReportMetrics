@@ -95,7 +95,7 @@ class report_utils:
         elif stats_name in ['user_details', 'user_counts_per_day', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
             ret_stats = self.statdu.get_user_metrics(params)
 	    if len(ret_stats['metrics_result']) > 0:
-		pprint(ret_stats['metrics_result'])
+		#pprint(ret_stats['metrics_result'])
 		self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
         else:
             pass
@@ -378,6 +378,7 @@ class report_utils:
             "var data = new google.visualization.DataTable();\n")
 
         #table column captions
+	pprint(input_dt[0])
         if col_caps is None:
             col_caps = input_dt[0].keys()
 
@@ -386,13 +387,15 @@ class report_utils:
             for k in input_dt[0].keys():
                 if col == k:
                     col_type = type(input_dt[0][k]).__name__
-                    if (col_type == 'str' or col_type == 'unicode'):
+                    if (col_type == 'str' 
+			or col_type == 'unicode' 
+			or col_type == 'list'
+			or col_type == 'NoneType'):
                         col_type = 'string'
                     elif col_type == 'bool':
                         col_type = 'boolean'
-                    elif col_type == 'list':
-                        col_type = 'string'
                     else:
+			print('datatype:'.format(col_type))
                         col_type = 'number'
                     callback_func += "data.addColumn('" + col_type + "','" + k + "');\n"
                     cols.append( col )
@@ -438,7 +441,7 @@ class report_utils:
         callback_func += "\ndata.addRows([\n"
         callback_func += dt_rows
         callback_func += "\n]);"
-
+	log(callback_func)
         return callback_func
 
     def _write_category_picker(self, col_name=None):
