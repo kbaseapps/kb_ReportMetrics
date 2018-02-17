@@ -395,7 +395,6 @@ class report_utils:
                     elif col_type == 'bool':
                         col_type = 'boolean'
                     else:
-			print('datatype:'.format(col_type))
                         col_type = 'number'
                     callback_func += "data.addColumn('" + col_type + "','" + k + "');\n"
                     cols.append( col )
@@ -441,7 +440,7 @@ class report_utils:
         callback_func += "\ndata.addRows([\n"
         callback_func += dt_rows
         callback_func += "\n]);"
-	log(callback_func)
+	#log(callback_func)
         return callback_func
 
     def _write_category_picker(self, col_name=None):
