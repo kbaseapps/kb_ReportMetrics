@@ -81,13 +81,13 @@ class UJS_CAT_NJS_DataUtils:
 		})
 		print("UJS returned {} records".format(len(ret_metrics['metrics_result'])))
 		pprint(ret_metrics)
-	    elif stats_name == 'user_ws':
+	    elif stats_name == 'user_ws_stats':
 		ret_metrics = self.met_client.get_user_ws({
 		'user_ids': user_ids,
 		'epoch_range': (time_start, time_end)
 		})
-	    elif stats_name == 'user_narratives':
-		ret_metrics = self.met_client.get_user_narratives({
+	    elif stats_name == 'user_narrative_stats':
+		ret_metrics = self.met_client.get_user_narrative_stats({
 		'user_ids': user_ids,
 		'epoch_range': (time_start, time_end)
 		})
@@ -102,14 +102,14 @@ class UJS_CAT_NJS_DataUtils:
 		'epoch_range': (time_start, time_end)
 		})
 	    else:
-		pass
+		ret_metrics['metrics_result'] = []
         except Exception as e_met: #RuntimeError
             log('UJS_CAT_NJS_DataUtils.get_user_metrics raised error:')
             log(e_met)
             return {'metrics_result': []}
 	else: #no exception raised, process the data returned from the service call
-	    if(len(ret_metrics) > 1):
-		log(pformat(ret_metrics[:2]))
+	    #if(len(ret_metrics) > 1):
+		#log(pformat(ret_metrics[:2]))
 	    return ret_metrics
 
 

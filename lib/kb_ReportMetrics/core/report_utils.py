@@ -70,7 +70,8 @@ class report_utils:
 				self.njsw_url, self.auth_service_url,
 				self.kbase_endpoint, self.provenance, self.token)
         self.kbr = KBaseReport(self.callback_url)
-
+	self.metrics_apps = ['user_details', 'user_counts_per_day', 'user_ws_stats',
+				'user_narrative_stats', 'user_numObjs', 'total_logins']
 
     def create_metrics_reports(self, params):
         """
@@ -92,13 +93,13 @@ class report_utils:
             ret_stats = self.statdu.get_exec_aggrTable_from_cat()
         elif stats_name == 'app_stats':
             ret_stats = self.statdu.get_app_metrics(params)
-        elif stats_name in ['user_details', 'user_counts_per_day', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
+        elif stats_name in self.metrics_apps:
             ret_stats = self.statdu.get_user_metrics(params)
 	    if len(ret_stats['metrics_result']) > 0:
 		#pprint(ret_stats['metrics_result'])
 		self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
         else:
-            pass
+	    ret_metrics['metrics_result'] = []
 
         returnVal = {
             "report_ref": None,
@@ -113,7 +114,7 @@ class report_utils:
         if params['create_report'] == 1:
 	    if stats_name == 'app_stats':
 		report_info = self.generate_app_report(self.metrics_dir, ret_stats, params)
-            elif stats_name in ['user_details', 'user_counts_per_day', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
+            elif stats_name in self.metrics_apps:
 		if stats_name == 'user_details':
 		    col_caps = ['username', 'email', 'full_name', 'signup_at', 'last_signin_at', 'roles', 'kbase_staff']
 		else:
@@ -443,9 +444,17 @@ class report_utils:
 	#log(callback_func)
         return callback_func
 
-    def _write_category_picker(self, col_name=None):
+    def _write_category_picker(self, **kwargs):
+	col_name = None
+	if 'col_name' in kwargs:
+	    col_name = kwargs['col_name']
 	if col_name is None:
 	    return ''
+
+	initSelected = []
+	if 'initSel' in kwargs:
+	    initSelected = kwargs['initSel']
+
         cat_picker = ("\nvar categoryPicker = new google.visualization.ControlWrapper({\n"
                 "controlType: 'CategoryFilter',\n"
                 "containerId: 'cat_picker_div',\n"
@@ -461,7 +470,7 @@ class report_utils:
                 "  }\n"
                 "},\n"
                 "// Define an initial state, i.e. a set of metrics to be initially selected.\n"
-                "state: {'selectedValues': ['qzhang', 'srividya22']}\n"
+                "state: {'selectedValues': [" + ','.join(initSelected) + "]}\n"
             "});\n")
 
 	return cat_picker
@@ -577,7 +586,7 @@ class report_utils:
 
 
     def _write_charts(self):
-        cat_picker = self._write_category_picker('user')
+        cat_picker = self._write_category_picker(col_name='user')
 
         time_slider = self._write_NumRangeFilter('timeRangeSlider', 'number_filter_div',
 						'run_time', 1, 3600, 5, 600)
@@ -598,10 +607,13 @@ class report_utils:
         _write_user_dashboard: writes the dashboard layout and bind controls with charts
         """
         #the dashboard components (table, charts and filters)
-	if stats_nm == 'user_details':
+	dashboard = ''
+	dash_componets = ''
+	if (stats_nm == 'user_details' or stats_nm == 'user_ws_stats'):
 	    field_nm = 'username'
 	    strfilter_nm = field_nm + 'Filter'
-            dash_components = (self._write_category_picker(field_nm)
+            dash_components = (self._write_category_picker(initSel=['qzhang', 'srividya22'],
+								col_name=field_nm)
 				+ self._write_table_chart('table_div')
 				+ self._write_string_filter('filterColumns', strfilter_nm, field_nm))
 	    dashboard = ("\n"
