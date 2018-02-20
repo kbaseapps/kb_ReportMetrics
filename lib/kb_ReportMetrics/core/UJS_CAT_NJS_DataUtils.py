@@ -73,6 +73,12 @@ class UJS_CAT_NJS_DataUtils:
 		})
 		ret_metrics['metrics_result'] = convert_millis_to_utcdate(
                             ret_metrics['metrics_result'], ['signup_at', 'last_signin_at'])
+		for ur in ret_metrics['metrics_result']:
+		    if ur['kbase_staff'] == 0:
+			ur['kbase_staff'] = False
+		    elif ur['kbase_staff'] == 1:
+			ur['kbase_staff'] = True
+				
 	    elif stats_name == 'user_counts_per_day':
 		print("Trying to get unique user counts")
 		ret_metrics = self.met_client.get_user_counts_per_day({

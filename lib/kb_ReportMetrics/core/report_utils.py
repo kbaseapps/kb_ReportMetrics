@@ -193,7 +193,6 @@ class report_utils:
 
     def _write_user_html(self, out_dir, input_dt, rpt_title, stats_nm, col_caps=None):
         headContent = self._write_headContent()
-
         if col_caps is None:
             callbackFunc = self._write_callback_function(input_dt)
         else:
@@ -204,7 +203,7 @@ class report_utils:
         footContent = self._write_footcontent(rpt_title, stats_nm)
 
         html_str = headContent + callbackFunc + dashboard + footContent
-        #log(html_str)
+        log(html_str)
 
         html_file_path = os.path.join(out_dir, 'user_report_charts.html')
 
@@ -470,7 +469,7 @@ class report_utils:
                 "  }\n"
                 "},\n"
                 "// Define an initial state, i.e. a set of metrics to be initially selected.\n"
-                "state: {'selectedValues': [" + ','.join(initSelected) + "]}\n"
+                "state: {'selectedValues': ['" + "','".join(initSelected) + "']}\n"
             "});\n")
 
 	return cat_picker
