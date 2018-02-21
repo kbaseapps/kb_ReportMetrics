@@ -73,6 +73,7 @@ class UJS_CAT_NJS_DataUtils:
 		})
 		ret_metrics['metrics_result'] = convert_millis_to_utcdate(
                             ret_metrics['metrics_result'], ['signup_at', 'last_signin_at'])
+		#Because miraculously some 'false' values would be returned as '0' by pymongo.find...
 		for ur in ret_metrics['metrics_result']:
 		    if ur['kbase_staff'] == 0:
 			ur['kbase_staff'] = False

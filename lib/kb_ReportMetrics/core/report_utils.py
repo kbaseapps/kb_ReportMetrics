@@ -96,7 +96,7 @@ class report_utils:
         elif stats_name in self.metrics_apps:
             ret_stats = self.statdu.get_user_metrics(params)
 	    if len(ret_stats['metrics_result']) > 0:
-		#pprint(ret_stats['metrics_result'])
+		#print('Number of records returned={}'.format(len(ret_stats['metrics_result'])))
 		self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
         else:
 	    ret_metrics['metrics_result'] = []
@@ -203,7 +203,7 @@ class report_utils:
         footContent = self._write_footcontent(rpt_title, stats_nm)
 
         html_str = headContent + callbackFunc + dashboard + footContent
-        log(html_str)
+        #log(html_str)
 
         html_file_path = os.path.join(out_dir, 'user_report_charts.html')
 
