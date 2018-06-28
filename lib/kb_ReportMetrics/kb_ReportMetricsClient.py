@@ -33,13 +33,13 @@ class kb_ReportMetrics(object):
             trust_all_ssl_certificates=trust_all_ssl_certificates,
             auth_svc=auth_svc)
 
-    def count_ncbi_genome_features(self, params, context=None):
+    def count_ncbi_genomes(self, params, context=None):
         """
         The actual function is declared using 'funcdef' to specify the name
         and input/return arguments to the function.  For all typical KBase
         Apps that run in the Narrative, your function should have the 
         'authentication required' modifier.
-        :param params: instance of type "FeatureCountParams" (A 'typedef' can
+        :param params: instance of type "GenomeCountParams" (A 'typedef' can
            also be used to define compound or container objects, like lists,
            maps, and structures.  The standard KBase convention is to use
            structures, as shown here, to define the input and output of your
@@ -48,13 +48,33 @@ class kb_ReportMetrics(object):
            filtering. To define lists and maps, use a syntax similar to C++
            templates to indicate the type contained in the list or map.  For
            example: list <string> list_of_strings; mapping <string, int>
-           map_of_ints;) -> structure: parameter "genbank_file_urls" of list
-           of String, parameter "file_format" of String, parameter
-           "genome_source" of String, parameter "genome_domain" of String,
-           parameter "refseq_category" of String, parameter "workspace_name"
-           of String, parameter "create_report" of type "bool" (A boolean - 0
-           for false, 1 for true. @range (0, 1))
-        :returns: instance of type "StatResults" (Here is the definition of
+           map_of_ints;) -> structure: parameter "genome_source" of String,
+           parameter "genome_domain" of String, parameter "refseq_category"
+           of String, parameter "workspace_name" of String, parameter
+           "create_report" of type "bool" (A boolean - 0 for false, 1 for
+           true. @range (0, 1))
+        :returns: instance of type "StatsResults" (Here is the definition of
+           the output of the function.  The output can be used by other SDK
+           modules which call your code, or the output visualizations in the
+           Narrative.  'report_name' and 'report_ref' are special output
+           fields- if defined, the Narrative can automatically render your
+           Report.) -> structure: parameter "report_name" of String,
+           parameter "report_ref" of String
+        """
+        return self._client.call_method(
+            'kb_ReportMetrics.count_ncbi_genomes',
+            [params], self._service_ver, context)
+
+    def count_ncbi_genome_features(self, params, context=None):
+        """
+        :param params: instance of type "FeatureCountParams" -> structure:
+           parameter "genome_file_urls" of list of String, parameter
+           "file_format" of String, parameter "genome_source" of String,
+           parameter "genome_domain" of String, parameter "refseq_category"
+           of String, parameter "workspace_name" of String, parameter
+           "create_report" of type "bool" (A boolean - 0 for false, 1 for
+           true. @range (0, 1))
+        :returns: instance of type "StatsResults" (Here is the definition of
            the output of the function.  The output can be used by other SDK
            modules which call your code, or the output visualizations in the
            Narrative.  'report_name' and 'report_ref' are special output
@@ -66,24 +86,16 @@ class kb_ReportMetrics(object):
             'kb_ReportMetrics.count_ncbi_genome_features',
             [params], self._service_ver, context)
 
-    def count_genome_features(self, params, context=None):
+    def count_genome_features_from_files(self, params, context=None):
         """
-        :param params: instance of type "FeatureCountParams" (A 'typedef' can
-           also be used to define compound or container objects, like lists,
-           maps, and structures.  The standard KBase convention is to use
-           structures, as shown here, to define the input and output of your
-           function.  Here the input is a reference to the Assembly data
-           object, a workspace to save output, and a length threshold for
-           filtering. To define lists and maps, use a syntax similar to C++
-           templates to indicate the type contained in the list or map.  For
-           example: list <string> list_of_strings; mapping <string, int>
-           map_of_ints;) -> structure: parameter "genbank_file_urls" of list
-           of String, parameter "file_format" of String, parameter
-           "genome_source" of String, parameter "genome_domain" of String,
-           parameter "refseq_category" of String, parameter "workspace_name"
-           of String, parameter "create_report" of type "bool" (A boolean - 0
-           for false, 1 for true. @range (0, 1))
-        :returns: instance of type "StatResults" (Here is the definition of
+        :param params: instance of type "FeatureCountParams" -> structure:
+           parameter "genome_file_urls" of list of String, parameter
+           "file_format" of String, parameter "genome_source" of String,
+           parameter "genome_domain" of String, parameter "refseq_category"
+           of String, parameter "workspace_name" of String, parameter
+           "create_report" of type "bool" (A boolean - 0 for false, 1 for
+           true. @range (0, 1))
+        :returns: instance of type "StatsResults" (Here is the definition of
            the output of the function.  The output can be used by other SDK
            modules which call your code, or the output visualizations in the
            Narrative.  'report_name' and 'report_ref' are special output
@@ -92,35 +104,24 @@ class kb_ReportMetrics(object):
            parameter "report_ref" of String
         """
         return self._client.call_method(
-            'kb_ReportMetrics.count_genome_features',
-            [params], self._service_ver, context)
-
-    def refseq_genome_counts(self, params, context=None):
-        """
-        :param params: instance of type "GenomeCountParams" -> structure:
-           parameter "genome_source" of String, parameter "genome_domain" of
-           String, parameter "refseq_category" of String, parameter
-           "workspace_name" of String, parameter "create_report" of type
-           "bool" (A boolean - 0 for false, 1 for true. @range (0, 1))
-        :returns: instance of type "StatResults" (Here is the definition of
-           the output of the function.  The output can be used by other SDK
-           modules which call your code, or the output visualizations in the
-           Narrative.  'report_name' and 'report_ref' are special output
-           fields- if defined, the Narrative can automatically render your
-           Report.) -> structure: parameter "report_name" of String,
-           parameter "report_ref" of String
-        """
-        return self._client.call_method(
-            'kb_ReportMetrics.refseq_genome_counts',
+            'kb_ReportMetrics.count_genome_features_from_files',
             [params], self._service_ver, context)
 
     def report_metrics(self, params, context=None):
         """
         :param params: instance of type "StatsReportParams" -> structure:
-           parameter "stats_name" of String, parameter "workspace_name" of
-           String, parameter "create_report" of type "bool" (A boolean - 0
-           for false, 1 for true. @range (0, 1))
-        :returns: instance of type "StatResults" (Here is the definition of
+           parameter "stats_name" of String, parameter "user_ids" of list of
+           type "user_id" (A string for the user id), parameter "start_time"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is the difference in time to UTC in the format +/-HHMM,
+           eg: 2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000
+           (UTC time)), parameter "end_time" of type "timestamp" (A time in
+           the format YYYY-MM-DDThh:mm:ssZ, where Z is the difference in time
+           to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500 (EST
+           time) 2013-04-03T08:56:32+0000 (UTC time)), parameter
+           "workspace_name" of String, parameter "create_report" of type
+           "bool" (A boolean - 0 for false, 1 for true. @range (0, 1))
+        :returns: instance of type "StatsResults" (Here is the definition of
            the output of the function.  The output can be used by other SDK
            modules which call your code, or the output visualizations in the
            Narrative.  'report_name' and 'report_ref' are special output
@@ -135,10 +136,18 @@ class kb_ReportMetrics(object):
     def dummy_test0(self, params, context=None):
         """
         :param params: instance of type "StatsReportParams" -> structure:
-           parameter "stats_name" of String, parameter "workspace_name" of
-           String, parameter "create_report" of type "bool" (A boolean - 0
-           for false, 1 for true. @range (0, 1))
-        :returns: instance of type "StatResults" (Here is the definition of
+           parameter "stats_name" of String, parameter "user_ids" of list of
+           type "user_id" (A string for the user id), parameter "start_time"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is the difference in time to UTC in the format +/-HHMM,
+           eg: 2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000
+           (UTC time)), parameter "end_time" of type "timestamp" (A time in
+           the format YYYY-MM-DDThh:mm:ssZ, where Z is the difference in time
+           to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500 (EST
+           time) 2013-04-03T08:56:32+0000 (UTC time)), parameter
+           "workspace_name" of String, parameter "create_report" of type
+           "bool" (A boolean - 0 for false, 1 for true. @range (0, 1))
+        :returns: instance of type "StatsResults" (Here is the definition of
            the output of the function.  The output can be used by other SDK
            modules which call your code, or the output visualizations in the
            Narrative.  'report_name' and 'report_ref' are special output

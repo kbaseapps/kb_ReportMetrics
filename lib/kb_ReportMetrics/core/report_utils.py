@@ -76,6 +76,11 @@ class report_utils:
                                             self.kbase_endpoint,
                                             self.provenance, self.token)
         self.kbr = KBaseReport(self.callback_url)
+<<<<<<< HEAD
+=======
+	self.metrics_apps = ['user_details', 'user_counts_per_day', 'user_ws_stats',
+				'user_narrative_stats', 'user_numObjs', 'total_logins']
+>>>>>>> d279d1f4590dc557b1b7afd7ed936e6325a63727
 
     def create_metrics_reports(self, params):
         """
@@ -97,6 +102,7 @@ class report_utils:
             ret_stats = self.statdu.get_exec_aggrTable_from_cat()
         elif stats_name == 'app_stats':
             ret_stats = self.statdu.get_app_metrics(params)
+<<<<<<< HEAD
         elif stats_name in ['user_details', 'user_counts_per_day', 'user_ws',
                             'user_narratives', 'user_numObjs', 'total_logins']:
             ret_stats = self.statdu.get_user_metrics(params)
@@ -104,8 +110,15 @@ class report_utils:
         if len(ret_stats['metrics_result']) > 0:
             self._write_stats_json_tsv_files(ret_stats['metrics_result'],
                                              stats_name)
+=======
+        elif stats_name in self.metrics_apps:
+            ret_stats = self.statdu.get_user_metrics(params)
+	    if len(ret_stats['metrics_result']) > 0:
+		#print('Number of records returned={}'.format(len(ret_stats['metrics_result'])))
+		self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
+>>>>>>> d279d1f4590dc557b1b7afd7ed936e6325a63727
         else:
-            pass
+	    ret_metrics['metrics_result'] = []
 
         returnVal = {
             "report_ref": None,
@@ -119,6 +132,7 @@ class report_utils:
                     'number_of_errors', 'type', 'time_range',
                     'total_exec_time', 'total_queue_time']
         if params['create_report'] == 1:
+<<<<<<< HEAD
             if stats_name == 'app_stats':
                 report_info = self.generate_app_report(self.metrics_dir,
                                                        ret_stats, params)
@@ -145,10 +159,32 @@ class report_utils:
                     'report_name': report_info['name'],
                     'report_ref': report_info['ref']
                 }
+=======
+	    if stats_name == 'app_stats':
+		report_info = self.generate_app_report(self.metrics_dir, ret_stats, params)
+            elif stats_name in self.metrics_apps:
+		if stats_name == 'user_details':
+		    col_caps = ['username', 'email', 'full_name', 'signup_at', 'last_signin_at', 'roles', 'kbase_staff']
+		else:
+		    col_caps = None
+		report_info = self.generate_user_report(self.metrics_dir,
+				ret_stats['metrics_result'], params, col_caps)
+	    elif stats_name in ['exec_stats', 'exec_aggr_stats', 'exec_aggr_table']:
+		report_info = self.generate_exec_report(self.metrics_dir, ret_stats, params)
+	    else:
+		report_info['name'] = None
+		report_info['ref'] = None
+
+            returnVal = {
+                'report_name': report_info['name'],
+                'report_ref': report_info['ref']
+            }
+>>>>>>> d279d1f4590dc557b1b7afd7ed936e6325a63727
 
         return returnVal
 
     def _write_stats_json_tsv_files(self, stats_data, stats_name):
+<<<<<<< HEAD
         json_full_path = os.path.join(self.metrics_dir,
                                       '{}_metrics.json'.format(stats_name))
         tsv_full_path = os.path.join(self.metrics_dir,
@@ -174,6 +210,25 @@ class report_utils:
                              params, col_caps=None):
         output_html_files = self._generate_user_html_report(
                                     metrics_dir, data_info, col_caps)
+=======
+	json_full_path = os.path.join(self.metrics_dir, '{}_metrics.json'.format(stats_name))
+	tsv_full_path = os.path.join(self.metrics_dir, '{}_metrics.tsv'.format(stats_name))
+
+	with open(json_full_path, 'w') as metrics_json:
+	    json.dump(stats_data, metrics_json)
+ 
+	enc_data = []
+	for sd in stats_data:
+	    #produce a new dictionary, which replaces the values with the encoded values
+	    enc_data.append(dict((k, v.encode('utf-8') if isinstance(v, unicode) else v) for k, v in sd.iteritems()))
+	with open(tsv_full_path, 'wb') as metrics_tsv:
+	    dw = csv.DictWriter(metrics_tsv, fieldnames=enc_data[0].keys(), delimiter='\t')
+	    dw.writeheader()
+	    dw.writerows(enc_data)
+
+    def generate_user_report(self, metrics_dir, data_info, params, col_caps=None):
+	output_html_files = self._generate_user_html_report(metrics_dir, data_info, params, col_caps)
+>>>>>>> d279d1f4590dc557b1b7afd7ed936e6325a63727
         output_files = self._generate_output_file_list(metrics_dir)
 
         # create report
@@ -196,17 +251,22 @@ class report_utils:
 
         return report_info
 
-    def _generate_user_html_report(self, out_dir, dt_info, col_caps=None):
+    def _generate_user_html_report(self, out_dir, dt_info, params, col_caps=None):
         """
         _generate_user_html_report: generate html report given the json data
 
         """
         #log('start generating html report')
-        rpt_title = 'User details report'
+	stats_name = params['stats_name']
+        rpt_title = 'Metrics report on {}'.format(stats_name)
 
         html_report = list()
+<<<<<<< HEAD
         html_file_path = self._write_user_html(out_dir, dt_info,
                                                rpt_title, col_caps)
+=======
+        html_file_path = self._write_user_html(out_dir, dt_info, rpt_title, stats_name, col_caps)
+>>>>>>> d279d1f4590dc557b1b7afd7ed936e6325a63727
 
         #log(html_file_path['html_file'])
         html_report.append({'path': html_file_path['html_path'],
@@ -217,20 +277,19 @@ class report_utils:
 
         return html_report
 
-    def _write_user_html(self, out_dir, input_dt, rpt_title, col_caps=None):
+    def _write_user_html(self, out_dir, input_dt, rpt_title, stats_nm, col_caps=None):
         headContent = self._write_headContent()
-
         if col_caps is None:
             callbackFunc = self._write_callback_function(input_dt)
         else:
             callbackFunc = self._write_callback_function(input_dt, col_caps)
 
-        dashboard = self._write_user_dashboard()
+        dashboard = self._write_user_dashboard(stats_nm)
 
-        footContent = self._write_footcontent(rpt_title)
+        footContent = self._write_footcontent(rpt_title, stats_nm)
 
         html_str = headContent + callbackFunc + dashboard + footContent
-        log(html_str)
+        #log(html_str)
 
         html_file_path = os.path.join(out_dir, 'user_report_charts.html')
 
@@ -421,6 +480,7 @@ class report_utils:
             "var data = new google.visualization.DataTable();\n")
 
         #table column captions
+	pprint(input_dt[0])
         if col_caps is None:
             col_caps = input_dt[0].keys()
 
@@ -429,12 +489,13 @@ class report_utils:
             for k in input_dt[0].keys():
                 if col == k:
                     col_type = type(input_dt[0][k]).__name__
-                    if (col_type == 'str' or col_type == 'unicode'):
+                    if (col_type == 'str' 
+			or col_type == 'unicode' 
+			or col_type == 'list'
+			or col_type == 'NoneType'):
                         col_type = 'string'
                     elif col_type == 'bool':
                         col_type = 'boolean'
-                    elif col_type == 'list':
-                        col_type = 'string'
                     else:
                         col_type = 'number'
                     callback_func += "data.addColumn('" + col_type + "','" + k + "');\n"
@@ -481,12 +542,20 @@ class report_utils:
         callback_func += "\ndata.addRows([\n"
         callback_func += dt_rows
         callback_func += "\n]);"
-
+	#log(callback_func)
         return callback_func
 
-    def _write_category_picker(self, col_name=None):
+    def _write_category_picker(self, **kwargs):
+	col_name = None
+	if 'col_name' in kwargs:
+	    col_name = kwargs['col_name']
 	if col_name is None:
 	    return ''
+
+	initSelected = []
+	if 'initSel' in kwargs:
+	    initSelected = kwargs['initSel']
+
         cat_picker = ("\nvar categoryPicker = new google.visualization.ControlWrapper({\n"
                 "controlType: 'CategoryFilter',\n"
                 "containerId: 'cat_picker_div',\n"
@@ -502,7 +571,7 @@ class report_utils:
                 "  }\n"
                 "},\n"
                 "// Define an initial state, i.e. a set of metrics to be initially selected.\n"
-                "state: {'selectedValues': ['qzhang', 'srividya22']}\n"
+                "state: {'selectedValues': ['" + "','".join(initSelected) + "']}\n"
             "});\n")
 
 	return cat_picker
@@ -514,11 +583,12 @@ class report_utils:
             "    controlType: 'StringFilter',\n"
             "    containerId: 'string_filter_div',\n"
             "    options: {\n"
-            "        filterColumnLabel: '" + filter_field + "', //filterColumnIndex: 0,\n"
+            "        //filterColumnLabel: '" + filter_field + "',\n"
+            "        filterColumnIndex: 0,\n"
             "        matchType: 'any',\n"
             "        caseSensitive: false,\n"
             "        ui: {\n"
-            "            label: 'Search table:'\n"
+            "            label: 'Search data:'\n"
             "           }\n"
             "    },\n"
             "    view: {\n"
@@ -528,7 +598,8 @@ class report_utils:
 
 	return str_filter
 
-    def _write_table_chart(self, col_name):
+
+    def _write_table_chart(self, tab_div):
         tab_chart = ("\n//create a list of columns for the table chart\n"
             "var filterColumns = [{\n"
             "// this column aggregates all of the data into one column for use with the string filter\n"
@@ -547,7 +618,7 @@ class report_utils:
             "}\n"
             "var table = new google.visualization.ChartWrapper({\n"
             "    chartType: 'Table',\n"
-            "    containerId: 'table_div',\n"
+            "    containerId: '" + tab_div + "',\n"
             "    options: {\n"
             "        showRowNumber: true,\n"
             "        page: 'enable',\n"
@@ -560,109 +631,114 @@ class report_utils:
 
 	return tab_chart
 
-    def _write_pie_chart(self):
+    def _write_pie_chart(self, pc_nm, pc_div, w, h, ttl, cols):
         pie_chart = ("\n//Create a pie chart, passing some options\n"
-                "var pieChart = new google.visualization.ChartWrapper({\n"
+                "var " + pc_nm + " = new google.visualization.ChartWrapper({\n"
                 "'chartType': 'PieChart',\n"
-                "'containerId': 'chart_div',\n"
+                "'containerId': '" + pc_div + "',\n"
                 "'options': {\n"
-                "'width': 300,\n"
-                "'height': 300,\n"
+                "'width': " + str(w) + ",\n"
+                "'height': " + str(h), ",\n"
                 "'pieSliceText': 'value', //'label',\n"
                 "'legend': 'none',\n"
                 "'is3D': true,\n"
                 "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15},\n"
-                "'title': 'Set your chart title, e.g., Number of calls per module'\n"
+                "'title': '" + ttl + "'\n"
                 "},\n"
-                "// The pie chart will use the columns 'module_name' and 'number_of_calls'\n"
-                "// out of all the available ones.\n"
-                "'view': {'columns': [6, 9]}\n"
+                "'view': {'columns': [" + ",".join(str(x) for x in cols) + "]}\n"
                 "});\n")
 
 	return pie_chart
 
-    def _write_line_chart(self):
-	line_chart = ("var lineChart = new google.visualization.ChartWrapper({\n"
+    def _write_line_chart(self, lc_nm, lc_div, w, h, ttl, cols):
+        line_chart = ("\n//Create a line chart, passing some options\n"
+		"var " + lc_nm + " = new google.visualization.ChartWrapper({\n"
                 "'chartType' : 'Line',\n"
-                "'containerId' : 'line_div',\n"
+                "'containerId' : '" + lc_div + "',\n"
                 "'options': {\n"
-                "'width': 600,\n"
-                "'height': 300,\n"
+                "'width': " + str(w) + ",\n"
+                "'height': " + str(h) + ",\n"
                 "'hAxis': {\n"
-                "'title': 'app id'\n"
+                "'title': '" + ttl + "'\n"
                 "},\n"
                 "'vAxis': {\n"
                 "'title': 'Seconds'\n"
                 "},\n"
                 "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15}\n"
                 "},\n"
-                "'view': {'columns': [6, 9, 10]}\n"
+                "'view': {'columns': [" + ",".join(str(x) for x in cols) + "]}\n"
                 "});\n")
 
 	return line_chart
 
+    def _write_NumRangeFilter(self, filter_nm, containerId, col_label, minVal, maxVal, lowVal, highVal):
+        num_slider = ("\n//Create a range slider, passing some options\n"
+                "var " + filter_nm + " = new google.visualization.ControlWrapper({\n"
+                "'controlType': 'NumberRangeFilter',\n"
+                "'containerId': '" + containerId + "',\n"
+                "'options': {\n"
+                "'filterColumnLabel': '" + col_label + "',\n"
+                "'minValue': " + str(minVal) + ",\n"
+                "'maxValue': " + str(maxVal) + "\n"
+                "},\n"
+                "'state': {'lowValue': " + str(lowVal) + ", 'highValue': " + str(highVal) + "}\n"
+                "});\n")
+	return num_slider
+
+
     def _write_charts(self):
-        cat_picker = self._write_category_picker('user')
+        cat_picker = self._write_category_picker(col_name='user')
 
-        time_slider = ("\n//Create a range slider, passing some options\n"
-            "var timeRangeSlider = new google.visualization.ControlWrapper({\n"
-                "'controlType': 'NumberRangeFilter',\n"
-                "'containerId': 'number_filter_div',\n"
-                "'options': {\n"
-                "'filterColumnLabel': 'run_time',\n"
-                "'minValue': 0,\n"
-                "'maxValue': 3600\n"
-                "},\n"
-                "'state': {'lowValue': 5, 'highValue': 600}\n"
-                "});\n")
+        time_slider = self._write_NumRangeFilter('timeRangeSlider', 'number_filter_div',
+						'run_time', 1, 3600, 5, 600)
 
-        num_slider1 = ("\n//Create a range slider, passing some options\n"
-            "var numRangeSlider = new google.visualization.ControlWrapper({\n"
-                "'controlType': 'NumberRangeFilter',\n"
-                "'containerId': 'number_filter_div1',\n"
-                "'options': {\n"
-                "'filterColumnLabel': 'run_time',\n"
-                "'minValue': 0,\n"
-                "'maxValue': 3600\n"
-                "},\n"
-                "'state': {'lowValue': 5, 'highValue': 600}\n"
-                "});\n")
+        num_slider2 = self._write_NumRangeFilter('queueTimeRangeSlider', 'number_filter_div2',
+				'queued_time', 1, 20000, 1000, 10000)
 
-        line_chart = self._write_pie_chart()
+        line_chart = self._write_line_chart('lineChart', 'line_div', 600, 300, 'app_id', [6, 9, 10])
+        pie_chart = self._write_pie_chart('pieChart', 'pie_div', 300, 300, 'set_your_own_title', [3,4])
+	str_filter = self._write_string_filter('filterColumns', 'stringFilter', 'username')
+        tab_chart = str_filter + self._write_table_chart('table_div')
 
-        num_slider2 = ("\n//Create a range slider, passing some options\n"
-                "var callsRangeSlider = new google.visualization.ControlWrapper({\n"
-                "'controlType': 'NumberRangeFilter',\n"
-                "'containerId': 'number_filter_div2',\n"
-                "'options': {\n"
-                "'filterColumnLabel': 'queued_time',\n"
-                "'minValue': 1,\n"
-                "'maxValue': 20000\n"
-                "},\n"
-                "'state': {'lowValue': 1000, 'highValue': 10000}\n"
-                "});\n")
-
-        pie_chart = self._write_pie_chart()
-	str_filter = self._write_string_filter('filterColumns', 'stringFilter', 'user')
-        tab_chart = str_filter + self._write_table_chart()
-
-        return cat_picker + time_slider + line_chart + num_slider2 + pie_chart + tab_chart
+        return cat_picker + tab_chart + time_slider + line_chart + num_slider2 + pie_chart
 
 
-    def _write_user_dashboard(self):
+    def _write_user_dashboard(self, stats_nm):
         """
         _write_user_dashboard: writes the dashboard layout and bind controls with charts
         """
         #the dashboard components (table, charts and filters)
-        dash_components = (self._write_category_picker('username')
-				+ self._write_string_filter('filterColumns', 'stringFilter', 'username')
-				+ self._write_table_chart('username'))
-        dashboard = ("\n"
-            "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
-            "dashboard.bind([categoryPicker], [table]);\n"
-            "dashboard.bind([stringFilter], [table]);\n"
-            "dashboard.draw(data);\n"
-        "}\n")
+	dashboard = ''
+	dash_componets = ''
+	if (stats_nm == 'user_details' or stats_nm == 'user_ws_stats'):
+	    field_nm = 'username'
+	    strfilter_nm = field_nm + 'Filter'
+            dash_components = (self._write_category_picker(initSel=['qzhang', 'srividya22'],
+								col_name=field_nm)
+				+ self._write_table_chart('table_div')
+				+ self._write_string_filter('filterColumns', strfilter_nm, field_nm))
+	    dashboard = ("\n"
+		    "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
+		    "dashboard.bind([categoryPicker], [table]);\n"
+		    "dashboard.bind([" + strfilter_nm + "], [table]);\n"
+		    "dashboard.draw(data);\n"
+		"}\n")
+	elif stats_nm == 'user_counts_per_day':
+	    field_nm = 'yyyy-mm-dd'
+	    strfilter_nm = field_nm.replace('-', '_') + 'Filter'
+	    slider_nm = 'numRangeSlider1'
+            dash_components = (self._write_table_chart('table_div')
+				+ self._write_string_filter('filterColumns', strfilter_nm, field_nm)
+				+ self._write_NumRangeFilter(slider_nm, 'number_filter_div1',
+							'numOfUsers', 1, 100, 1, 50)
+				+ self._write_line_chart('lineChart', 'line_div',
+							660, 500, 'user counts per day', [0,1]))
+	    dashboard = ("\n"
+		    "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
+		    "dashboard.bind([" + slider_nm + "," + strfilter_nm + "], [table]);\n"
+		    "dashboard.bind([" + slider_nm + "," + strfilter_nm + "], [lineChart]);\n"
+		    "dashboard.draw(data);\n"
+		"}\n")
 
         return dash_components + dashboard
 
@@ -683,11 +759,20 @@ class report_utils:
 
         return dash_components + dashboard
 
-    def _write_footcontent(self, report_title="Report_title_here"):
+    def _write_footcontent(self, report_title="Report_title_here", stats_nm=''):
         footContent = "</script></head>\n<body>\n"
         footContent += "<h4>" + report_title + "</h4>\n"
-        footContent += "  <div id='dashboard_div'>\n" \
-                "<div id='cat_picker_div'></div>\n" \
+        footContent += "  <div id='dashboard_div'>\n"
+
+	if stats_nm == 'user_counts_per_day':
+	    footContent += "<table class='columns'><tr>\n" \
+        	"<td width='30%'><div id='string_filter_div'></div></td>\n" \
+        	"<td><div id='number_filter_div1'></div></td></tr>\n" \
+        	"<tr><td><div id='table_div'></div></td>\n" \
+        	"<td><div id='line_div'></div></td>\n" \
+        	"</tr></table>\n"
+	else:
+            footContent += "<div id='cat_picker_div'></div>\n" \
                 "<div id='number_filter_div'></div>\n" \
                 "<div style='display: inline-block'>\n" \
                 "<div id='number_filter_div1'></div>\n" \
@@ -698,8 +783,9 @@ class report_utils:
                 "<div id='line_div'></div>\n" \
                 "</div>\n" \
                 "<div id='string_filter_div'></div>\n" \
-                "<div id='table_div'></div>\n" \
-                "</div>\n</body>\n</html>"
+                "<div id='table_div'></div>\n"
+
+	footContent += "</div>\n</body>\n</html>"
 
         return footContent
 
@@ -719,9 +805,9 @@ class report_utils:
         footContent = self._write_footcontent()
 
         html_str = headContent + callbackFunc + dashboard + footContent
-        log(html_str)
+        #log(html_str)
 
-        html_file_path = os.path.join(out_dir, 'report_charts.html')
+        html_file_path = os.path.join(out_dir, 'metrics_report_charts.html')
 
         with open(html_file_path, 'w') as html_file:
                 html_file.write(html_str)

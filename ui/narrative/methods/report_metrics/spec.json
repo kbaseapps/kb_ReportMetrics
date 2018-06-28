@@ -20,22 +20,28 @@
             "dropdown_options":{
                 "options": [
                 {
+                  "display": "UC (user_counts_per_day)",
+                  "value": "user_counts_per_day",
+                  "id": "UC",
+                  "ui_name": "UC (user_counts_per_day)"
+                },
+                {
                   "display": "UD (user_details)",
                   "value": "user_details",
                   "id": "UD",
                   "ui_name": "UD (user_details)"
                 },
                 {
-                  "display": "UW (user_ws)",
-                  "value": "user_ws",
+                  "display": "UW (user_workspace_stats)",
+                  "value": "user_ws_stats",
                   "id": "UW",
-                  "ui_name": "UW (user_ws)"
+                  "ui_name": "UW (user_workspace_stats)"
                 },
                 {
-                  "display": "UN (user_narratives)",
-                  "value": "user_narratives",
+                  "display": "UN (user_narrative_stats)",
+                  "value": "user_narrative_stats",
                   "id": "UN",
-                  "ui_name": "UN (user_narratives)"
+                  "ui_name": "UN (user_narrative_stats)"
                 },
                 {
                   "display": "UO (user_numObjs)",

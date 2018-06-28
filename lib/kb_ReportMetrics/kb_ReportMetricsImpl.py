@@ -14,8 +14,7 @@ class kb_ReportMetrics:
 
     Module Description:
     A KBase module: kb_ReportMetrics
-    This KBase SDK module implements methods for generating reports
-    on various KBase metrics.
+This KBase SDK module implements methods for generating reports on various KBase metrics.
     '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
@@ -26,7 +25,7 @@ class kb_ReportMetrics:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_ReportMetrics.git"
-    GIT_COMMIT_HASH = "931c6e7a90a9cf99c8c480edeb3ea461ea0a2f60"
+    GIT_COMMIT_HASH = "b3db5c7986a6dc9c4c3dbe16aba027f9b991e135"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -54,6 +53,7 @@ class kb_ReportMetrics:
             self.handle_url = config['handle-service-url']
         #END_CONSTRUCTOR
         pass
+
 
     def count_ncbi_genomes(self, ctx, params):
         """
@@ -154,9 +154,8 @@ class kb_ReportMetrics:
 
         # At some point might do deeper type checking...
         if not isinstance(return_records, dict):
-            raise ValueError('Method count_genome_features_from_files' +
-                             'return value "return_records" is ' +
-                             'not type dict as required.')
+            raise ValueError('Method count_genome_features_from_files return value ' +
+                             'return_records is not type dict as required.')
         # return the results
         return [return_records]
 
@@ -253,7 +252,6 @@ class kb_ReportMetrics:
                              'return_records is not type dict as required.')
         # return the results
         return [return_records]
-
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",

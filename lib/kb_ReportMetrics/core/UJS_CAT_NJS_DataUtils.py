@@ -64,6 +64,7 @@ class UJS_CAT_NJS_DataUtils:
         user_ids = params['user_ids']
         time_start = params['minTime']
         time_end = params['maxTime']
+<<<<<<< HEAD
 
         stats_name = params['stats_name']
         try:
@@ -102,14 +103,70 @@ class UJS_CAT_NJS_DataUtils:
                                     })
             else:
                 pass
+=======
+	stats_name = params['stats_name']
+        try:
+	    if stats_name == 'user_details':
+		ret_metrics = self.met_client.get_user_details({
+		'user_ids': user_ids,
+		'epoch_range': (time_start, time_end)
+		})
+		ret_metrics['metrics_result'] = convert_millis_to_utcdate(
+                            ret_metrics['metrics_result'], ['signup_at', 'last_signin_at'])
+		#Because miraculously some 'false' values would be returned as '0' by pymongo.find...
+		for ur in ret_metrics['metrics_result']:
+		    if ur['kbase_staff'] == 0:
+			ur['kbase_staff'] = False
+		    elif ur['kbase_staff'] == 1:
+			ur['kbase_staff'] = True
+				
+	    elif stats_name == 'user_counts_per_day':
+		print("Trying to get unique user counts")
+		ret_metrics = self.met_client.get_user_counts_per_day({
+		'user_ids': user_ids,
+		'epoch_range': (time_start, time_end)
+		})
+		print("UJS returned {} records".format(len(ret_metrics['metrics_result'])))
+		pprint(ret_metrics)
+	    elif stats_name == 'user_ws_stats':
+		ret_metrics = self.met_client.get_user_ws({
+		'user_ids': user_ids,
+		'epoch_range': (time_start, time_end)
+		})
+	    elif stats_name == 'user_narrative_stats':
+		ret_metrics = self.met_client.get_user_narrative_stats({
+		'user_ids': user_ids,
+		'epoch_range': (time_start, time_end)
+		})
+	    elif stats_name == 'user_numObjs': 
+		ret_metrics = self.met_client.get_user_numObjs({
+		'user_ids': user_ids,
+		'epoch_range': (time_start, time_end)
+		})
+	    elif stats_name == 'total_logins':
+		ret_metrics = self.met_client.get_total_logins({
+		'user_ids': user_ids,
+		'epoch_range': (time_start, time_end)
+		})
+	    else:
+		ret_metrics['metrics_result'] = []
+>>>>>>> d279d1f4590dc557b1b7afd7ed936e6325a63727
         except Exception as e_met: #RuntimeError
-            log('kb_Metrics.get_user_metrics raised error:')
+            log('UJS_CAT_NJS_DataUtils.get_user_metrics raised error:')
             log(e_met)
             return {'metrics_result': []}
+<<<<<<< HEAD
         else: #no exception raised, process the data returned from the service call
             if(len(ret_metrics) > 1):
                 log(pformat(ret_metrics[:2]))
         return ret_metrics
+=======
+	else: #no exception raised, process the data returned from the service call
+	    #if(len(ret_metrics) > 1):
+		#log(pformat(ret_metrics[:2]))
+	    return ret_metrics
+
+>>>>>>> d279d1f4590dc557b1b7afd7ed936e6325a63727
 
     def get_app_metrics(self, input_params):
         """

@@ -109,9 +109,9 @@ sub new
 
 
 
-=head2 count_ncbi_genome_features
+=head2 count_ncbi_genomes
 
-  $return_records = $obj->count_ncbi_genome_features($params)
+  $return_records = $obj->count_ncbi_genomes($params)
 
 =over 4
 
@@ -120,18 +120,16 @@ sub new
 =begin html
 
 <pre>
-$params is a kb_ReportMetrics.FeatureCountParams
-$return_records is a kb_ReportMetrics.StatResults
-FeatureCountParams is a reference to a hash where the following keys are defined:
-	genbank_file_urls has a value which is a reference to a list where each element is a string
-	file_format has a value which is a string
+$params is a kb_ReportMetrics.GenomeCountParams
+$return_records is a kb_ReportMetrics.StatsResults
+GenomeCountParams is a reference to a hash where the following keys are defined:
 	genome_source has a value which is a string
 	genome_domain has a value which is a string
 	refseq_category has a value which is a string
 	workspace_name has a value which is a string
 	create_report has a value which is a kb_ReportMetrics.bool
 bool is an int
-StatResults is a reference to a hash where the following keys are defined:
+StatsResults is a reference to a hash where the following keys are defined:
 	report_name has a value which is a string
 	report_ref has a value which is a string
 
@@ -141,18 +139,16 @@ StatResults is a reference to a hash where the following keys are defined:
 
 =begin text
 
-$params is a kb_ReportMetrics.FeatureCountParams
-$return_records is a kb_ReportMetrics.StatResults
-FeatureCountParams is a reference to a hash where the following keys are defined:
-	genbank_file_urls has a value which is a reference to a list where each element is a string
-	file_format has a value which is a string
+$params is a kb_ReportMetrics.GenomeCountParams
+$return_records is a kb_ReportMetrics.StatsResults
+GenomeCountParams is a reference to a hash where the following keys are defined:
 	genome_source has a value which is a string
 	genome_domain has a value which is a string
 	refseq_category has a value which is a string
 	workspace_name has a value which is a string
 	create_report has a value which is a kb_ReportMetrics.bool
 bool is an int
-StatResults is a reference to a hash where the following keys are defined:
+StatsResults is a reference to a hash where the following keys are defined:
 	report_name has a value which is a string
 	report_ref has a value which is a string
 
@@ -165,6 +161,112 @@ The actual function is declared using 'funcdef' to specify the name
 and input/return arguments to the function.  For all typical KBase
 Apps that run in the Narrative, your function should have the 
 'authentication required' modifier.
+
+=back
+
+=cut
+
+ sub count_ncbi_genomes
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function count_ncbi_genomes (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to count_ncbi_genomes:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'count_ncbi_genomes');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_ReportMetrics.count_ncbi_genomes",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'count_ncbi_genomes',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method count_ncbi_genomes",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'count_ncbi_genomes',
+				       );
+    }
+}
+ 
+
+
+=head2 count_ncbi_genome_features
+
+  $return_records = $obj->count_ncbi_genome_features($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_ReportMetrics.FeatureCountParams
+$return_records is a kb_ReportMetrics.StatsResults
+FeatureCountParams is a reference to a hash where the following keys are defined:
+	genome_file_urls has a value which is a reference to a list where each element is a string
+	file_format has a value which is a string
+	genome_source has a value which is a string
+	genome_domain has a value which is a string
+	refseq_category has a value which is a string
+	workspace_name has a value which is a string
+	create_report has a value which is a kb_ReportMetrics.bool
+bool is an int
+StatsResults is a reference to a hash where the following keys are defined:
+	report_name has a value which is a string
+	report_ref has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_ReportMetrics.FeatureCountParams
+$return_records is a kb_ReportMetrics.StatsResults
+FeatureCountParams is a reference to a hash where the following keys are defined:
+	genome_file_urls has a value which is a reference to a list where each element is a string
+	file_format has a value which is a string
+	genome_source has a value which is a string
+	genome_domain has a value which is a string
+	refseq_category has a value which is a string
+	workspace_name has a value which is a string
+	create_report has a value which is a kb_ReportMetrics.bool
+bool is an int
+StatsResults is a reference to a hash where the following keys are defined:
+	report_name has a value which is a string
+	report_ref has a value which is a string
+
+
+=end text
+
+=item Description
+
+
 
 =back
 
@@ -218,9 +320,9 @@ Apps that run in the Narrative, your function should have the
  
 
 
-=head2 count_genome_features
+=head2 count_genome_features_from_files
 
-  $return_records = $obj->count_genome_features($params)
+  $return_records = $obj->count_genome_features_from_files($params)
 
 =over 4
 
@@ -230,9 +332,9 @@ Apps that run in the Narrative, your function should have the
 
 <pre>
 $params is a kb_ReportMetrics.FeatureCountParams
-$return_records is a kb_ReportMetrics.StatResults
+$return_records is a kb_ReportMetrics.StatsResults
 FeatureCountParams is a reference to a hash where the following keys are defined:
-	genbank_file_urls has a value which is a reference to a list where each element is a string
+	genome_file_urls has a value which is a reference to a list where each element is a string
 	file_format has a value which is a string
 	genome_source has a value which is a string
 	genome_domain has a value which is a string
@@ -240,7 +342,7 @@ FeatureCountParams is a reference to a hash where the following keys are defined
 	workspace_name has a value which is a string
 	create_report has a value which is a kb_ReportMetrics.bool
 bool is an int
-StatResults is a reference to a hash where the following keys are defined:
+StatsResults is a reference to a hash where the following keys are defined:
 	report_name has a value which is a string
 	report_ref has a value which is a string
 
@@ -251,9 +353,9 @@ StatResults is a reference to a hash where the following keys are defined:
 =begin text
 
 $params is a kb_ReportMetrics.FeatureCountParams
-$return_records is a kb_ReportMetrics.StatResults
+$return_records is a kb_ReportMetrics.StatsResults
 FeatureCountParams is a reference to a hash where the following keys are defined:
-	genbank_file_urls has a value which is a reference to a list where each element is a string
+	genome_file_urls has a value which is a reference to a list where each element is a string
 	file_format has a value which is a string
 	genome_source has a value which is a string
 	genome_domain has a value which is a string
@@ -261,7 +363,7 @@ FeatureCountParams is a reference to a hash where the following keys are defined
 	workspace_name has a value which is a string
 	create_report has a value which is a kb_ReportMetrics.bool
 bool is an int
-StatResults is a reference to a hash where the following keys are defined:
+StatsResults is a reference to a hash where the following keys are defined:
 	report_name has a value which is a string
 	report_ref has a value which is a string
 
@@ -276,7 +378,7 @@ StatResults is a reference to a hash where the following keys are defined:
 
 =cut
 
- sub count_genome_features
+ sub count_genome_features_from_files
 {
     my($self, @args) = @_;
 
@@ -285,7 +387,7 @@ StatResults is a reference to a hash where the following keys are defined:
     if ((my $n = @args) != 1)
     {
 	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
-							       "Invalid argument count for function count_genome_features (received $n, expecting 1)");
+							       "Invalid argument count for function count_genome_features_from_files (received $n, expecting 1)");
     }
     {
 	my($params) = @args;
@@ -293,133 +395,31 @@ StatResults is a reference to a hash where the following keys are defined:
 	my @_bad_arguments;
         (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
         if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to count_genome_features:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    my $msg = "Invalid arguments passed to count_genome_features_from_files:\n" . join("", map { "\t$_\n" } @_bad_arguments);
 	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
-								   method_name => 'count_genome_features');
+								   method_name => 'count_genome_features_from_files');
 	}
     }
 
     my $url = $self->{url};
     my $result = $self->{client}->call($url, $self->{headers}, {
-	    method => "kb_ReportMetrics.count_genome_features",
+	    method => "kb_ReportMetrics.count_genome_features_from_files",
 	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
 	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
 					       code => $result->content->{error}->{code},
-					       method_name => 'count_genome_features',
+					       method_name => 'count_genome_features_from_files',
 					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
 					      );
 	} else {
 	    return wantarray ? @{$result->result} : $result->result->[0];
 	}
     } else {
-        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method count_genome_features",
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method count_genome_features_from_files",
 					    status_line => $self->{client}->status_line,
-					    method_name => 'count_genome_features',
-				       );
-    }
-}
- 
-
-
-=head2 refseq_genome_counts
-
-  $return_records = $obj->refseq_genome_counts($params)
-
-=over 4
-
-=item Parameter and return types
-
-=begin html
-
-<pre>
-$params is a kb_ReportMetrics.GenomeCountParams
-$return_records is a kb_ReportMetrics.StatResults
-GenomeCountParams is a reference to a hash where the following keys are defined:
-	genome_source has a value which is a string
-	genome_domain has a value which is a string
-	refseq_category has a value which is a string
-	workspace_name has a value which is a string
-	create_report has a value which is a kb_ReportMetrics.bool
-bool is an int
-StatResults is a reference to a hash where the following keys are defined:
-	report_name has a value which is a string
-	report_ref has a value which is a string
-
-</pre>
-
-=end html
-
-=begin text
-
-$params is a kb_ReportMetrics.GenomeCountParams
-$return_records is a kb_ReportMetrics.StatResults
-GenomeCountParams is a reference to a hash where the following keys are defined:
-	genome_source has a value which is a string
-	genome_domain has a value which is a string
-	refseq_category has a value which is a string
-	workspace_name has a value which is a string
-	create_report has a value which is a kb_ReportMetrics.bool
-bool is an int
-StatResults is a reference to a hash where the following keys are defined:
-	report_name has a value which is a string
-	report_ref has a value which is a string
-
-
-=end text
-
-=item Description
-
-
-
-=back
-
-=cut
-
- sub refseq_genome_counts
-{
-    my($self, @args) = @_;
-
-# Authentication: required
-
-    if ((my $n = @args) != 1)
-    {
-	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
-							       "Invalid argument count for function refseq_genome_counts (received $n, expecting 1)");
-    }
-    {
-	my($params) = @args;
-
-	my @_bad_arguments;
-        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
-        if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to refseq_genome_counts:\n" . join("", map { "\t$_\n" } @_bad_arguments);
-	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
-								   method_name => 'refseq_genome_counts');
-	}
-    }
-
-    my $url = $self->{url};
-    my $result = $self->{client}->call($url, $self->{headers}, {
-	    method => "kb_ReportMetrics.refseq_genome_counts",
-	    params => \@args,
-    });
-    if ($result) {
-	if ($result->is_error) {
-	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
-					       code => $result->content->{error}->{code},
-					       method_name => 'refseq_genome_counts',
-					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
-					      );
-	} else {
-	    return wantarray ? @{$result->result} : $result->result->[0];
-	}
-    } else {
-        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method refseq_genome_counts",
-					    status_line => $self->{client}->status_line,
-					    method_name => 'refseq_genome_counts',
+					    method_name => 'count_genome_features_from_files',
 				       );
     }
 }
@@ -438,13 +438,18 @@ StatResults is a reference to a hash where the following keys are defined:
 
 <pre>
 $params is a kb_ReportMetrics.StatsReportParams
-$return_records is a kb_ReportMetrics.StatResults
+$return_records is a kb_ReportMetrics.StatsResults
 StatsReportParams is a reference to a hash where the following keys are defined:
 	stats_name has a value which is a string
+	user_ids has a value which is a reference to a list where each element is a kb_ReportMetrics.user_id
+	start_time has a value which is a kb_ReportMetrics.timestamp
+	end_time has a value which is a kb_ReportMetrics.timestamp
 	workspace_name has a value which is a string
 	create_report has a value which is a kb_ReportMetrics.bool
+user_id is a string
+timestamp is a string
 bool is an int
-StatResults is a reference to a hash where the following keys are defined:
+StatsResults is a reference to a hash where the following keys are defined:
 	report_name has a value which is a string
 	report_ref has a value which is a string
 
@@ -455,13 +460,18 @@ StatResults is a reference to a hash where the following keys are defined:
 =begin text
 
 $params is a kb_ReportMetrics.StatsReportParams
-$return_records is a kb_ReportMetrics.StatResults
+$return_records is a kb_ReportMetrics.StatsResults
 StatsReportParams is a reference to a hash where the following keys are defined:
 	stats_name has a value which is a string
+	user_ids has a value which is a reference to a list where each element is a kb_ReportMetrics.user_id
+	start_time has a value which is a kb_ReportMetrics.timestamp
+	end_time has a value which is a kb_ReportMetrics.timestamp
 	workspace_name has a value which is a string
 	create_report has a value which is a kb_ReportMetrics.bool
+user_id is a string
+timestamp is a string
 bool is an int
-StatResults is a reference to a hash where the following keys are defined:
+StatsResults is a reference to a hash where the following keys are defined:
 	report_name has a value which is a string
 	report_ref has a value which is a string
 
@@ -536,13 +546,18 @@ StatResults is a reference to a hash where the following keys are defined:
 
 <pre>
 $params is a kb_ReportMetrics.StatsReportParams
-$return_records is a kb_ReportMetrics.StatResults
+$return_records is a kb_ReportMetrics.StatsResults
 StatsReportParams is a reference to a hash where the following keys are defined:
 	stats_name has a value which is a string
+	user_ids has a value which is a reference to a list where each element is a kb_ReportMetrics.user_id
+	start_time has a value which is a kb_ReportMetrics.timestamp
+	end_time has a value which is a kb_ReportMetrics.timestamp
 	workspace_name has a value which is a string
 	create_report has a value which is a kb_ReportMetrics.bool
+user_id is a string
+timestamp is a string
 bool is an int
-StatResults is a reference to a hash where the following keys are defined:
+StatsResults is a reference to a hash where the following keys are defined:
 	report_name has a value which is a string
 	report_ref has a value which is a string
 
@@ -553,13 +568,18 @@ StatResults is a reference to a hash where the following keys are defined:
 =begin text
 
 $params is a kb_ReportMetrics.StatsReportParams
-$return_records is a kb_ReportMetrics.StatResults
+$return_records is a kb_ReportMetrics.StatsResults
 StatsReportParams is a reference to a hash where the following keys are defined:
 	stats_name has a value which is a string
+	user_ids has a value which is a reference to a list where each element is a kb_ReportMetrics.user_id
+	start_time has a value which is a kb_ReportMetrics.timestamp
+	end_time has a value which is a kb_ReportMetrics.timestamp
 	workspace_name has a value which is a string
 	create_report has a value which is a kb_ReportMetrics.bool
+user_id is a string
+timestamp is a string
 bool is an int
-StatResults is a reference to a hash where the following keys are defined:
+StatsResults is a reference to a hash where the following keys are defined:
 	report_name has a value which is a string
 	report_ref has a value which is a string
 
@@ -741,38 +761,7 @@ an int
 
 
 
-=head2 obj_ref
-
-=over 4
-
-
-
-=item Description
-
-An X/Y/Z style reference
-
-
-=item Definition
-
-=begin html
-
-<pre>
-a string
-</pre>
-
-=end html
-
-=begin text
-
-a string
-
-=end text
-
-=back
-
-
-
-=head2 FeatureCountParams
+=head2 GenomeCountParams
 
 =over 4
 
@@ -800,7 +789,45 @@ to indicate the type contained in the list or map.  For example:
 
 <pre>
 a reference to a hash where the following keys are defined:
-genbank_file_urls has a value which is a reference to a list where each element is a string
+genome_source has a value which is a string
+genome_domain has a value which is a string
+refseq_category has a value which is a string
+workspace_name has a value which is a string
+create_report has a value which is a kb_ReportMetrics.bool
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+genome_source has a value which is a string
+genome_domain has a value which is a string
+refseq_category has a value which is a string
+workspace_name has a value which is a string
+create_report has a value which is a kb_ReportMetrics.bool
+
+
+=end text
+
+=back
+
+
+
+=head2 FeatureCountParams
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+genome_file_urls has a value which is a reference to a list where each element is a string
 file_format has a value which is a string
 genome_source has a value which is a string
 genome_domain has a value which is a string
@@ -815,7 +842,7 @@ create_report has a value which is a kb_ReportMetrics.bool
 =begin text
 
 a reference to a hash where the following keys are defined:
-genbank_file_urls has a value which is a reference to a list where each element is a string
+genome_file_urls has a value which is a reference to a list where each element is a string
 file_format has a value which is a string
 genome_source has a value which is a string
 genome_domain has a value which is a string
@@ -830,7 +857,7 @@ create_report has a value which is a kb_ReportMetrics.bool
 
 
 
-=head2 StatResults
+=head2 StatsResults
 
 =over 4
 
@@ -871,10 +898,15 @@ report_ref has a value which is a string
 
 
 
-=head2 GenomeCountParams
+=head2 user_id
 
 =over 4
 
+
+
+=item Description
+
+A string for the user id
 
 
 =item Definition
@@ -882,26 +914,48 @@ report_ref has a value which is a string
 =begin html
 
 <pre>
-a reference to a hash where the following keys are defined:
-genome_source has a value which is a string
-genome_domain has a value which is a string
-refseq_category has a value which is a string
-workspace_name has a value which is a string
-create_report has a value which is a kb_ReportMetrics.bool
-
+a string
 </pre>
 
 =end html
 
 =begin text
 
-a reference to a hash where the following keys are defined:
-genome_source has a value which is a string
-genome_domain has a value which is a string
-refseq_category has a value which is a string
-workspace_name has a value which is a string
-create_report has a value which is a kb_ReportMetrics.bool
+a string
 
+=end text
+
+=back
+
+
+
+=head2 timestamp
+
+=over 4
+
+
+
+=item Description
+
+A time in the format YYYY-MM-DDThh:mm:ssZ, where Z is the difference
+in time to UTC in the format +/-HHMM, eg:
+        2012-12-17T23:24:06-0500 (EST time)
+        2013-04-03T08:56:32+0000 (UTC time)
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a string
+</pre>
+
+=end html
+
+=begin text
+
+a string
 
 =end text
 
@@ -922,6 +976,9 @@ create_report has a value which is a kb_ReportMetrics.bool
 <pre>
 a reference to a hash where the following keys are defined:
 stats_name has a value which is a string
+user_ids has a value which is a reference to a list where each element is a kb_ReportMetrics.user_id
+start_time has a value which is a kb_ReportMetrics.timestamp
+end_time has a value which is a kb_ReportMetrics.timestamp
 workspace_name has a value which is a string
 create_report has a value which is a kb_ReportMetrics.bool
 
@@ -933,6 +990,9 @@ create_report has a value which is a kb_ReportMetrics.bool
 
 a reference to a hash where the following keys are defined:
 stats_name has a value which is a string
+user_ids has a value which is a reference to a list where each element is a kb_ReportMetrics.user_id
+start_time has a value which is a kb_ReportMetrics.timestamp
+end_time has a value which is a kb_ReportMetrics.timestamp
 workspace_name has a value which is a string
 create_report has a value which is a kb_ReportMetrics.bool
 
