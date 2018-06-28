@@ -64,7 +64,6 @@ class UJS_CAT_NJS_DataUtils:
         user_ids = params['user_ids']
         time_start = params['minTime']
         time_end = params['maxTime']
-<<<<<<< HEAD
 
         stats_name = params['stats_name']
         try:
@@ -103,138 +102,20 @@ class UJS_CAT_NJS_DataUtils:
                                     })
             else:
                 pass
-=======
-	stats_name = params['stats_name']
-        try:
-	    if stats_name == 'user_details':
-		ret_metrics = self.met_client.get_user_details({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-		ret_metrics['metrics_result'] = convert_millis_to_utcdate(
-                            ret_metrics['metrics_result'], ['signup_at', 'last_signin_at'])
-		#Because miraculously some 'false' values would be returned as '0' by pymongo.find...
-		for ur in ret_metrics['metrics_result']:
-		    if ur['kbase_staff'] == 0:
-			ur['kbase_staff'] = False
-		    elif ur['kbase_staff'] == 1:
-			ur['kbase_staff'] = True
-				
-	    elif stats_name == 'user_counts_per_day':
-		print("Trying to get unique user counts")
-		ret_metrics = self.met_client.get_user_counts_per_day({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-		print("UJS returned {} records".format(len(ret_metrics['metrics_result'])))
-		pprint(ret_metrics)
-	    elif stats_name == 'user_ws_stats':
-		ret_metrics = self.met_client.get_user_ws({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-	    elif stats_name == 'user_narrative_stats':
-		ret_metrics = self.met_client.get_user_narrative_stats({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-	    elif stats_name == 'user_numObjs': 
-		ret_metrics = self.met_client.get_user_numObjs({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-	    elif stats_name == 'total_logins':
-		ret_metrics = self.met_client.get_total_logins({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-	    else:
-		ret_metrics['metrics_result'] = []
->>>>>>> d279d1f4590dc557b1b7afd7ed936e6325a63727
-        except Exception as e_met: #RuntimeError
+        except Exception as e_met:  # RuntimeError
             log('UJS_CAT_NJS_DataUtils.get_user_metrics raised error:')
             log(e_met)
             return {'metrics_result': []}
-<<<<<<< HEAD
-        else: #no exception raised, process the data returned from the service call
+        else:  # no exception raised, process the data returned from the service call
             if(len(ret_metrics) > 1):
                 log(pformat(ret_metrics[:2]))
         return ret_metrics
-=======
-	else: #no exception raised, process the data returned from the service call
-	    #if(len(ret_metrics) > 1):
-		#log(pformat(ret_metrics[:2]))
-	    return ret_metrics
-
->>>>>>> d279d1f4590dc557b1b7afd7ed936e6325a63727
 
     def get_app_metrics(self, input_params):
         """
         get_app_metrics: call the dynamic service kb_Metrics to retrieve app metrics
-        and return the following data structure, e.g.,
-        [{
-        u'app_id': u'kb_ReportMetrics/count_genome_features_from_files',
-        u'authparam': u'27951',
-        u'authstrat': u'kbaseworkspace',
-        u'client_groups': [u'njs'],
-        u'complete': True,
-        u'created': 1515173864675,
-        u'creation_time': 1515173864675,
-        u'desc': u'Execution engine job for kb_ReportMetrics.count_genome_features_from_files',
-        u'error': False,
-        u'errormsg': None,
-        u'estcompl': None,
-        u'exec_start_time': 1515173873601,
-        u'finish_time': 1515173991461,
-        u'job_id': u'5a4fb7e8e4b0c23d90df55bf',
-        u'job_input': {
-            u'app_id': u'kb_ReportMetrics/count_genome_features_from_files',
-            u'meta': {u'cell_id': u'6620f8a8-e464-491a-973e-d717cde08847',
-                u'run_id': u'705ca618-1432-4a37-b43b-5c4d736fbdfb',
-                u'tag': u'beta',
-                u'token_id': u'3608feea-7b98-4ad9-8430-472bc67e6c74'},
-            u'method': u'kb_ReportMetrics.count_genome_features_from_files',
-            u'params': [{u'create_report': 1,
-                u'genome_file_urls': [u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz',
-                    u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/008/725/GCF_000008725.1_ASM872v1/GCF_000008725.1_ASM872v1_genomic.gbff.gz',
-                u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz'],
-                u'workspace_name': u'qzhang:narrative_1515016322184'}],
-            u'requested_release': None,
-            u'service_ver': u'931c6e7a90a9cf99c8c480edeb3ea461ea0a2f60',
-            u'wsid': 27951},
-        u'job_output': {
-            u'id': u'18552903324',
-            u'result': [{u'report_name': u'kb_Metrics_report_26006057-d85a-4317-a1d6-bba0f7bd291a',
-                u'report_ref': u'27951/79/1'}],
-            u'version': u'1.1'},
-        u'job_state': u'completed',
-        u'maxprog': None,
-        u'meta': [{u'k': u'cell_id',
-            u'v': u'6620f8a8-e464-491a-973e-d717cde08847'},
-            {u'k': u'run_id', u'v': u'705ca618-1432-4a37-b43b-5c4d736fbdfb'},
-            {u'k': u'tag', u'v': u'beta'},
-            {u'k': u'token_id',
-            u'v': u'3608feea-7b98-4ad9-8430-472bc67e6c74'}],
-        u'method': u'kb_ReportMetrics.count_genome_features_from_files',
-        u'modification_time': 1515173991461,
-        u'prog': 0,
-        u'progtype': u'none',
-        u'results': {u'shocknodes': None,
-                u'shockurl': None,
-                u'workspaceids': None,
-                u'workspaceurl': None},
-        u'run_time': 117860,
-        u'service': u'qzhang',
-        u'started': 1515173873601,
-        u'status': u'done',
-        u'time_info': [1515173864675, 1515173991461, None],
-        u'updated': 1515173991461,
-        u'user': u'qzhang',
-        u'wsid': u'27951'},
-        ...
-        ]
         """
-        #log("Fetching the metrics data")
+        # log("Fetching the metrics data")
         ret_metrics = []
         params = self.process_met_parameters(input_params)
         user_ids = params['user_ids']
@@ -245,68 +126,18 @@ class UJS_CAT_NJS_DataUtils:
                 'user_ids': user_ids,
                 'epoch_range': (time_start, time_end)
             })
-        except Exception as e_met: #RuntimeError
+        except Exception as e_met:  # RuntimeError
             log('kb_Metrics.get_app_metrics raised error:')
             log(e_met)
             return []
-        else: #no exception raised, process the data returned from the service call
+        else:  # no exception raised, process the data returned from the service call
             if(len(ret_metrics) > 1):
                 log(pformat(ret_metrics[:2]))
             return ret_metrics
 
-    def generate_app_metrics_from_ujs(self, input_params):#, token):
+    def generate_app_metrics_from_ujs(self, input_params):  # , token):
         """
         generate_app_metrics: get app job state data with structure as the following example:
-        [
-         {'app_id': u'kb_Metrics/refseq_genome_counts',
-          'canceled': 0,
-          'creation_time': 1510159439977,
-          'error': 0,
-          'exec_start_time': 1510159441720,
-          'finish_time': 1510159449612,
-          'finished': 1,
-          'job_desc': u'Execution engine job for kb_Metrics.refseq_genome_counts',
-          'job_id': u'5a03344fe4b088e4b0e0e370',
-          'job_state': u'completed',
-          'method': u'refseq_genome_counts',
-          'module': u'kb_Metrics',
-          'result': [{u'report_name': u'kb_Metrics_report_f97f0567-fee5-48ea-8fc5-1f5e361ee2bd',
-                      u'report_ref': u'25735/121/1'}],
-          'run_time': '0:00:08',
-          'stage': u'complete',
-          'status': u'done',
-          'time_info': [u'2017-11-08T16:44:01+0000',
-                        u'2017-11-08T16:44:09+0000',
-                        None],
-          'user_id': u'qzhang',
-          'wsid': 25735},
-          {'app_id': u'RAST_SDK/annotate_contigset',
-          'canceled': 0,
-          'creation_time': 1485974151389,
-          'error': 0,
-          'exec_start_time': 1485974156377,
-          'finish_time': 1485974703341,
-          'finished': 1,
-          'job_desc': u'Execution engine job for RAST_SDK.annotate_genome',
-          'job_id': u'58922a87e4b0c1af1bf0981b',
-          'job_state': u'completed',
-          'method': u'annotate_genome',
-          'module': u'RAST_SDK',
-          'result': [{u'id': u'Pantoea.ananatis_contigs_beta_out',
-                      u'report_name': u'Pantoea.ananatis_contigs_beta_out.report',
-                      u'report_ref': u'19268/62/1',
-                      u'workspace': u'qzhang:narrative_1485914570215',
-                      u'ws_report_id': u'Pantoea.ananatis_contigs_beta_out.report'}],
-          'run_time': '0:09:07',
-          'stage': u'complete',
-          'status': u'done',
-          'time_info': [u'2017-02-01T18:35:56+0000',
-                        u'2017-02-01T18:45:03+0000',
-                        None],
-          'user_id': u'qzhang',
-          'wsid': 19268},
-          ......
-        ]
         """
         params = self.process_app_parameters(input_params)
         user_ids = params['user_ids']
@@ -317,15 +148,14 @@ class UJS_CAT_NJS_DataUtils:
         ws_owners, ws_ids = self.get_user_workspaces(user_ids, time_start, time_end, 0, 0)
         ujs_ret = self.get_user_and_job_states(ws_ids)
         total_ujs_count = len(ujs_ret)
-        #log("Before time_stage filter:{}".format(total_ujs_count))
+        # log("Before time_stage filter:{}".format(total_ujs_count))
 
         jt_filtered_ujs = self.filterUJS_by_time_stage(ujs_ret, job_stage, time_start, time_end)
         period_ujs_count = len(jt_filtered_ujs)
         jt_filtered_ujs = self.convert_time_info(jt_filtered_ujs)
-        #log("After time_stage filter:{}".format(period_ujs_count))
-        #user_grouped_ujs = self.group_by_user(jt_filtered_ujs, user_ids)
+        # log("After time_stage filter:{}".format(period_ujs_count))
+        # user_grouped_ujs = self.group_by_user(jt_filtered_ujs, user_ids)
         return {'job_states':jt_filtered_ujs}
-
 
     def get_user_workspaces(self, user_ids, st_time, ed_time, showDeleted=0, showOnlyDeleted=0):
         """
@@ -351,8 +181,8 @@ class UJS_CAT_NJS_DataUtils:
 
         return a list of ws_owners and ws_ids
         """
-        #log("Fetching workspace ids for {} users:\n{}".format('the' if user_ids else 'all', user_ids if user_ids else ''))
-        #ws_info = self.ws_client.list_workspace_info({})
+        # log("Fetching workspace ids for {} users:\n{}".format('the' if user_ids else 'all', user_ids if user_ids else ''))
+        # ws_info = self.ws_client.list_workspace_info({})
         ws_info = self.ws_client.list_workspace_info({'owners':user_ids,
                         'showDeleted': showDeleted,
                         'showOnlyDeleted': showOnlyDeleted,
@@ -361,7 +191,7 @@ class UJS_CAT_NJS_DataUtils:
                         'before': ed_time.strftime("%Y-%m-%dT%H:%M:%SZ")
                 })
 
-        #log(pformat(ws_info))
+        # log(pformat(ws_info))
         ws_ids = [ws[0] for ws in ws_info]
         ws_owners = [ws[2] for ws in ws_info]
 
@@ -371,7 +201,7 @@ class UJS_CAT_NJS_DataUtils:
         """
         get_user_and_job_states: Get the user and job info for the given workspaces
         """
-        #log("Fetching the job data...for these workspaces:\n{}".format(pformat(ws_ids)))
+        # log("Fetching the job data...for these workspaces:\n{}".format(pformat(ws_ids)))
 
         wsj_states = []
         clnt_groups = self.get_client_groups_from_cat()
@@ -383,10 +213,9 @@ class UJS_CAT_NJS_DataUtils:
             counter += 1
 
         wsj_states += self.retrieve_user_job_states(ws_ids[counter * 10: ], clnt_groups)
-        #log(pformat(wsj_states[0]))
+        # log(pformat(wsj_states[0]))
 
         return wsj_states
-
 
     def retrieve_user_job_states(self, wid_p, c_groups):
         """
@@ -399,7 +228,7 @@ class UJS_CAT_NJS_DataUtils:
 
         retrieve_user_job_states: returns an array of required data items about user_and_job states
         """
-        #log("Fetching the ujs data for workspace(s) {}...".format(pformat(wid_p)))
+        # log("Fetching the ujs data for workspace(s) {}...".format(pformat(wid_p)))
         ret_ujs = []
         try:
             nar_jobs = self.ujs_client.list_jobs2({
@@ -411,22 +240,22 @@ class UJS_CAT_NJS_DataUtils:
             log('UJS list_jobs2 raised error:\n')
             log(pformat(e_ujs))
             return []
-        else:#no exception raised
+        else:  # no exception raised
             if (nar_jobs and len(nar_jobs) > 0):
-                #******The ujs_client.list_jobs2({...}) returns a 13 member tuple:*****#
-                job_ids = [j[0] for j in nar_jobs]#[u'59f36d00e4b0fb0c767100cc',...]
-                job_user_info = [j[1] for j in nar_jobs]#[[u'qzhang', None],[u'qzhang', u'qzhang'],...]
-                job_owners = [j[2] for j in nar_jobs]#[u'qzhang',u'qzhang',...]
-                job_stages = [j[3] for j in nar_jobs]#One of 'created', 'started', 'complete', 'canceled' or 'error'
-                job_status = [j[4] for j in nar_jobs]##[u'done','running','canceled by user','......',...]
-                job_time_info = [j[5] for j in nar_jobs]#tuple<timestamp started, timestamp last_update,timestamp est_complete>[[u'2017-10-27T17:29:37+0000', u'2017-10-27T17:29:42+0000', None],...]
-                job_progress_info = [j[6] for j in nar_jobs]#tuple<total_progress prog, max_progress max, progress_type ptype>
-                job_complete = [j[7] for j in nar_jobs]#[1,1,...,0,..]
-                job_error = [j[8] for j in nar_jobs]#[1,0,...,0,..]
-                job_auth_info = [j[9] for j in nar_jobs]#[[u'kbaseworkspace', u'25735'],...]
-                job_meta = [j[10] for j in nar_jobs]#[{u'cell_id': u'828d2e3c-5c5d-4c4c-9de8-4aacb875c074',u'run_id': u'a05df5b3-2d3e-4e4a-9a32-173acaa9bd0c',u'tag': u'beta',u'token_id': u'2dea84eb-8f40-4516-b18e-f284cc6bb107'},...]
-                job_desc = [j[11] for j in nar_jobs]#[u'Execution engine job for kb_Metrics.count_ncbi_genome_features',...]
-                job_res = [j[12] for j in nar_jobs]#[{},None,...]
+                # ******The ujs_client.list_jobs2({...}) returns a 13 member tuple:*****#
+                job_ids = [j[0] for j in nar_jobs]  # [u'59f36d00e4b0fb0c767100cc',...]
+                job_user_info = [j[1] for j in nar_jobs]  #[ [u'qzhang', None],[u'qzhang', u'qzhang'],...]
+                job_owners = [j[2] for j in nar_jobs]  # [u'qzhang',u'qzhang',...]
+                job_stages = [j[3] for j in nar_jobs]  # One of 'created', 'started', 'complete', 'canceled' or 'error'
+                job_status = [j[4] for j in nar_jobs]  # [u'done','running','canceled by user','......',...]
+                job_time_info = [j[5] for j in nar_jobs]  # tuple<timestamp started, timestamp last_update,timestamp est_complete>[[u'2017-10-27T17:29:37+0000', u'2017-10-27T17:29:42+0000', None],...]
+                job_progress_info = [j[6] for j in nar_jobs]  #t uple<total_progress prog, max_progress max, progress_type ptype>
+                job_complete = [j[7] for j in nar_jobs]  # [1,1,...,0,..]
+                job_error = [j[8] for j in nar_jobs]  # [1,0,...,0,..]
+                job_auth_info = [j[9] for j in nar_jobs]  # [[u'kbaseworkspace', u'25735'],...]
+                job_meta = [j[10] for j in nar_jobs]  # [{u'cell_id': u'828d2e3c-5c5d-4c4c-9de8-4aacb875c074',u'run_id': u'a05df5b3-2d3e-4e4a-9a32-173acaa9bd0c',u'tag': u'beta',u'token_id': u'2dea84eb-8f40-4516-b18e-f284cc6bb107'},...]
+                job_desc = [j[11] for j in nar_jobs]  #[ u'Execution engine job for kb_Metrics.count_ncbi_genome_features',...]
+                job_res = [j[12] for j in nar_jobs]  # [{},None,...]
 
                 ret_ujs = self.retrieve_ujs_via_njs(c_groups, job_ids, job_owners,
                                 job_stages, job_status, job_time_info, job_error, job_desc)
@@ -437,21 +266,21 @@ class UJS_CAT_NJS_DataUtils:
                         job_status, job_time_info,job_error, job_desc):
         ujs_ret = []
         try:
-            #log("Calling njs.check_jobs for {} jobs".format(len(job_ids)))
+            # log("Calling njs.check_jobs for {} jobs".format(len(job_ids)))
             job_info = self.njs_client.check_jobs({
                         'job_ids': job_ids, 'with_job_params': 1
                 })
-        except Exception as e_njs: #RuntimeError as e_njs:
+        except Exception as e_njs:  # RuntimeError as e_njs:
             log('NJS check_jobs raised error:\n')
             log(pformat(e_njs))
             return []
-        else:#no exception raised
+        else:  # no exception raised
             job_states = job_info.get('job_states', {})
             job_params = job_info.get('job_params', {})
             job_errors = job_info.get('check_error', {})
 
             # Retrieve the interested data from job_states to assemble an array of job states
-            #for j_id, j_owner in zip(job_ids, job_owners):
+            # for j_id, j_owner in zip(job_ids, job_owners):
             for j_idx, jb_id in enumerate(job_ids):
                 jbs = job_states.get(job_ids[j_idx], {})
                 jbp = job_params.get(job_ids[j_idx], {})
@@ -578,7 +407,6 @@ class UJS_CAT_NJS_DataUtils:
                 log(pformat(raw_stats[0]))
             return raw_stats
 
-
     def get_client_groups_from_cat(self):
         """
         get_client_groups_from_cat: Get the client_groups data from Catalog API
@@ -596,7 +424,6 @@ class UJS_CAT_NJS_DataUtils:
         #log("\nClient group example:\n{}".format(pformat(client_groups[0])))
 
         return client_groups
-
 
     def get_exec_aggrTable_from_cat(self):
         """
@@ -620,7 +447,6 @@ class UJS_CAT_NJS_DataUtils:
             log(pformat(aggr_tab[0]))
             return aggr_tab
 
-
     def get_exec_aggrStats_from_cat(self):
         """
         get_exec_aggr_from_cat: Get stats on aggregated execution results of KBase apps
@@ -637,9 +463,9 @@ class UJS_CAT_NJS_DataUtils:
         }
         """
         # Pull the data
-        try:#log("Fetching the exec_aggr stats data from Catalog API...")
+        try:  # log("Fetching the exec_aggr stats data from Catalog API...")
             aggr_stats = self.cat_client.get_exec_aggr_stats({})
-        except Exception as e_aggr: #RuntimeError:
+        except Exception as e_aggr:  # RuntimeError:
             log('kb_Metrics.get_exec_aggrStats_from_cat raised error:')
             log(pformat(e_aggr))
             return []
@@ -652,7 +478,6 @@ class UJS_CAT_NJS_DataUtils:
                 kb_mod['total_queue_time'] = tq/3600
                 log(pformat(aggr_stats[0]))
             return aggr_stats
-
 
     def get_module_stats_from_cat(self):
         """
@@ -674,9 +499,9 @@ class UJS_CAT_NJS_DataUtils:
                 continue
             ct = len(v['narrative_methods'])
             days = (v['timestamp']/1000)/3600/24
-            #print '%-40s %3d %3d' %(kb_module['module_name'],days,ct)
+            # print '%-40s %3d %3d' %(kb_module['module_name'],days,ct)
             kb_modules['%s:%d:%s' %(name,ct,s)] = days
-        #log(pformat(kb_modules))
+        # log(pformat(kb_modules))
 
         # Generate time based summaries
         sorted_x = sorted(kb_modules, key=lambda i: int(kb_modules[i]))
@@ -703,7 +528,7 @@ class UJS_CAT_NJS_DataUtils:
             if s == 'r':
                 rmods[bucket] += 1
                 rapps[bucket] += int(ct)
-            #print '%-40s %3d %3d' %(name,int(ct),kb_modules[m])
+            # print '%-40s %3d %3d' %(name,int(ct),kb_modules[m])
 
         # Modules by Quarter
         tmods = 0
@@ -743,7 +568,6 @@ class UJS_CAT_NJS_DataUtils:
 
         return grouped_ujs
 
-
     def filterUJS_by_time_stage(self, job_sts, j_stage, j_start_time, j_end_time):
         filtered_ujs = []
         for ujs_i in job_sts:
@@ -758,14 +582,13 @@ class UJS_CAT_NJS_DataUtils:
 
         return filtered_ujs
 
-
     def convert_time_info(self, ujs_arr):
-        #convert time_info from [utc_string, utc_string, utc_string] to [epoch_timestamp*3]
+        # convert time_info from [utc_string, utc_string, utc_string] to [epoch_timestamp*3]
         for u_j_s in ujs_arr:
             if u_j_s['time_info']:
-                #log("Before {}".format(pformat(u_j_s['time_info'])))
+                # log("Before {}".format(pformat(u_j_s['time_info'])))
                 u_j_s['time_info'] = [_timestamp_from_utc(t_j) if t_j else None for t_j in u_j_s['time_info']]
-                #log("After {}".format(pformat(u_j_s['time_info'])))
+                # log("After {}".format(pformat(u_j_s['time_info'])))
         return ujs_arr
 
     def init_clients_withToken(self, token):
@@ -787,7 +610,7 @@ class UJS_CAT_NJS_DataUtils:
             time_start, time_end = params['time_range']
             params['time_start'] = _convert_to_datetime(time_start)
             params['time_end'] = _convert_to_datetime(time_end)
-        else: #set the most recent 48 hours range
+        else:  # set the most recent 48 hours range
             params['time_end'] = datetime.datetime.utcnow()
             params['time_start'] = params['time_end'] - datetime.timedelta(hours=48)
 
@@ -797,7 +620,6 @@ class UJS_CAT_NJS_DataUtils:
             params['job_stage'] = 'complete'
 
         return params
-
 
     def process_user_parameters(self, params):
         if params.get('filter_str', None) is None:
@@ -810,12 +632,11 @@ class UJS_CAT_NJS_DataUtils:
             time_start, time_end = params['time_range']
             params['time_start'] = _convert_to_datetime(time_start)
             params['time_end'] = _convert_to_datetime(time_end)
-        else: #set the most recent quarter (90 days)
+        else:  # set the most recent quarter (90 days)
             params['time_end'] = datetime.datetime.utcnow()
             params['time_start'] = params['time_end'] - datetime.timedelta(days=90)
 
         return params
-
 
     def generate_user_metrics(self, input_params):
         """
@@ -860,7 +681,6 @@ class UJS_CAT_NJS_DataUtils:
 
         return {'user_metrics': kb_uprof}
 
-
     def get_user_names(self, filter_str):
         """
         get_user_names: given a filter string, get a list of User of structure as below:
@@ -873,9 +693,8 @@ class UJS_CAT_NJS_DataUtils:
         log("Fetching user name details for {} users\n{}".format(
                 'the' if filter_str else 'all', 'with id containing ' + filter_str if filter_str else ''))
         user_names = self.uprf_client.filter_users({'filter': filter_str})
-        #log(pformat(user_names))
+        # log(pformat(user_names))
         return user_names
-
 
     def get_user_profiles(self, user_ids):
         """
@@ -916,7 +735,6 @@ class UJS_CAT_NJS_DataUtils:
         user_prof = self.uprf_client.get_user_profile(user_ids)
         log(pformat(user_prof))
         return user_prof
-
 
     def filterUPROF_by_time_stage(self, user_prof, j_start_time, j_end_time):
         """

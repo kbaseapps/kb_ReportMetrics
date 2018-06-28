@@ -24,8 +24,8 @@ class kb_Metrics(object):
             password=None, token=None, ignore_authrc=False,
             trust_all_ssl_certificates=False,
             auth_svc='https://kbase.us/services/authorization/Sessions/Login',
-	    service_ver='dev'):
-	if url is None:
+            service_ver='dev'):
+        if url is None:
             url = 'https://kbase.us/services/service_wizard'
         self._service_ver = service_ver
         self._client = _BaseClient(
@@ -33,7 +33,7 @@ class kb_Metrics(object):
             token=token, ignore_authrc=ignore_authrc,
             trust_all_ssl_certificates=trust_all_ssl_certificates,
             auth_svc=auth_svc,
-	    lookup_url=True)
+            lookup_url=True)
 
     def get_app_metrics(self, params, context=None):
         """
@@ -49,6 +49,24 @@ class kb_Metrics(object):
         """
         return self._client.call_method(
             'kb_Metrics.get_app_metrics',
+            [params], self._service_ver, context)
+
+    def update_metrics(self, params, context=None):
+        """
+        For writing to mongodb metrics *
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
+        """
+        return self._client.call_method(
+            'kb_Metrics.update_metrics',
             [params], self._service_ver, context)
 
     def get_user_details(self, params, context=None):
@@ -69,9 +87,74 @@ class kb_Metrics(object):
             'kb_Metrics.get_user_details',
             [params], self._service_ver, context)
 
-<<<<<<< HEAD
+    def get_nonkbuser_details(self, params, context=None):
+        """
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
+        """
+        return self._client.call_method(
+            'kb_Metrics.get_nonkbuser_details',
+            [params], self._service_ver, context)
+
+    def get_signup_returning_users(self, params, context=None):
+        """
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
+        """
+        return self._client.call_method(
+            'kb_Metrics.get_signup_returning_users',
+            [params], self._service_ver, context)
+
+    def get_signup_returning_nonkbusers(self, params, context=None):
+        """
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
+        """
+        return self._client.call_method(
+            'kb_Metrics.get_signup_returning_nonkbusers',
+            [params], self._service_ver, context)
+
     def get_user_counts_per_day(self, params, context=None):
-=======
+        """
+        :param params: instance of type "MetricsInputParams" (unified
+           input/output parameters) -> structure: parameter "user_ids" of
+           list of type "user_id" (A string for the user id), parameter
+           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
+           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
+           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
+           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
+           UTC) in milliseconds.)
+        :returns: instance of type "MetricsOutput" -> structure: parameter
+           "metrics_result" of unspecified object
+        """
+        return self._client.call_method(
+            'kb_Metrics.get_user_counts_per_day',
+            [params], self._service_ver, context)
+
     def get_total_logins(self, params, context=None):
         """
         :param params: instance of type "MetricsInputParams" (unified
@@ -89,7 +172,7 @@ class kb_Metrics(object):
             'kb_Metrics.get_total_logins',
             [params], self._service_ver, context)
 
-    def get_user_ws(self, params, context=None):
+    def get_nonkb_total_logins(self, params, context=None):
         """
         :param params: instance of type "MetricsInputParams" (unified
            input/output parameters) -> structure: parameter "user_ids" of
@@ -103,41 +186,7 @@ class kb_Metrics(object):
            "metrics_result" of unspecified object
         """
         return self._client.call_method(
-            'kb_Metrics.get_user_ws',
-            [params], self._service_ver, context)
-
-    def get_user_narratives(self, params, context=None):
-        """
-        :param params: instance of type "MetricsInputParams" (unified
-           input/output parameters) -> structure: parameter "user_ids" of
-           list of type "user_id" (A string for the user id), parameter
-           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
-           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
-           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
-           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
-           UTC) in milliseconds.)
-        :returns: instance of type "MetricsOutput" -> structure: parameter
-           "metrics_result" of unspecified object
-        """
-        return self._client.call_method(
-            'kb_Metrics.get_user_narratives',
-            [params], self._service_ver, context)
-
-    def get_user_numObjs(self, params, context=None):
-        """
-        :param params: instance of type "MetricsInputParams" (unified
-           input/output parameters) -> structure: parameter "user_ids" of
-           list of type "user_id" (A string for the user id), parameter
-           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
-           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
-           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
-           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
-           UTC) in milliseconds.)
-        :returns: instance of type "MetricsOutput" -> structure: parameter
-           "metrics_result" of unspecified object
-        """
-        return self._client.call_method(
-            'kb_Metrics.get_user_numObjs',
+            'kb_Metrics.get_nonkb_total_logins',
             [params], self._service_ver, context)
 
     def get_user_logins(self, params, context=None):
@@ -157,8 +206,7 @@ class kb_Metrics(object):
             'kb_Metrics.get_user_logins',
             [params], self._service_ver, context)
 
-    def get_user_ujs_results(self, params, context=None):
->>>>>>> d279d1f4590dc557b1b7afd7ed936e6325a63727
+    def get_user_numObjs(self, params, context=None):
         """
         :param params: instance of type "MetricsInputParams" (unified
            input/output parameters) -> structure: parameter "user_ids" of
@@ -172,12 +220,11 @@ class kb_Metrics(object):
            "metrics_result" of unspecified object
         """
         return self._client.call_method(
-            'kb_Metrics.get_user_counts_per_day',
+            'kb_Metrics.get_user_numObjs',
             [params], self._service_ver, context)
 
-    def update_metrics(self, params, context=None):
+    def get_narrative_stats(self, params, context=None):
         """
-        For writing to mongodb metrics *
         :param params: instance of type "MetricsInputParams" (unified
            input/output parameters) -> structure: parameter "user_ids" of
            list of type "user_id" (A string for the user id), parameter
@@ -190,12 +237,11 @@ class kb_Metrics(object):
            "metrics_result" of unspecified object
         """
         return self._client.call_method(
-            'kb_Metrics.update_metrics',
+            'kb_Metrics.get_narrative_stats',
             [params], self._service_ver, context)
 
-    def update_metrics(self, params, context=None):
+    def get_all_narrative_stats(self, params, context=None):
         """
-        For writing to mongodb metrics *
         :param params: instance of type "MetricsInputParams" (unified
            input/output parameters) -> structure: parameter "user_ids" of
            list of type "user_id" (A string for the user id), parameter
@@ -208,28 +254,10 @@ class kb_Metrics(object):
            "metrics_result" of unspecified object
         """
         return self._client.call_method(
-            'kb_Metrics.update_metrics',
+            'kb_Metrics.get_all_narrative_stats',
             [params], self._service_ver, context)
 
-    def get_user_activities(self, params, context=None):
-        """
-        For retrieving from mongodb metrics *
-        :param params: instance of type "MetricsInputParams" (unified
-           input/output parameters) -> structure: parameter "user_ids" of
-           list of type "user_id" (A string for the user id), parameter
-           "epoch_range" of type "epoch_range" -> tuple of size 2: parameter
-           "e_lowerbound" of type "epoch" (A Unix epoch (the time since
-           00:00:00 1/1/1970 UTC) in milliseconds.), parameter "e_upperbound"
-           of type "epoch" (A Unix epoch (the time since 00:00:00 1/1/1970
-           UTC) in milliseconds.)
-        :returns: instance of type "MetricsOutput" -> structure: parameter
-           "metrics_result" of unspecified object
-        """
-        return self._client.call_method(
-            'kb_Metrics.get_user_activities',
-            [params], self._service_ver, context)
-
-    def get_user_counts_per_day(self, params, context=None):
+    def get_user_ws_stats(self, params, context=None):
         """
         :param params: instance of type "MetricsInputParams" (unified
            input/output parameters) -> structure: parameter "user_ids" of
@@ -243,7 +271,7 @@ class kb_Metrics(object):
            "metrics_result" of unspecified object
         """
         return self._client.call_method(
-            'kb_Metrics.get_user_counts_per_day',
+            'kb_Metrics.get_user_ws_stats',
             [params], self._service_ver, context)
 
     def status(self, context=None):

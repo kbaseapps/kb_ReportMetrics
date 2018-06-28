@@ -164,19 +164,48 @@ class kb_ReportMetricsTest(unittest.TestCase):
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # Uncomment to skip this test
     #@unittest.skip("skipped test_run_report_metrics")
-    def test_run_report_metrics(self):
-	#'stats_name' values: ('user_counts_per_day','total_logins','user_details',
-	#'user_ws_stats','user_narrative_stats','exec_stats','exec_aggr_table',
-	#'exec_stats','exec_aggr_stats','user_job_states'
+    def test_run_report_metrics1(self):
+	# 'stats_name' values: ('user_counts_per_day','total_logins','user_details',
+	# 'user_ws_stats','user_narrative_stats','exec_stats','exec_aggr_table',
+	# 'exec_stats','exec_aggr_stats','user_job_states'
         m_params = {
             'stats_name':'user_details',
             'user_ids':[],#['qzhang'],#'user_ids': [],
             'start_time': '2016-1-1T00:00:00+0000',
-	    'end_time': '2018-2-28T17:29:37+0000',
+            'end_time': '2018-2-28T17:29:37+0000',
             'workspace_name': self.getWsName(),
             'create_report':0
         }
         # Second, call your implementation
         ret = self.getImpl().report_metrics(self.getContext(), m_params)
         #print(pformat(ret[0]))
+
+    # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
+    # Uncomment to skip this test
+    # @unittest.skip("skipped test_run_report_metrics")
+    def test_run_report_metrics2(self):
+        m_params = {
+            'stats_name':'user_counts_per_day',# 'user_details','user_ws','app_stats''exec_stats','exec_aggr_table','exec_stats','exec_aggr_stats','user_job_states'
+            'user_ids': ['qzhang'],  # 'user_ids': [],
+            'start_time': '2017-3-1T00:00:00+0000',
+            'end_time': '2017-4-8T17:29:37+0000',
+            'workspace_name': self.getWsName(),
+            'create_report': 1
+        }
+        # Second, call your implementation
+        ret = self.getImpl().report_metrics(self.getContext(), m_params)
+        print(pformat(ret))
+
+    # Uncomment to skip this test
+    # @unittest.skip("skipped test_call_kb_Metrics_service")
+    def test_call_kb_Metrics_service(self):
+        """ for testing to kb_Metrics service
+        """
+        met_client = kb_Metrics(
+            url=self.srv_wiz_url, token=environ.get('KB_AUTH_TOKEN', None))
+        ret_metrics = met_client.get_app_metrics({
+                     'user_ids': ['thomasoniii'],
+                     'epoch_range': (1512660232000, 1513362780886)
+            })
+        print(pformat(ret_metrics))
 
