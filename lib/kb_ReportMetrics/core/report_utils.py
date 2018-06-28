@@ -21,11 +21,14 @@ from numpy import median, mean, max
 
 from KBaseReport.KBaseReportClient import KBaseReport
 from kb_ReportMetrics.core.UJS_CAT_NJS_DataUtils import UJS_CAT_NJS_DataUtils
+from kb_Metrics.kb_MetricsClient import kb_Metrics
+
 
 def log(message, prefix_newline=False):
-    """Logging function, provides a hook to suppress or redirect log messages."""
+    """Logging function, provides a hook to suppress or redirect log messages.
+    """
     print(('\n' if prefix_newline else '') + '{0:.2f}'.format(time.time())
-		+ ': ' + message.encode('utf-8'))
+          + ': ' + message.encode('utf-8'))
 
 
 def _mkdir_p(path):
@@ -47,8 +50,8 @@ class report_utils:
     PARAM_IN_WS = 'workspace_name'
 
     def __init__(self, scratch_dir, workspace_url, callback_url, srv_wiz_url,
-				job_service_url, njsw_url, auth_service_url,
-				kbase_endpoint, provenance, token):
+                 job_service_url, njsw_url, auth_service_url,
+                 kbase_endpoint, provenance, token):
         self.scratch = scratch_dir
         self.callback_url = callback_url
 
@@ -56,27 +59,29 @@ class report_utils:
         self.job_service_url = job_service_url
         self.njsw_url = njsw_url
         self.auth_service_url = auth_service_url
-	self.srv_wiz_url = srv_wiz_url
-	self.kbase_endpoint = kbase_endpoint
+        self.srv_wiz_url = srv_wiz_url
+        self.kbase_endpoint = kbase_endpoint
         self.provenance = provenance
-	self.token = token
+        self.token = token
 
         _mkdir_p(self.scratch)
         self.metrics_dir = os.path.join(self.scratch, str(uuid.uuid4()))
         _mkdir_p(self.metrics_dir)
 
-	self.statdu = UJS_CAT_NJS_DataUtils(self.workspace_url,
-				self.job_service_url, self.srv_wiz_url,
-				self.njsw_url, self.auth_service_url,
-				self.kbase_endpoint, self.provenance, self.token)
+        self.statdu = UJS_CAT_NJS_DataUtils(self.workspace_url,
+                                            self.job_service_url,
+                                            self.srv_wiz_url,
+                                            self.njsw_url,
+                                            self.auth_service_url,
+                                            self.kbase_endpoint,
+                                            self.provenance, self.token)
         self.kbr = KBaseReport(self.callback_url)
-
 
     def create_metrics_reports(self, params):
         """
         """
         if params.get(self.PARAM_IN_WS, None) is None:
-           raise ValueError(self.PARAM_IN_WS + ' parameter is mandatory')
+            raise ValueError(self.PARAM_IN_WS + ' parameter is mandatory')
 
         if params.get('stats_name', None) is None:
             raise ValueError('Variable stats_name' + ' parameter is mandatory')
@@ -92,11 +97,13 @@ class report_utils:
             ret_stats = self.statdu.get_exec_aggrTable_from_cat()
         elif stats_name == 'app_stats':
             ret_stats = self.statdu.get_app_metrics(params)
-        elif stats_name in ['user_details', 'user_counts_per_day', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
+        elif stats_name in ['user_details', 'user_counts_per_day', 'user_ws',
+                            'user_narratives', 'user_numObjs', 'total_logins']:
             ret_stats = self.statdu.get_user_metrics(params)
-	    if len(ret_stats['metrics_result']) > 0:
-		#pprint(ret_stats['metrics_result'])
-		self._write_stats_json_tsv_files(ret_stats['metrics_result'], stats_name)
+
+        if len(ret_stats['metrics_result']) > 0:
+            self._write_stats_json_tsv_files(ret_stats['metrics_result'],
+                                             stats_name)
         else:
             pass
 
@@ -108,57 +115,78 @@ class report_utils:
         if len(ret_stats['metrics_result']) == 0:
             return returnVal
 
-        col_caps = ['module_name', 'full_app_id', 'number_of_calls', 'number_of_errors',
-                        'type', 'time_range', 'total_exec_time', 'total_queue_time']
+        col_caps = ['module_name', 'full_app_id', 'number_of_calls',
+                    'number_of_errors', 'type', 'time_range',
+                    'total_exec_time', 'total_queue_time']
         if params['create_report'] == 1:
-	    if stats_name == 'app_stats':
-		report_info = self.generate_app_report(self.metrics_dir, ret_stats, params)
-            elif stats_name in ['user_details', 'user_ws', 'user_narratives', 'user_numObjs', 'total_logins']:
-		if stats_name == 'user_details':
-		    col_caps = ['username', 'email', 'full_name', 'signup_at', 'last_signin_at', 'roles', 'kbase_staff']
-		else:
-		    col_caps = None
-		report_info = self.generate_user_report(self.metrics_dir,
-				ret_stats['metrics_result'], params, col_caps)
-	    elif stats_name in ['exec_stats', 'exec_aggr_stats', 'exec_aggr_table']:
-		report_info = self.generate_exec_report(self.metrics_dir, ret_stats, params)
-	    else:
-		pass
+            if stats_name == 'app_stats':
+                report_info = self.generate_app_report(self.metrics_dir,
+                                                       ret_stats, params)
+            elif stats_name in ['user_details', 'user_ws', 'user_narratives',
+                                'user_numObjs', 'total_logins']:
+                if stats_name == 'user_details':
+                    col_caps = ['username', 'email', 'full_name', 'signup_at',
+                                'last_signin_at', 'roles', 'kbase_staff']
+                else:
+                    col_caps = None
+                report_info = self.generate_user_report(
+                                            self.metrics_dir,
+                                            ret_stats['metrics_result'],
+                                            params, col_caps)
+            elif stats_name in ['exec_stats', 'exec_aggr_stats',
+                                'exec_aggr_table']:
+                report_info = self.generate_exec_report(self.metrics_dir,
+                                                        ret_stats, params)
+            else:
+                report_info = None
 
-            returnVal = {
-                'report_name': report_info['name'],
-                'report_ref': report_info['ref']
-            }
+            if report_info:
+                returnVal = {
+                    'report_name': report_info['name'],
+                    'report_ref': report_info['ref']
+                }
 
         return returnVal
 
     def _write_stats_json_tsv_files(self, stats_data, stats_name):
-	json_full_path = os.path.join(self.metrics_dir, '{}_metrics.json'.format(stats_name))
-	tsv_full_path = os.path.join(self.metrics_dir, '{}_metrics.tsv'.format(stats_name))
+        json_full_path = os.path.join(self.metrics_dir,
+                                      '{}_metrics.json'.format(stats_name))
+        tsv_full_path = os.path.join(self.metrics_dir,
+                                     '{}_metrics.tsv'.format(stats_name))
 
-	with open(json_full_path, 'w') as metrics_json:
-	    json.dump(stats_data, metrics_json)
- 
-	enc_data = []
-	for sd in stats_data:
-	    #produce a new dictionary, which replaces the values with the encoded values
-	    enc_data.append(dict((k, v.encode('utf-8') if isinstance(v, unicode) else v) for k, v in sd.iteritems()))
-	with open(tsv_full_path, 'wb') as metrics_tsv:
-	    dw = csv.DictWriter(metrics_tsv, fieldnames=enc_data[0].keys(), delimiter='\t')
-	    dw.writeheader()
-	    dw.writerows(enc_data)
+        with open(json_full_path, 'w') as metrics_json:
+            json.dump(stats_data, metrics_json)
 
-    def generate_user_report(self, metrics_dir, data_info, params, col_caps=None):
-	output_html_files = self._generate_user_html_report(metrics_dir, data_info, col_caps)
+        enc_data = []
+        for sd in stats_data:
+            #produce a new dictionary with the encoded values
+            enc_data.append(dict((k, v.encode('utf-8')
+                            if isinstance(v, unicode) else v)
+                            for k, v in sd.iteritems()))
+
+        with open(tsv_full_path, 'wb') as metrics_tsv:
+            dw = csv.DictWriter(metrics_tsv,
+                                fieldnames=enc_data[0].keys(), delimiter='\t')
+            dw.writeheader()
+            dw.writerows(enc_data)
+
+    def generate_user_report(self, metrics_dir, data_info,
+                             params, col_caps=None):
+        output_html_files = self._generate_user_html_report(
+                                    metrics_dir, data_info, col_caps)
         output_files = self._generate_output_file_list(metrics_dir)
 
         # create report
-        report_text = 'Summary of {} metrics for {}:\n\n'.format(params['stats_name'],
-			','.join(params['user_ids']) if len(params['user_ids'])>0 else 'all_users')
+        report_text = ('Summary of {} metrics for {}:\n\n'.format(
+                                    params['stats_name'],
+                                    ','.join(params['user_ids'])
+                                    if len(params['user_ids'])>0
+                                    else 'all_users'))
 
         report_info = self.kbr.create_extended_report({
                         'message': report_text,
-                        'report_object_name': 'kb_ReportMetrics_UserReport_' + str(uuid.uuid4()),
+                        'report_object_name': ('kb_ReportMetrics_UserReport_'
+                                                + str(uuid.uuid4())),
                         'file_links': output_files,
                         'direct_html_link_index': 0,
                         'html_links': output_html_files,
@@ -177,14 +205,15 @@ class report_utils:
         rpt_title = 'User details report'
 
         html_report = list()
-        html_file_path = self._write_user_html(out_dir, dt_info, rpt_title, col_caps)
+        html_file_path = self._write_user_html(out_dir, dt_info,
+                                               rpt_title, col_caps)
 
         #log(html_file_path['html_file'])
         html_report.append({'path': html_file_path['html_path'],
                             'name': rpt_title,
                             'label': rpt_title,
-                            'description': 'The user metrics report with charts'
-                        })
+                            'description': 'User metrics report with charts'
+                          })
 
         return html_report
 
@@ -213,19 +242,25 @@ class report_utils:
 
     def generate_app_report(self, metrics_dir, data_info, params, col_caps=None):
         if col_caps is None:
-            pass#output_html_files = self._generate_html_report(metrics_dir, data_info)
+            pass
+            # output_html_files = self._generate_html_report(
+                                    # metrics_dir, data_info)
         else:
-            pass#output_html_files = self._generate_html_report(metrics_dir, data_info, col_caps)
+            pass
+            # output_html_files = self._generate_html_report(
+                                    # metrics_dir, data_info, col_caps)
 
         output_files = self._generate_output_file_list(metrics_dir)
 
         # create report
-        report_text = 'Summary of app metrics for {}:\n\n'.format(
-			','.join(params['user_ids']) if len(params['user_ids'])>0 else 'all_users')
+        report_text = ('Summary of app metrics for {}:\n\n'.format(
+                       ','.join(params['user_ids'])
+                       if len(params['user_ids'])>0 else 'all_users'))
 
         report_info = self.kbr.create_extended_report({
                         'message': report_text,
-                        'report_object_name': 'kb_ReportMetrics_report_' + str(uuid.uuid4()),
+                        'report_object_name': ('kb_ReportMetrics_report_'
+                                               + str(uuid.uuid4())),
                         'file_links': output_files,
                         #'direct_html_link_index': 0,
                         #'html_links': output_html_files,
@@ -236,11 +271,14 @@ class report_utils:
         return report_info
 
 
-    def generate_exec_report(self, metrics_dir, data_info, params, col_caps=None):
+    def generate_exec_report(self, metrics_dir, data_info,
+                             params, col_caps=None):
         if col_caps is None:
-            output_html_files = self._generate_html_report(metrics_dir, data_info)
+            output_html_files = self._generate_html_report(
+                                        metrics_dir, data_info)
         else:
-            output_html_files = self._generate_html_report(metrics_dir, data_info, col_caps)
+            output_html_files = self._generate_html_report(
+                                        metrics_dir, data_info, col_caps)
 
         output_json_files = self._generate_output_file_list(metrics_dir)
 
@@ -249,7 +287,8 @@ class report_utils:
 
         report_info = self.kbr.create_extended_report({
                         'message': report_text,
-                        'report_object_name': 'kb_ReportMetrics_report_' + str(uuid.uuid4()),
+                        'report_object_name': ('kb_ReportMetrics_report_'
+                                               + str(uuid.uuid4())),
                         'file_links': output_json_files,
                         'direct_html_link_index': 0,
                         'html_links': output_html_files,
@@ -271,7 +310,8 @@ class report_utils:
             log('The server couldn\'t download {}.'.format(file_url))
             log('Error code: ', e.code)
         except URLError as e:
-            log('We failed to reach the server to download {}.'.format(file_url))
+            log('We failed to reach the server to '
+                'download {}.'.format(file_url))
             log('Reason: ', e.reason)
         except IOError as e:
             log('Caught IOError when downloading {}.'.format(file_url))
@@ -279,7 +319,7 @@ class report_utils:
             log('Error code: ', e.strerror)
             if e.errno == errno.ENOSPC:
                 log('No space left on device.')
-            elif e.errno == 110:#[Errno ftp error] [Errno 110] Connection timed out
+            elif e.errno == 110:# [Errno ftp error] [Errno 110] timed out
                 log('Connection timed out, trying to urlopen!')
                 try:
                     fh = urllib2.urlopen(file_url)
@@ -302,10 +342,12 @@ class report_utils:
         try:
             resp = urlopen(req)
         except HTTPError as e:
-            log('The server couldn\'t fulfill the request to download {}.'.format(file_url))
+            log('The server couldn\'t fulfill the request to '
+                'download {}.'.format(file_url))
             log('Error code: ', e.code)
         except URLError as e:
-            log('We failed to reach a server to download {}.'.format(file_url))
+            log('We failed to reach a server to '
+                'download {}.'.format(file_url))
             log('Reason: ', e.reason)
         else:# everything is fine
             pass
@@ -329,14 +371,16 @@ class report_utils:
         output_files.append({'path': output_file_path,
                              'name': os.path.basename(output_file_path),
                              'label': os.path.basename(output_file_path),
-                             'description': 'Output files generated by kb_ReportMetrics'})
+                             'description': ('Output files generated by '
+                                            'kb_ReportMetrics')})
 
         return output_files
 
 
     def zip_folder(self, folder_path, output_path):
-        """Zip the contents of an entire folder (with that folder included in the archive).
-        Empty subfolders could be included in the archive as well if the commented portion is used.
+        """Zip the contents of an entire folder (with that folder included
+        in the archive). Empty subfolders could be included in the archive
+        as well if the commented portion is used.
         """
         with zipfile.ZipFile(output_path, 'w',
                              zipfile.ZIP_DEFLATED,
@@ -345,7 +389,8 @@ class report_utils:
                 # Include all subfolders, including empty ones.
                 #for folder_name in folders:
                 #    absolute_path = os.path.join(root, folder_name)
-                #    relative_path = os.path.join(os.path.basename(root), folder_name)
+                #    relative_path = os.path.join(os.path.basename(root),
+                #                                 folder_name)
                 #    print "Adding {} to archive.".format(absolute_path)
                 #    ziph.write(absolute_path, relative_path)
                 for f in files:

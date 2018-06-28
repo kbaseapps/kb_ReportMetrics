@@ -29,154 +29,153 @@ from kb_Metrics.kb_MetricsClient import kb_Metrics
 class UJS_CAT_NJS_DataUtils:
 
     def __init__(self, workspace_url, job_service_url, srv_wiz_url,
-		njsw_url, auth_service_url, kbase_endpoint, provenance, token):
+                 njsw_url, auth_service_url, kbase_endpoint, provenance, token):
         self.workspace_url = workspace_url
         self.job_service_url = job_service_url
         self.njsw_url = njsw_url
         self.auth_service_url = auth_service_url
-	self.srv_wiz_url = srv_wiz_url
-	self.catalog_url = kbase_endpoint + '/catalog'
-	self.user_profile_url = kbase_endpoint + '/user_profile/rpc'
+        self.srv_wiz_url = srv_wiz_url
+        self.catalog_url = kbase_endpoint + '/catalog'
+        self.user_profile_url = kbase_endpoint + '/user_profile/rpc'
         self.provenance = provenance
 
-        #initialize service clients
+        # initialize service clients
         self.ws_client = Workspace(self.workspace_url)
         self.cat_client = Catalog(self.catalog_url, auth_svc=self.auth_service_url)
         self.njs_client = NarrativeJobService(self.njsw_url, auth_svc=self.auth_service_url)
         self.ujs_client = UserAndJobState(self.job_service_url, auth_svc=self.auth_service_url)
         self.uprf_client = UserProfile(self.user_profile_url, auth_svc=self.auth_service_url)
-        self.met_client = kb_Metrics(self.srv_wiz_url, token=token, auth_svc=self.auth_service_url)
-	#self.met_url = 'https://ci.kbase.us/dynserv/a57e748e729233bd03ae77686925a541f40a7376.kb-Metrics'
-        #self.met_client = kb_Metrics(url=self.met_url, auth_svc=self.auth_service_url, token=token)
-
+        self.met_client = kb_Metrics(self.srv_wiz_url,
+                                     token=token,
+                                     auth_svc=self.auth_service_url,
+                                     service_ver='dev')
+        # self.met_url = 'https://ci.kbase.us/dynserv/feab1281c921b3a34f61cc8a11814eebf15c88d1.kb-Metrics'
+        # self.met_client = kb_Metrics(url=self.met_url, auth_svc=self.auth_service_url, token=token)
 
     def get_user_metrics(self, input_params):
         """
         get_user_metrics: call the dynamic service kb_Metrics to retrieve user metrics
         and return the following data structure, e.g.,
-	[{
-	...
-	}]
+        ...
         """
-        #log("Fetching the metrics data")
+        # log("Fetching the metrics data")
         ret_metrics = []
         params = self.process_met_parameters(input_params)
         user_ids = params['user_ids']
         time_start = params['minTime']
         time_end = params['maxTime']
 
-	stats_name = params['stats_name']
+        stats_name = params['stats_name']
         try:
-	    if stats_name == 'user_details':
-		ret_metrics = self.met_client.get_user_details({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-                ret_metrics['metrics_result'] = convert_millis_to_utcdate(
-                            ret_metrics['metrics_result'], ['signup_at', 'last_signin_at'])
-	    elif stats_name == 'user_counts_per_day':
-		print("Trying to get unique user counts")
-		ret_metrics = self.met_client.get_user_counts_per_day({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-	    elif stats_name == 'user_ws':
-		ret_metrics = self.met_client.get_user_ws({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-	    elif stats_name == 'user_narratives':
-		ret_metrics = self.met_client.get_user_narratives({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-	    elif stats_name == 'user_numObjs': 
-		ret_metrics = self.met_client.get_user_numObjs({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-	    elif stats_name == 'total_logins':
-		ret_metrics = self.met_client.get_total_logins({
-		'user_ids': user_ids,
-		'epoch_range': (time_start, time_end)
-		})
-	    else:
-		pass
+            if stats_name == 'user_details':
+                ret_metrics = self.met_client.get_user_details({
+                                    'user_ids': user_ids,
+                                    'epoch_range': (time_start, time_end)
+                                    })
+                ret_metrics['metrics_result'] = _convert_millis_to_utcdate(
+                        ret_metrics['metrics_result'], ['signup_at', 'last_signin_at'])
+            elif stats_name == 'user_counts_per_day':
+                print("Trying to get unique user counts")
+                ret_metrics = self.met_client.get_user_counts_per_day({
+                                    'user_ids': user_ids,
+                                    'epoch_range': (time_start, time_end)
+                                    })
+            elif stats_name == 'user_ws':
+                ret_metrics = self.met_client.get_user_ws({
+                                    'user_ids': user_ids,
+                                    'epoch_range': (time_start, time_end)
+                                    })
+            elif stats_name == 'user_narratives':
+                ret_metrics = self.met_client.get_user_narratives({
+                                    'user_ids': user_ids,
+                                    'epoch_range': (time_start, time_end)
+                                    })
+            elif stats_name == 'user_numObjs':
+                ret_metrics = self.met_client.get_user_numObjs({
+                                    'user_ids': user_ids,
+                                    'epoch_range': (time_start, time_end)
+                                    })
+            elif stats_name == 'total_logins':
+                ret_metrics = self.met_client.get_total_logins({
+                                    'user_ids': user_ids,
+                                    'epoch_range': (time_start, time_end)
+                                    })
+            else:
+                pass
         except Exception as e_met: #RuntimeError
             log('kb_Metrics.get_user_metrics raised error:')
             log(e_met)
             return {'metrics_result': []}
-	else: #no exception raised, process the data returned from the service call
-	    if(len(ret_metrics) > 1):
-		log(pformat(ret_metrics[:2]))
-	    return ret_metrics
-
+        else: #no exception raised, process the data returned from the service call
+            if(len(ret_metrics) > 1):
+                log(pformat(ret_metrics[:2]))
+        return ret_metrics
 
     def get_app_metrics(self, input_params):
         """
         get_app_metrics: call the dynamic service kb_Metrics to retrieve app metrics
         and return the following data structure, e.g.,
-	[{
-	u'app_id': u'kb_ReportMetrics/count_genome_features_from_files',
-	u'authparam': u'27951',
-	u'authstrat': u'kbaseworkspace',
-	u'client_groups': [u'njs'],
-	u'complete': True,
-	u'created': 1515173864675,
-	u'creation_time': 1515173864675,
-	u'desc': u'Execution engine job for kb_ReportMetrics.count_genome_features_from_files',
-	u'error': False,
-	u'errormsg': None,
-	u'estcompl': None,
-	u'exec_start_time': 1515173873601,
-	u'finish_time': 1515173991461,
-	u'job_id': u'5a4fb7e8e4b0c23d90df55bf',
-	u'job_input': {
-		u'app_id': u'kb_ReportMetrics/count_genome_features_from_files',
-		u'meta': {u'cell_id': u'6620f8a8-e464-491a-973e-d717cde08847',
-			u'run_id': u'705ca618-1432-4a37-b43b-5c4d736fbdfb',
-			u'tag': u'beta',
-			u'token_id': u'3608feea-7b98-4ad9-8430-472bc67e6c74'},
-		u'method': u'kb_ReportMetrics.count_genome_features_from_files',
-		u'params': [{u'create_report': 1,
-			u'genome_file_urls': [u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz',
-				u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/008/725/GCF_000008725.1_ASM872v1/GCF_000008725.1_ASM872v1_genomic.gbff.gz',
-			u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz'],
-			u'workspace_name': u'qzhang:narrative_1515016322184'}],
-		u'requested_release': None,
-		u'service_ver': u'931c6e7a90a9cf99c8c480edeb3ea461ea0a2f60',
-		u'wsid': 27951},
-	u'job_output': {
-		u'id': u'18552903324',
-		u'result': [{u'report_name': u'kb_Metrics_report_26006057-d85a-4317-a1d6-bba0f7bd291a',
-			u'report_ref': u'27951/79/1'}],
-		u'version': u'1.1'},
-	u'job_state': u'completed',
-	u'maxprog': None,
-	u'meta': [{u'k': u'cell_id',
-		u'v': u'6620f8a8-e464-491a-973e-d717cde08847'},
-		{u'k': u'run_id', u'v': u'705ca618-1432-4a37-b43b-5c4d736fbdfb'},
-		{u'k': u'tag', u'v': u'beta'},
-		{u'k': u'token_id',
-		u'v': u'3608feea-7b98-4ad9-8430-472bc67e6c74'}],
-	u'method': u'kb_ReportMetrics.count_genome_features_from_files',
-	u'modification_time': 1515173991461,
-	u'prog': 0,
-	u'progtype': u'none',
-	u'results': {u'shocknodes': None,
-			u'shockurl': None,
-			u'workspaceids': None,
-			u'workspaceurl': None},
-	u'run_time': 117860,
-	u'service': u'qzhang',
-	u'started': 1515173873601,
-	u'status': u'done',
-	u'time_info': [1515173864675, 1515173991461, None],
-	u'updated': 1515173991461,
-	u'user': u'qzhang',
-	u'wsid': u'27951'},
-	...
-	]
+        [{
+        u'app_id': u'kb_ReportMetrics/count_genome_features_from_files',
+        u'authparam': u'27951',
+        u'authstrat': u'kbaseworkspace',
+        u'client_groups': [u'njs'],
+        u'complete': True,
+        u'created': 1515173864675,
+        u'creation_time': 1515173864675,
+        u'desc': u'Execution engine job for kb_ReportMetrics.count_genome_features_from_files',
+        u'error': False,
+        u'errormsg': None,
+        u'estcompl': None,
+        u'exec_start_time': 1515173873601,
+        u'finish_time': 1515173991461,
+        u'job_id': u'5a4fb7e8e4b0c23d90df55bf',
+        u'job_input': {
+            u'app_id': u'kb_ReportMetrics/count_genome_features_from_files',
+            u'meta': {u'cell_id': u'6620f8a8-e464-491a-973e-d717cde08847',
+                u'run_id': u'705ca618-1432-4a37-b43b-5c4d736fbdfb',
+                u'tag': u'beta',
+                u'token_id': u'3608feea-7b98-4ad9-8430-472bc67e6c74'},
+            u'method': u'kb_ReportMetrics.count_genome_features_from_files',
+            u'params': [{u'create_report': 1,
+                u'genome_file_urls': [u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz',
+                    u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/008/725/GCF_000008725.1_ASM872v1/GCF_000008725.1_ASM872v1_genomic.gbff.gz',
+                u'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1/GCF_000009605.1_ASM960v1_genomic.gbff.gz'],
+                u'workspace_name': u'qzhang:narrative_1515016322184'}],
+            u'requested_release': None,
+            u'service_ver': u'931c6e7a90a9cf99c8c480edeb3ea461ea0a2f60',
+            u'wsid': 27951},
+        u'job_output': {
+            u'id': u'18552903324',
+            u'result': [{u'report_name': u'kb_Metrics_report_26006057-d85a-4317-a1d6-bba0f7bd291a',
+                u'report_ref': u'27951/79/1'}],
+            u'version': u'1.1'},
+        u'job_state': u'completed',
+        u'maxprog': None,
+        u'meta': [{u'k': u'cell_id',
+            u'v': u'6620f8a8-e464-491a-973e-d717cde08847'},
+            {u'k': u'run_id', u'v': u'705ca618-1432-4a37-b43b-5c4d736fbdfb'},
+            {u'k': u'tag', u'v': u'beta'},
+            {u'k': u'token_id',
+            u'v': u'3608feea-7b98-4ad9-8430-472bc67e6c74'}],
+        u'method': u'kb_ReportMetrics.count_genome_features_from_files',
+        u'modification_time': 1515173991461,
+        u'prog': 0,
+        u'progtype': u'none',
+        u'results': {u'shocknodes': None,
+                u'shockurl': None,
+                u'workspaceids': None,
+                u'workspaceurl': None},
+        u'run_time': 117860,
+        u'service': u'qzhang',
+        u'started': 1515173873601,
+        u'status': u'done',
+        u'time_info': [1515173864675, 1515173991461, None],
+        u'updated': 1515173991461,
+        u'user': u'qzhang',
+        u'wsid': u'27951'},
+        ...
+        ]
         """
         #log("Fetching the metrics data")
         ret_metrics = []
@@ -193,10 +192,10 @@ class UJS_CAT_NJS_DataUtils:
             log('kb_Metrics.get_app_metrics raised error:')
             log(e_met)
             return []
-	else: #no exception raised, process the data returned from the service call
-	    if(len(ret_metrics) > 1):
-		log(pformat(ret_metrics[:2]))
-	    return ret_metrics
+        else: #no exception raised, process the data returned from the service call
+            if(len(ret_metrics) > 1):
+                log(pformat(ret_metrics[:2]))
+            return ret_metrics
 
     def generate_app_metrics_from_ujs(self, input_params):#, token):
         """
@@ -224,7 +223,7 @@ class UJS_CAT_NJS_DataUtils:
                         None],
           'user_id': u'qzhang',
           'wsid': 25735},
-         {'app_id': u'RAST_SDK/annotate_contigset',
+          {'app_id': u'RAST_SDK/annotate_contigset',
           'canceled': 0,
           'creation_time': 1485974151389,
           'error': 0,
@@ -510,17 +509,17 @@ class UJS_CAT_NJS_DataUtils:
             log('kb_Metrics.get_exec_stats_from_cat raised error:')
             log(pformat(e_raw))
             return []
-	else:
-	    # Calculate queued_time and run_time (in seconds)
-	    for elem in raw_stats:
-		tc = elem['creation_time']
-		ts = elem['exec_start_time']
-		tf = elem['finish_time']
-		elem['queued_time'] = ts - tc
-		elem['run_time'] = tf - ts
+        else:
+            # Calculate queued_time and run_time (in seconds)
+            for elem in raw_stats:
+                tc = elem['creation_time']
+                ts = elem['exec_start_time']
+                tf = elem['finish_time']
+                elem['queued_time'] = ts - tc
+                elem['run_time'] = tf - ts
 
-            log(pformat(raw_stats[0]))
-	    return raw_stats
+                log(pformat(raw_stats[0]))
+            return raw_stats
 
 
     def get_client_groups_from_cat(self):
@@ -560,9 +559,9 @@ class UJS_CAT_NJS_DataUtils:
             log('kb_Metrics.get_exec_aggrTable_from_cat raised error:')
             log(pformat(e_aggr))
             return []
-	else:
-	    log(pformat(aggr_tab[0]))
-	    return aggr_tab
+        else:
+            log(pformat(aggr_tab[0]))
+            return aggr_tab
 
 
     def get_exec_aggrStats_from_cat(self):
@@ -587,15 +586,15 @@ class UJS_CAT_NJS_DataUtils:
             log('kb_Metrics.get_exec_aggrStats_from_cat raised error:')
             log(pformat(e_aggr))
             return []
-	else:
-	    # Convert time from seconds to hours
-	    for kb_mod in aggr_stats:
-		te = kb_mod['total_exec_time']
-		tq = kb_mod['total_queue_time']
-		kb_mod['total_exec_time'] = te/3600
-		kb_mod['total_queue_time'] = tq/3600
-	    log(pformat(aggr_stats[0]))
-	    return aggr_stats
+        else:
+            # Convert time from seconds to hours
+            for kb_mod in aggr_stats:
+                te = kb_mod['total_exec_time']
+                tq = kb_mod['total_queue_time']
+                kb_mod['total_exec_time'] = te/3600
+                kb_mod['total_queue_time'] = tq/3600
+                log(pformat(aggr_stats[0]))
+            return aggr_stats
 
 
     def get_module_stats_from_cat(self):
@@ -642,8 +641,8 @@ class UJS_CAT_NJS_DataUtils:
                 apps[bucket] = 0
                 rmods[bucket] = 0
                 rapps[bucket] = 0
-            mods[bucket] += 1
-            apps[bucket] += int(ct)
+                mods[bucket] += 1
+                apps[bucket] += int(ct)
             if s == 'r':
                 rmods[bucket] += 1
                 rapps[bucket] += int(ct)
@@ -914,19 +913,19 @@ class UJS_CAT_NJS_DataUtils:
 
         if (not params.get('start_time', None) is None and
 		not params.get('end_time', None) is None):
-	    params['start_time'] = _convert_to_datetime(params['start_time'])
-	    params['end_time'] = _convert_to_datetime(params['end_time'])
+            params['start_time'] = _convert_to_datetime(params['start_time'])
+            params['end_time'] = _convert_to_datetime(params['end_time'])
             params['minTime'] = _unix_time_millis_from_datetime(params['start_time'])
             params['maxTime'] = _unix_time_millis_from_datetime(params['end_time'])
         elif (not params.get('start_time', None) is None and
-		params.get('end_time', None) is None):
-	    params['start_time'] = _convert_to_datetime(params['start_time'])
+            params.get('end_time', None) is None):
+            params['start_time'] = _convert_to_datetime(params['start_time'])
             params['end_time'] = params['start_time'] + datetime.timedelta(hours=48)
             params['minTime'] = _unix_time_millis_from_datetime(params['start_time'])
             params['maxTime'] = _unix_time_millis_from_datetime(params['end_time'])
         elif (params.get('start_time', None) is None and
 		not params.get('end_time', None) is None):
-	    params['end_time'] = _convert_to_datetime(params['end_time'])
+            params['end_time'] = _convert_to_datetime(params['end_time'])
             params['start_time'] = params['end_time'] - datetime.timedelta(hours=48)
             params['minTime'] = _unix_time_millis_from_datetime(params['start_time'])
             params['maxTime'] = _unix_time_millis_from_datetime(params['end_time'])
@@ -958,7 +957,7 @@ def _mkdir_p(path):
         else:
             raise
 
-def ceildiv(a, b):
+def _ceildiv(a, b):
     """
     celldiv: get the ceiling division of two integers, by reversing the floor division
     """
@@ -990,10 +989,10 @@ def _unix_time_millis_from_datetime(dt):
     epoch = datetime.datetime.utcfromtimestamp(0)
     return int((dt - epoch).total_seconds()*1000)
 
-def convert_millis_to_utcdate(src_list, dt_list):
+def _convert_millis_to_utcdate(src_list, dt_list):
     for dr in src_list:
-	for dt in dt_list:
-	    if (dt in dr and isinstance(dr[dt], int)):
-		dr[dt] = datetime.datetime.utcfromtimestamp(dr[dt] / 1000)
-		dr[dt] = dr[dt].__str__()
+        for dt in dt_list:
+            if (dt in dr and isinstance(dr[dt], int)):
+                dr[dt] = datetime.datetime.utcfromtimestamp(dr[dt] / 1000)
+                dr[dt] = dr[dt].__str__()
     return src_list

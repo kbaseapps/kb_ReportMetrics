@@ -40,7 +40,6 @@ def _mkdir_p(path):
         else:
             raise
 
-
 class genome_feature_stats:
     PARAM_IN_WS = 'workspace_name'
     PARAM_IN_GENOME_FILES = 'genome_file_urls'
@@ -141,14 +140,18 @@ class genome_feature_stats:
         genome_stats = {}
         genome_stats['genome_feature_counts'] = []
         for gn in ncbi_gns:
-            gn_feature_counts = self._get_feature_counts(gn['genome_url'], gnf_format, gn['organism_name'])
+            gn_feature_counts = self._get_feature_counts(gn['genome_url'],
+                                                         gnf_format,
+                                                         gn['organism_name'])
             if gn_feature_counts:
-                #log("gn_feature_counts:\n" + pformat(gn_feature_counts['feature_counts']))
+                #log("gn_feature_counts:\n" +
+                #     + pformat(gn_feature_counts['feature_counts']))
                 genome_raw_counts.append(gn_feature_counts)
                 gn_feature_info = self._perGenome_feature_count_json(gn_feature_counts)
                 genome_stats['genome_feature_counts'].append(gn_feature_info)
             else:
-                log("Feature_counting for organism:\n{}\nfailed to return data!\n".format(gn['organism_name']))
+                log("Feature_counting for organism:\n{}\nfailed to return "
+                    + "data!\n".format(gn['organism_name']))
 
         #log(json.dumps(genome_stats))
 
@@ -159,7 +162,8 @@ class genome_feature_stats:
         params = self.validate_parameters(input_params)
 
         ncbi_gns = self._list_ncbi_genomes(params['genome_source'],
-                                params['genome_domain'], params['refseq_category'])
+                                           params['genome_domain'],
+                                           params['refseq_category'])
 
         returnVal = {
             "report_ref": None,
@@ -171,7 +175,8 @@ class genome_feature_stats:
 
         gnf_format = 'genbank'
 
-        genome_raw_counts, genome_stats = self._get_counts_from_ncbi(ncbi_gns, gnf_format)
+        genome_raw_counts, genome_stats = self._get_counts_from_ncbi(
+                                                    ncbi_gns, gnf_format)
 
         if not genome_stats:
             return returnVal
@@ -918,8 +923,9 @@ class genome_feature_stats:
         if (params.get('genome_source', None) is not None and
                 params.get('genome_domain', None) is not None and
                 params.get('refseq_category', None) is not None):
-            desc_txt += '{}_{}_{} '.format(
-                     params["genome_source"], params["genome_domain"], params["refseq_category"])
+                desc_txt += '{}_{}_{} '.format(params["genome_source"],
+                                               params["genome_domain"],
+                                               params["refseq_category"])
         desc_txt += 'refseq genomes'
 
         #log(html_file_path['html_file'])
@@ -1002,9 +1008,14 @@ class genome_feature_stats:
                         "version_status": columns[10],# latest/replaced/suppressed
                         "organism_name": columns[7],
                         "asm_name": columns[15],
-                        "ftp_file_dir": columns[19], #path to the directory for download
-                        "genome_file_name": "{}_{}".format(os.path.basename(columns[19]),"genomic.gbff.gz"),
-                        "genome_url": os.path.join(columns[19], "{}_{}".format(os.path.basename(columns[19]),"genomic.gbff.gz")),
+                        "ftp_file_dir": columns[19], # path to the directory for download
+                        "genome_file_name": ("{}_{}".format(
+                                             os.path.basename(columns[19])),
+                                             "genomic.gbff.gz"),
+                        "genome_url": (os.path.join(columns[19],
+                                       "{}_{}".format(
+                                       os.path.basename(columns[19]),
+                                       "genomic.gbff.gz"))),
                         "genome_id": columns[0].split('.')[0],
                         "genome_version": columns[0].split('.')[1],
                         "tax_id": columns[5],
@@ -1013,10 +1024,11 @@ class genome_feature_stats:
                         "genome_rep": columns[13], #Full/Partial
                         "seq_rel_date": columns[14], #date the sequence was released
                         "gbrs_paired_asm": columns[17],
-                        "paired_asm_comp": columns[18] #'identical', 'different' or 'na'
+                        "paired_asm_comp": columns[18] # 'identical'/'different'/'na'
                     })
         log("\nFound {} {} genomes in NCBI {}/{}".format(
-                   str(len(ncbi_genomes)), refseq_category, genome_source, division))
+                   str(len(ncbi_genomes)), refseq_category,
+                   genome_source, division))
 
         return ncbi_genomes
 
@@ -1025,7 +1037,8 @@ class genome_feature_stats:
         params = self.validate_parameters(input_params)
 
         ncbi_gns = self._list_ncbi_genomes(params['genome_source'],
-                                params['genome_domain'], params['refseq_category'])
+                                           params['genome_domain'],
+                                           params['refseq_category'])
 
         returnVal = {
             "report_ref": None,
@@ -1036,7 +1049,8 @@ class genome_feature_stats:
             return returnVal
 
         if params['create_report'] == 1:
-            report_info = self.generate_genome_report(self.genome_count_dir, ncbi_gns, params)
+            report_info = self.generate_genome_report(self.genome_count_dir,
+                                                      ncbi_gns, params)
 
             returnVal = {
                 'report_name': report_info['name'],

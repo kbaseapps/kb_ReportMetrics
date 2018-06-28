@@ -2,14 +2,8 @@
 #BEGIN_HEADER
 # The header block is where all import statments should live
 import os
-from Bio import SeqIO
-from pprint import pprint, pformat
-from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
-from KBaseReport.KBaseReportClient import KBaseReport
-
 from kb_ReportMetrics.core.genome_feature_stats import genome_feature_stats
 from kb_ReportMetrics.core.report_utils import report_utils
-from kb_ReportMetrics.core.UJS_CAT_NJS_DataUtils import UJS_CAT_NJS_DataUtils
 #END_HEADER
 
 
@@ -20,7 +14,8 @@ class kb_ReportMetrics:
 
     Module Description:
     A KBase module: kb_ReportMetrics
-This KBase SDK module implements methods for generating reports on various KBase metrics.
+    This KBase SDK module implements methods for generating reports
+    on various KBase metrics.
     '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
@@ -41,18 +36,16 @@ This KBase SDK module implements methods for generating reports on various KBase
     # be found
     def __init__(self, config):
         #BEGIN_CONSTRUCTOR
-
         # Any configuration parameters that are important should be parsed and
         # saved in the constructor.
-        #self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.config = config
         self.scratch_dir = os.path.abspath(config['scratch'])
         self.workspace_url = config['workspace-url']
         self.job_service_url = config['job-service-url']
         self.njsw_url = config['njsw-url']
         self.auth_service_url = config['auth-service-url']
-	self.srv_wiz_url = config['srv-wiz-url']
-	self.kbase_endpoint = config['kbase-endpoint']
+        self.srv_wiz_url = config['srv-wiz-url']
+        self.kbase_endpoint = config['kbase-endpoint']
         self.callback_url = os.environ['SDK_CALLBACK_URL']
 
         if 'shock-url' in config:
@@ -61,7 +54,6 @@ This KBase SDK module implements methods for generating reports on various KBase
             self.handle_url = config['handle-service-url']
         #END_CONSTRUCTOR
         pass
-
 
     def count_ncbi_genomes(self, ctx, params):
         """
@@ -162,8 +154,9 @@ This KBase SDK module implements methods for generating reports on various KBase
 
         # At some point might do deeper type checking...
         if not isinstance(return_records, dict):
-            raise ValueError('Method count_genome_features_from_files return value ' +
-                             'return_records is not type dict as required.')
+            raise ValueError('Method count_genome_features_from_files' +
+                             'return value "return_records" is ' +
+                             'not type dict as required.')
         # return the results
         return [return_records]
 
@@ -192,11 +185,16 @@ This KBase SDK module implements methods for generating reports on various KBase
         # ctx is the context object
         # return variables are: return_records
         #BEGIN report_metrics
-        #rps = report_utils(self.config, ctx.provenance)
-        rps = report_utils(self.scratch_dir, self.workspace_url, self.callback_url,
-				self.srv_wiz_url, self.job_service_url,
-				self.njsw_url, self.auth_service_url,
-				self.kbase_endpoint, ctx.provenance(), ctx['token'])
+        rps = report_utils(self.scratch_dir,
+                           self.workspace_url,
+                           self.callback_url,
+                           self.srv_wiz_url,
+                           self.job_service_url,
+                           self.njsw_url,
+                           self.auth_service_url,
+                           self.kbase_endpoint,
+                           ctx.provenance(),
+                           ctx['token'])
         return_records = rps.create_metrics_reports(params)
         #END report_metrics
 
@@ -232,18 +230,20 @@ This KBase SDK module implements methods for generating reports on various KBase
         # ctx is the context object
         # return variables are: return_records
         #BEGIN dummy_test0
-	'''
-	statdu = UJS_CAT_NJS_DataUtils(self.workspace_url,
-				self.job_service_url, self.srv_wiz_url,
-				self.njsw_url, self.auth_service_url,
-				self.kbase_endpoint, ctx.provenance(), ctx['token'])
-        return_records = statdu.get_app_metrics(params)
-	'''
+        '''
+        statdu = UJS_CAT_NJS_DataUtils(
+                    self.workspace_url,
+                    self.job_service_url, self.srv_wiz_url,
+                    self.njsw_url, self.auth_service_url,
+                    self.kbase_endpoint, ctx.provenance(),
+                    ctx['token'])
+            return_records = statdu.get_app_metrics(params)
+        '''
         #rps = report_utils(self.config, ctx.provenance(), ctx['token'])
         rps = report_utils(self.scratch_dir, self.workspace_url, self.callback_url,
-				self.srv_wiz_url, self.job_service_url,
-				self.njsw_url, self.auth_service_url,
-				self.kbase_endpoint, ctx.provenance(), ctx['token'])
+                           self.srv_wiz_url, self.job_service_url,
+                           self.njsw_url, self.auth_service_url,
+                           self.kbase_endpoint, ctx.provenance(), ctx['token'])
         return_records = rps.create_metrics_reports(params)
         #END dummy_test0
 
@@ -253,6 +253,7 @@ This KBase SDK module implements methods for generating reports on various KBase
                              'return_records is not type dict as required.')
         # return the results
         return [return_records]
+
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",

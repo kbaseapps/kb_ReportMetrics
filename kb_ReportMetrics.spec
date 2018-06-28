@@ -15,7 +15,7 @@ module kb_ReportMetrics {
     /* A boolean - 0 for false, 1 for true.
         @range (0, 1)
     */
-                    
+ 
     typedef int bool;
 
     /*
@@ -61,7 +61,7 @@ module kb_ReportMetrics {
         string report_name;
         string report_ref;
     } StatsResults;
-    
+
     /*
         The actual function is declared using 'funcdef' to specify the name
         and input/return arguments to the function.  For all typical KBase
@@ -95,7 +95,7 @@ module kb_ReportMetrics {
         string stats_name;
         list<user_id> user_ids;
         timestamp start_time;
-	timestamp end_time;
+        timestamp end_time;
         string workspace_name;
         bool create_report;
     } StatsReportParams;
