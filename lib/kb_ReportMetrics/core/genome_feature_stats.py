@@ -21,6 +21,7 @@ from numpy import median, mean, max
 from Workspace.WorkspaceClient import Workspace as Workspace
 from KBaseReport.KBaseReportClient import KBaseReport
 
+
 def log(message, prefix_newline=False):
     """Logging function, provides a hook to suppress or redirect log messages."""
     print(('\n' if prefix_newline else '') + '{0:.2f}'.format(time.time()) + ': ' + str(message))
@@ -39,6 +40,7 @@ def _mkdir_p(path):
             pass
         else:
             raise
+
 
 class genome_feature_stats:
     PARAM_IN_WS = 'workspace_name'
@@ -64,11 +66,10 @@ class genome_feature_stats:
         self.genome_count_dir = os.path.join(self.scratch, str(uuid.uuid4()))
         _mkdir_p(self.genome_count_dir)
 
-
     def count_genome_features_from_files(self, params):
         if params.get(self.PARAM_IN_GENOME_FILES, None) is None:
             raise ValueError(self.PARAM_IN_GENOME_FILES +
-                        ' parameter is mandatory and has at least one string value')
+                             ' parameter is mandatory and has at least one string value')
         if type(params[self.PARAM_IN_GENOME_FILES]) != list:
             raise ValueError(self.PARAM_IN_GENOME_FILES + ' must be a list')
 
@@ -84,17 +85,18 @@ class genome_feature_stats:
             "report_name": None
         }
 
-        genome_raw_counts, genome_stats = self._get_counts_from_files(gn_files, params['file_format'])
+        genome_raw_counts, genome_stats = self._get_counts_from_files(
+            gn_files, params['file_format'])
 
         if (not genome_stats or len(genome_raw_counts) == 0):
             return returnVal
 
-        #write stats per genome
+        # write stats per genome
         count_file_full_path = os.path.join(self.genome_count_dir, 'Feature_Counts.json')
         with open(count_file_full_path, 'w') as count_file:
             json.dump(genome_stats, count_file)
 
-        #write overall stats across genomes
+        # write overall stats across genomes
         stats_across_genomes = self._feature_counts_across_genomes(genome_raw_counts)
         all_count_full_path = os.path.join(self.genome_count_dir, 'Overall_Feature_Counts.json')
         with open(all_count_full_path, 'w') as all_count_file:
@@ -106,7 +108,9 @@ class genome_feature_stats:
                 i += 1
 
         if params['create_report'] == 1:
-            report_info = self.generate_feature_report(self.genome_count_dir, stats_across_genomes['across_genomes_feature_counts'], params)
+            report_info = self.generate_feature_report(
+                self.genome_count_dir, stats_across_genomes[
+                    'across_genomes_feature_counts'], params)
 
             returnVal = {
                 'report_name': report_info['name'],
@@ -115,7 +119,6 @@ class genome_feature_stats:
 
         return returnVal
 
-
     def _get_counts_from_files(self, gn_files, file_format):
         genome_raw_counts = []
         genome_stats = {}
@@ -123,17 +126,16 @@ class genome_feature_stats:
         for gn_f in gn_files:
             gn_feature_counts = self._get_feature_counts(gn_f, file_format)
             if gn_feature_counts:
-                #log("gn_feature_counts:\n" + pformat(gn_feature_counts['feature_counts']))
+                # log("gn_feature_counts:\n" + pformat(gn_feature_counts['feature_counts']))
                 genome_raw_counts.append(gn_feature_counts)
                 gn_feature_info = self._perGenome_feature_count_json(gn_feature_counts)
                 genome_stats['genome_feature_counts'].append(gn_feature_info)
             else:
                 log("Feature_counting for file:\n{}\nfailed to return data!\n".format(gn_f))
 
-        #log(json.dumps(genome_stats))
+        # log(json.dumps(genome_stats))
 
         return (genome_raw_counts, genome_stats)
-
 
     def _get_counts_from_ncbi(self, ncbi_gns, gnf_format):
         genome_raw_counts = []
@@ -144,7 +146,7 @@ class genome_feature_stats:
                                                          gnf_format,
                                                          gn['organism_name'])
             if gn_feature_counts:
-                #log("gn_feature_counts:\n" +
+                # log("gn_feature_counts:\n" +
                 #     + pformat(gn_feature_counts['feature_counts']))
                 genome_raw_counts.append(gn_feature_counts)
                 gn_feature_info = self._perGenome_feature_count_json(gn_feature_counts)
@@ -153,10 +155,9 @@ class genome_feature_stats:
                 log("Feature_counting for organism:\n{}\nfailed to return "
                     + "data!\n".format(gn['organism_name']))
 
-        #log(json.dumps(genome_stats))
+        # log(json.dumps(genome_stats))
 
         return (genome_raw_counts, genome_stats)
-
 
     def count_ncbi_genome_features(self, input_params):
         params = self.validate_parameters(input_params)
@@ -181,16 +182,18 @@ class genome_feature_stats:
         if not genome_stats:
             return returnVal
 
-        #write stats per genome
-        count_file_full_path = os.path.join(self.genome_count_dir, '{}_{}_{}_Feature_Counts.json'.format(
-                        params['genome_source'], params['genome_domain'], params['refseq_category']))
+        # write stats per genome
+        count_file_full_path = os.path.join(
+            self.genome_count_dir, '{}_{}_{}_Feature_Counts.json'.format(
+                params['genome_source'], params['genome_domain'], params['refseq_category']))
         with open(count_file_full_path, 'w') as count_file:
             json.dump(genome_stats, count_file)
 
-        #write overall stats across genomes
+        # write overall stats across genomes
         stats_across_genomes = self._feature_counts_across_genomes(genome_raw_counts)
-        all_count_full_path = os.path.join(self.genome_count_dir, '{}_{}_{}_Overall_Feature_Counts.json'.format(
-                        params['genome_source'], params['genome_domain'], params['refseq_category']))
+        all_count_full_path = os.path.join(
+            self.genome_count_dir, '{}_{}_{}_Overall_Feature_Counts.json'.format(
+                params['genome_source'], params['genome_domain'], params['refseq_category']))
         with open(all_count_full_path, 'w') as all_count_file:
             i = 0
             for ftc in stats_across_genomes['across_genomes_feature_counts']:
@@ -200,14 +203,15 @@ class genome_feature_stats:
                 i += 1
 
         if params['create_report'] == 1:
-            report_info = self.generate_feature_report(self.genome_count_dir, stats_across_genomes['across_genomes_feature_counts'], params)
+            report_info = self.generate_feature_report(
+                self.genome_count_dir,
+                stats_across_genomes['across_genomes_feature_counts'], params)
             returnVal = {
                 'report_name': report_info['name'],
                 'report_ref': report_info['ref']
             }
 
         return returnVal
-
 
     def generate_feature_report(self, count_dir, feat_counts_info, params):
         output_html_files = self._generate_feature_html_report(count_dir, feat_counts_info, params)
@@ -252,28 +256,28 @@ class genome_feature_stats:
          'variation': 8}
         """
         if organism_name is None:
-            organism_name = os.path.basename(gn_file)#'GCF_000009605.1_ASM960v1_genomic.gbff.gz'
+            organism_name = os.path.basename(gn_file)  # 'GCF_000009605.1_ASM960v1_genomic.gbff.gz'
             organism_name = re.sub('_genomic.gbff.gz', '', organism_name)
 
-        #download the file from ftp site
-        file_resp = self._download_file_by_url( gn_file )
+        # download the file from ftp site
+        file_resp = self._download_file_by_url(gn_file)
 
         feature_data = {}
         if os.path.isfile(file_resp) and os.stat(file_resp).st_size > 0:
             total_contig_count = 0
             total_feat_count = 0
             feature_count_dict = dict()
-            feature_lens_dict = dict() # for mean, median and max of feature lengths
+            feature_lens_dict = dict()  # for mean, median and max of feature lengths
 
-            #processing the file to get counts
-            gn_f = gzip.open( file_resp, "r" )
-            for rec in SeqIO.parse( gn_f, file_format):
+            # processing the file to get counts
+            gn_f = gzip.open(file_resp, "r")
+            for rec in SeqIO.parse(gn_f, file_format):
                 total_contig_count += 1
                 for feature in rec.features:
                     flen = feature.__len__()
                     if feature.type in feature_count_dict:
                         feature_count_dict[feature.type] += 1
-                        feature_lens_dict[feature.type].append( flen )
+                        feature_lens_dict[feature.type].append(flen)
                     else:
                         feature_count_dict[feature.type] = 1
                         feature_lens_dict[feature.type] = []
@@ -290,7 +294,6 @@ class genome_feature_stats:
             }
 
         return feature_data
-
 
     def _printout_feature_counts(self, feature_data):
         """
@@ -336,27 +339,27 @@ class genome_feature_stats:
         feature_printout += '\nFeature count results:\n' + pformat(feature_count_dict)
 
         feature_lens_dict = feature_data['feature_lengths']
-        for feat_type in sorted( feature_lens_dict ):
+        for feat_type in sorted(feature_lens_dict):
             feat_count = feature_count_dict[feat_type]
-            if  len( feature_lens_dict[feat_type] ) > 0:
-                feat_len_mean = mean( feature_lens_dict[feat_type] )
-                feat_len_median = median( feature_lens_dict[feat_type] )
-                feat_len_max = max( feature_lens_dict[feat_type] )
+            if len(feature_lens_dict[feat_type]) > 0:
+                feat_len_mean = mean(feature_lens_dict[feat_type])
+                feat_len_median = median(feature_lens_dict[feat_type])
+                feat_len_max = max(feature_lens_dict[feat_type])
                 feature_printout += "\nfeature: {} count: {} mean: {} median: {} max: {}".format(
-                       feat_type, feat_count, feat_len_mean, feat_len_median, feat_len_max )
+                       feat_type, feat_count, feat_len_mean, feat_len_median, feat_len_max)
             else:
                 feature_printout += "\nfeature: {} count: {} has no lengths".format(
-                       feat_type, feat_count )
+                       feat_type, feat_count)
 
-        feature_printout += "\n******TOTAL FEATURE COUNT=" + str(feature_data['total_feature_count'])
+        feature_printout += "\n******TOTAL FEATURE COUNT=" + str(
+            feature_data['total_feature_count'])
 
         return feature_printout
 
-
     def _feature_counts_across_genomes(self, feature_data_list):
         """
-        _feature_counts_across_genomes: Given a list of feature_data containing dict structure of feature counts
-        and feature lengths, combine the counts into feature base across all genomes
+        _feature_counts_across_genomes: Given a list of feature_data containing dict structure of
+        feature counts and feature lengths, combine the counts into feature base across all genomes
 
         input feature_data_list is expected to be a list o the following json structure:
         feature_data_list=[{
@@ -400,18 +403,18 @@ class genome_feature_stats:
                 else:
                     genome_count_dict[ft] = 1
 
-                if len( feat_lens_dict[ft] ) > 0:
+                if len(feat_lens_dict[ft]) > 0:
                     if ft in combined_feature_lens_dict:
-                        combined_feature_lens_dict[ft].extend( feat_lens_dict[ft] )
+                        combined_feature_lens_dict[ft].extend(feat_lens_dict[ft])
                     else:
                         combined_feature_lens_dict[ft] = []
-                        combined_feature_lens_dict[ft].extend( feat_lens_dict[ft] )
+                        combined_feature_lens_dict[ft].extend(feat_lens_dict[ft])
 
-        #log(json.dumps(genome_count_dict))
+        # log(json.dumps(genome_count_dict))
 
         feat_counts_stats_across_genomes = []
         feat_count_stat_across_genomes = {}
-        for feat_type in sorted( combined_feature_lens_dict ):
+        for feat_type in sorted(combined_feature_lens_dict):
             feat_count = total_feature_count_dict[feat_type]
             genome_count = genome_count_dict[feat_type]
             feat_count_stat_across_genomes = {
@@ -419,16 +422,16 @@ class genome_feature_stats:
                 'total_feature_count': feat_count,
                 'total_genome_count': genome_count
             }
-            if len( combined_feature_lens_dict[feat_type] ) > 0:
+            if len(combined_feature_lens_dict[feat_type]) > 0:
                 feat_count_stat_across_genomes['len_stat'] = {
-                     'mean': mean( combined_feature_lens_dict[feat_type] ),
-                     'median': median( combined_feature_lens_dict[feat_type] ),
-                     'max': max( combined_feature_lens_dict[feat_type] )
+                     'mean': mean(combined_feature_lens_dict[feat_type]),
+                     'median': median(combined_feature_lens_dict[feat_type]),
+                     'max': max(combined_feature_lens_dict[feat_type])
                 }
             else:
                 feat_count_stat_across_genomes['len_stat'] = {}
 
-            #log(json.dumps(feat_count_stat_across_genomes))
+            # log(json.dumps(feat_count_stat_across_genomes))
 
             feat_counts_stats_across_genomes.append(feat_count_stat_across_genomes)
 
@@ -441,12 +444,11 @@ class genome_feature_stats:
 
         return counts_across_genomes
 
-
     def _perGenome_feature_count_json(self, feature_data):
         """
-        _perGenome_feature_count_json: Given the feature_data containing dict structure of feature counts
-        and feature lengths, calculates the mean/median/max length of each feature type
-        and save the results into a json structure
+        _perGenome_feature_count_json: Given the feature_data containing dict structure of
+        feature counts and feature lengths, calculates the mean/median/max length of each feature
+        type and save the results into a json structure
 
         input feature_data is expected to have the following json structure:
         feature_data={
@@ -499,28 +501,27 @@ class genome_feature_stats:
         feature_count_dict = feature_data['feature_counts']
         feature_lens_dict = feature_data['feature_lengths']
 
-        for feat_type in sorted( feature_lens_dict ):
+        for feat_type in sorted(feature_lens_dict):
             feat_count = feature_count_dict[feat_type]
             feat_count_stat = {
                 'feature_type': feat_type,
                 'count': feat_count
             }
-            if len( feature_lens_dict[feat_type] ) > 0:
+            if len(feature_lens_dict[feat_type]) > 0:
                 feat_count_stat['len_stat'] = {
-                     'mean': mean( feature_lens_dict[feat_type] ),
-                     'median': median( feature_lens_dict[feat_type] ),
-                     'max': max( feature_lens_dict[feat_type] )
+                     'mean': mean(feature_lens_dict[feat_type]),
+                     'median': median(feature_lens_dict[feat_type]),
+                     'max': max(feature_lens_dict[feat_type])
                 }
             else:
                 feat_count_stat['len_stat'] = {}
-            #log(json.dumps(feat_count_stat))
+            # log(json.dumps(feat_count_stat))
 
             feat_counts_stats.append(feat_count_stat)
 
         genome_feature_info['feature_counts_stats'] = feat_counts_stats
 
         return genome_feature_info
-
 
     def _download_file_by_url(self, file_url):
         download_to_dir = os.path.join(self.scratch, str(uuid.uuid4()))
@@ -541,7 +542,7 @@ class genome_feature_stats:
             log('Error code: ', e.strerror)
             if e.errno == errno.ENOSPC:
                 log('No space left on device.')
-            elif e.errno == 110:#[Errno ftp error] [Errno 110] Connection timed out
+            elif e.errno == 110:  # [Errno ftp error] [Errno 110] Connection timed out
                 log('Connection timed out, trying to urlopen!')
                 try:
                     fh = urllib2.urlopen(file_url)
@@ -552,11 +553,10 @@ class genome_feature_stats:
                     log('Connection timed out, urlopen try also failed!')
                 else:
                     pass
-        else:# everything is fine
+        else:  # everything is fine
             pass
 
         return download_file
-
 
     def _get_file_content_by_url(self, file_url):
         req = Request(file_url)
@@ -569,16 +569,15 @@ class genome_feature_stats:
         except URLError as e:
             log('We failed to reach a server to download {}.'.format(file_url))
             log('Reason: ', e.reason)
-        else:# everything is fine
+        else:  # everything is fine
             pass
 
         return resp
 
-
     def validate_parameters(self, params):
         if params.get(self.PARAM_IN_WS, None) is None:
             raise ValueError(self.PARAM_IN_WS + ' parameter is mandatory')
-        #set default parameters
+        # set default parameters
         if params.get('genome_source', None) is None:
             params['genome_source'] = 'refseq'
         if params.get('genome_domain', None) is None:
@@ -594,7 +593,6 @@ class genome_feature_stats:
 
         return params
 
-
     def _generate_output_file_list(self, out_dir, params):
         """
         _generate_output_file_list: zip result files and generate file_links for report
@@ -609,8 +607,9 @@ class genome_feature_stats:
         if (params.get('genome_source', None) is not None and
                 params.get('genome_domain', None) is not None and
                 params.get('refseq_category', None) is not None):
-            feature_counts = os.path.join(output_directory, '{}_{}_{}_genome_feature_counts.zip'.format(
-                        params['genome_source'], params['genome_domain'], params['refseq_category']))
+            feature_counts = os.path.join(
+                output_directory, '{}_{}_{}_genome_feature_counts.zip'.format(
+                    params['genome_source'], params['genome_domain'], params['refseq_category']))
         else:
             feature_counts = os.path.join(output_directory, 'Feature_counts.zip')
 
@@ -623,7 +622,6 @@ class genome_feature_stats:
 
         return output_files
 
-
     def zip_folder(self, folder_path, output_path):
         """Zip the contents of an entire folder (with that folder included in the archive).
         Empty subfolders could be included in the archive as well if the commented portion is used.
@@ -633,7 +631,7 @@ class genome_feature_stats:
                              allowZip64=True) as ziph:
             for root, folders, files in os.walk(folder_path):
                 # Include all subfolders, including empty ones.
-                #for folder_name in folders:
+                # for folder_name in folders:
                 #    absolute_path = os.path.join(root, folder_name)
                 #    relative_path = os.path.join(os.path.basename(root), folder_name)
                 #    print "Adding {} to archive.".format(absolute_path)
@@ -641,23 +639,24 @@ class genome_feature_stats:
                 for f in files:
                     absolute_path = os.path.join(root, f)
                     relative_path = os.path.join(os.path.basename(root), f)
-                    #print "Adding {} to archive.".format(absolute_path)
+                    # print "Adding {} to archive.".format(absolute_path)
                     ziph.write(absolute_path, relative_path)
 
         print "{} created successfully.".format(output_path)
 
-
     def _write_feature_html(self, out_dir, feat_dt, params):
-        #log('\nInput json:\n' + pformat(feat_dt))
+        # log('\nInput json:\n' + pformat(feat_dt))
 
-        headContent = ("<html><head>\n"
+        headContent = (
+            "<html><head>\n"
             "<script type='text/javascript' src='https://www.google.com/jsapi'></script>\n"
             "<script type='text/javascript'>\n"
             "  google.load('visualization', '1', {packages:['controls'], callback: drawTable});\n"
             "  google.setOnLoadCallback(drawTable);\n")
 
-        #table column captions
-        drawTable = ("\nfunction drawTable() {\n"
+        # table column captions
+        drawTable = (
+            "\nfunction drawTable() {\n"
             "var data = new google.visualization.DataTable();\n"
             "data.addColumn('string', 'feature_type');\n"
             "data.addColumn('number', 'total_feature_count');\n"
@@ -666,7 +665,7 @@ class genome_feature_stats:
             "data.addColumn('number', 'feature_median_len');\n"
             "data.addColumn('number', 'feature_max_len');")
 
-        #the data rows
+        # the data rows
         fd_rows = ""
         for fd in feat_dt:
             if fd_rows != "":
@@ -690,26 +689,28 @@ class genome_feature_stats:
         drawTable += fd_rows
         drawTable += "\n]);"
 
-        #the dashboard, table and search filter
-        dash_tab_filter = "\n" \
-            "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard'));\n" \
-            "var stringFilter = new google.visualization.ControlWrapper({\n" \
-            "    controlType: 'StringFilter',\n" \
-            "    containerId: 'string_filter_div',\n" \
-            "    options: {\n" \
-            "        filterColumnIndex: 0\n" \
-            "    }\n" \
-            "});\n" \
-            "var table = new google.visualization.ChartWrapper({\n" \
-            "    chartType: 'Table',\n" \
-            "    containerId: 'table_div',\n" \
-            "    options: {\n" \
-            "        showRowNumber: true\n" \
-            "    }\n" \
-            "});\n" \
-            "dashboard.bind([stringFilter], [table]);\n" \
-            "dashboard.draw(data);\n" \
-        "}\n"
+        # the dashboard, table and search filter
+        dash_tab_filter = (
+         "\n"
+         "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard'));"
+         + "\n"
+         "var stringFilter = new google.visualization.ControlWrapper({\n"
+         "    controlType: 'StringFilter',\n"
+         "    containerId: 'string_filter_div',\n"
+         "    options: {\n"
+         "        filterColumnIndex: 0\n"
+         "    }\n"
+         "});\n"
+         "var table = new google.visualization.ChartWrapper({\n"
+         "    chartType: 'Table',\n"
+         "    containerId: 'table_div',\n"
+         "    options: {\n"
+         "        showRowNumber: true\n"
+         "    }\n"
+         "});\n"
+         "dashboard.bind([stringFilter], [table]);\n"
+         "dashboard.draw(data);\n"
+         "}\n")
 
         footContent = "</script></head>\n<body>\n"
         if (params.get('genome_source', None) is not None and
@@ -719,32 +720,32 @@ class genome_feature_stats:
                     params['genome_source'], params['genome_domain'], params['refseq_category'])
         else:
             footContent += "<h4>Feature counts stats across all input genomes:</h4>\n"
-        footContent += "  <div id='dashboard'>\n" \
-          "      <div id='string_filter_div'></div>\n" \
-          "      <div id='table_div'></div>\n" \
-          "  </div>\n" \
-          "</body>\n" \
-          "</html>"
+        footContent += (
+            "  <div id='dashboard'>\n" +
+            "      <div id='string_filter_div'></div>\n" +
+            "      <div id='table_div'></div>\n" +
+            "  </div>\n" +
+            "</body>\n" +
+            "</html>")
 
         html_str = headContent + drawTable + dash_tab_filter + footContent
-        #log(html_str)
+        # log(html_str)
 
-        #replace all metacharacters with '_' for file naming purpose
-        #name_str = re.sub('[ \/\.\^\$\*\+\?\{\}\[\]\|\\\(\)]', '_', feat_dt['organism_name'])
+        # replace all metacharacters with '_' for file naming purpose
+        # name_str = re.sub('[ \/\.\^\$\*\+\?\{\}\[\]\|\\\(\)]', '_', feat_dt['organism_name'])
         html_file_path = os.path.join(out_dir, 'Overall_Stats_Feature_counts.html')
 
         with open(html_file_path, 'w') as html_file:
-                html_file.write(html_str)
+            html_file.write(html_str)
 
         return {'html_file': html_str, 'html_path': html_file_path}
-
 
     def _generate_feature_html_report(self, out_dir, feat_counts, params):
         """
         _generate_feature_html_report: generate html report given the json data in feat_counts
 
         """
-        #log('start generating html report')
+        # log('start generating html report')
         html_report = list()
 
         html_file_path = self._write_feature_html(out_dir, feat_counts, params)
@@ -757,30 +758,30 @@ class genome_feature_stats:
                      params["genome_source"], params["genome_domain"], params["refseq_category"])
         desc_txt += 'genomes'
 
-        #log(html_file_path['html_file'])
+        # log(html_file_path['html_file'])
         html_report.append({'path': html_file_path['html_path'],
                             'name': cap_name,
                             'label': cap_name,
-                            'description': desc_txt
-                        })
+                            'description': desc_txt})
 
         return html_report
 
-
     def _write_genome_html(self, out_dir, genome_dt, params):
-        #log('\nInput json:\n' + pformat(genome_dt))
+        # log('\nInput json:\n' + pformat(genome_dt))
 
-        headContent = ("<html><head>\n"
+        headContent = (
+            "<html><head>\n"
             "<script type='text/javascript' src='https://www.google.com/jsapi'></script>\n"
             "<script type='text/javascript'>\n"
             "  google.load('visualization', '1', {packages:['controls'], callback: drawTable});\n"
             "  google.setOnLoadCallback(drawTable);\n")
 
-        #table column captions
+        # table column captions
         col_caps = ['accession', 'organism_name', 'version_status', 'tax_id', 'assembly_level',
-            'release_level', 'seq_rel_date', 'genome_rep', 'gbrs_paired_asm', 'paired_asm_comp','genome_url']
+                    'release_level', 'seq_rel_date', 'genome_rep', 'gbrs_paired_asm',
+                    'paired_asm_comp', 'genome_url']
         drawTable = ("\nfunction drawTable() {\n"
-            "var data = new google.visualization.DataTable();\n")
+                     "var data = new google.visualization.DataTable();\n")
 
         cols = []
         for i, col in enumerate(col_caps):
@@ -792,15 +793,15 @@ class genome_feature_stats:
                     else:
                         col_type = 'number'
                     drawTable += "data.addColumn('" + col_type + "','" + k + "');\n"
-                    cols.append( col )
+                    cols.append(col)
 
-        #the data rows
+        # the data rows
         gd_rows = ""
         for gd in genome_dt:
             if gd_rows != "":
                 gd_rows += ",\n"
             d_rows = []
-            for j, c in enumerate( cols ):
+            for j, c in enumerate(cols):
                 d_type = type(gd[c]).__name__
                 if (d_type == 'str' or d_type == 'unicode'):
                     d_rows.append('"' + gd[c] + '"')
@@ -813,55 +814,58 @@ class genome_feature_stats:
         drawTable += gd_rows
         drawTable += "\n]);"
 
-        #the dashboard, table and search filter
-        dash_tab_filter = "\n" \
-            "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard'));\n" \
-            "// create a list of columns for the dashboard\n" \
-            "var filterColumns = [{\n" \
-            "// this column aggregates all of the data into one column for use with the string filter\n" \
-            "type: 'string',\n" \
-            "calc: function (dt, row) {\n" \
-            "for (var i = 0, vals = [], cols = dt.getNumberOfColumns(); i < cols; i++) {\n" \
-            "    vals.push(dt.getFormattedValue(row, i));\n" \
-            "}\n" \
-            "return vals.join('\\n');\n" \
-            "}\n" \
-            "}];\n" \
-            "var tab_columns = [];\n" \
-            "for (var i = 0, cols = data.getNumberOfColumns(); i < cols; i++) {\n" \
-            "    filterColumns.push(i);\n" \
-            "    tab_columns.push(i + 1);\n" \
-            "}\n" \
-            "var stringFilter = new google.visualization.ControlWrapper({\n" \
-            "    controlType: 'StringFilter',\n" \
-            "    containerId: 'string_filter_div',\n" \
-            "    options: {\n" \
-            "        filterColumnIndex: 0,\n" \
-            "        matchType: 'any',\n" \
-            "        caseSensitive: false,\n" \
-            "        ui: {\n" \
-            "            label: 'Search table:'\n" \
-            "           }\n" \
-            "    },\n" \
-            "    view: {\n" \
-            "               columns: filterColumns\n" \
-            "          }\n" \
-            "});\n" \
-            "var table = new google.visualization.ChartWrapper({\n" \
-            "    chartType: 'Table',\n" \
-            "    containerId: 'table_div',\n" \
-            "    options: {\n" \
-            "        showRowNumber: true,\n" \
-            "        page: 'enable',\n" \
-            "        pageSize: 20\n" \
-            "    },\n" \
-            "    view: {\n" \
-            "               columns: tab_columns\n" \
-            "          }\n" \
-            "});\n" \
-            "dashboard.bind([stringFilter], [table]);\n" \
-            "dashboard.draw(data);\n" \
-        "}\n"
+        # the dashboard, table and search filter
+        dash_tab_filter = (
+            "\n"
+            "var dashboard = new google.visualization.Dashboard"
+            "(document.querySelector('#dashboard'));\n"
+            "// create a list of columns for the dashboard\n"
+            "var filterColumns = [{\n"
+            "// this column aggregates all of the data into one column for use with"
+            "the string filter\n"
+            "type: 'string',\n"
+            "calc: function (dt, row) {\n"
+            "for (var i = 0, vals = [], cols = dt.getNumberOfColumns(); i < cols; i++) {\n"
+            "    vals.push(dt.getFormattedValue(row, i));\n"
+            "}\n"
+            "return vals.join('\\n');\n"
+            "}\n"
+            "}];\n"
+            "var tab_columns = [];\n"
+            "for (var i = 0, cols = data.getNumberOfColumns(); i < cols; i++) {\n"
+            "    filterColumns.push(i);\n"
+            "    tab_columns.push(i + 1);\n"
+            "}\n"
+            "var stringFilter = new google.visualization.ControlWrapper({\n"
+            "    controlType: 'StringFilter',\n"
+            "    containerId: 'string_filter_div',\n"
+            "    options: {\n"
+            "        filterColumnIndex: 0,\n"
+            "        matchType: 'any',\n"
+            "        caseSensitive: false,\n"
+            "        ui: {\n"
+            "            label: 'Search table:'\n"
+            "           }\n"
+            "    },\n"
+            "    view: {\n"
+            "               columns: filterColumns\n"
+            "          }\n"
+            "});\n"
+            "var table = new google.visualization.ChartWrapper({\n"
+            "    chartType: 'Table',\n"
+            "    containerId: 'table_div',\n"
+            "    options: {\n"
+            "        showRowNumber: true,\n"
+            "        page: 'enable',\n"
+            "        pageSize: 20\n"
+            "    },\n"
+            "    view: {\n"
+            "               columns: tab_columns\n"
+            "          }\n"
+            "});\n"
+            "dashboard.bind([stringFilter], [table]);\n"
+            "dashboard.draw(data);\n"
+            "}\n")
 
         footContent = "</script></head>\n<body>\n"
         if (params.get('genome_source', None) is not None and
@@ -871,23 +875,23 @@ class genome_feature_stats:
                     params['genome_source'], params['genome_domain'], params['refseq_category'])
         else:
             footContent += "<h4>RefSeq Genome counts:</h4>\n"
-        footContent += "  <div id='dashboard'>\n" \
-          "      <div id='string_filter_div'></div>\n" \
-          "      <div id='table_div'></div>\n" \
-          "  </div>\n" \
-          "</body>\n" \
-          "</html>"
+        footContent += (
+            "  <div id='dashboard'>\n"
+            "      <div id='string_filter_div'></div>\n"
+            "      <div id='table_div'></div>\n"
+            "  </div>\n"
+            "</body>\n"
+            "</html>")
 
         html_str = headContent + drawTable + dash_tab_filter + footContent
-        #log(html_str)
+        # log(html_str)
 
         html_file_path = os.path.join(out_dir, 'Overall_RefSeq_Genome_counts.html')
 
         with open(html_file_path, 'w') as html_file:
-                html_file.write(html_str)
+            html_file.write(html_str)
 
         return {'html_file': html_str, 'html_path': html_file_path}
-
 
     def generate_genome_report(self, count_dir, genome_info, params):
         output_html_files = self._generate_genome_html_report(count_dir, genome_info, params)
@@ -908,13 +912,12 @@ class genome_feature_stats:
 
         return report_info
 
-
     def _generate_genome_html_report(self, out_dir, genome_data, params):
         """
         _generate_genome_html_report: generate html report given the json data in feat_counts
 
         """
-        #log('start generating html report')
+        # log('start generating html report')
         html_report = list()
 
         html_file_path = self._write_genome_html(out_dir, genome_data, params)
@@ -923,21 +926,20 @@ class genome_feature_stats:
         if (params.get('genome_source', None) is not None and
                 params.get('genome_domain', None) is not None and
                 params.get('refseq_category', None) is not None):
-                desc_txt += '{}_{}_{} '.format(params["genome_source"],
-                                               params["genome_domain"],
-                                               params["refseq_category"])
+            desc_txt += '{}_{}_{} '.format(
+                params["genome_source"], params["genome_domain"], params["refseq_category"])
         desc_txt += 'refseq genomes'
 
-        #log(html_file_path['html_file'])
+        # log(html_file_path['html_file'])
         html_report.append({'path': html_file_path['html_path'],
                             'name': cap_name,
                             'label': cap_name,
-                            'description': desc_txt
-                        })
+                            'description': desc_txt})
 
         return html_report
 
-    def _list_ncbi_genomes(self, genome_source='refseq', division='bacteria', refseq_category='reference'):
+    def _list_ncbi_genomes(self, genome_source='refseq', division='bacteria',
+                           refseq_category='reference'):
         """
         list the ncbi genomes of given source/division/category
         return a list of data with structure as below:
@@ -950,9 +952,13 @@ class genome_feature_stats:
             "organism_name": organism_name,#column[7]
             "asm_name": assembly_name,#column[15]
             "refseq_category": refseq_category,#column[4]
-            "ftp_file_path": ftp_file_path,#column[19]--FTP path: the path to the directory on the NCBI genomes FTP site from which data for this genome assembly can be downloaded.
-            "genome_file_name": genome_file_name,#column[19]--File name: the name of the genome assembly file
-            "genome_url": os.path.join(columns[19], "{}_{}".format(os.path.basename(columns[19]),"genomic.gbff.gz")),
+            "ftp_file_path": (ftp_file_path,
+                             # column[19]--FTP path: the path to the directory on the NCBI genomes
+                             # FTP site from which data for this genome assembly can be downloaded.)
+            "genome_file_name": (genome_file_name,
+                                # column[19]--File name: the name of the genome assembly file)
+            "genome_url": (os.path.join(columns[19], "{}_{}".format(os.path.basename(columns[19]),
+                           "genomic.gbff.gz")),
             [genome_id, genome_version] = accession.split('.');
             "tax_id": tax_id; #column[5]
             "assembly_level": assembly_level; #column[11], Complete/Chromosome/Scaffold/Contig
@@ -964,9 +970,11 @@ class genome_feature_stats:
         }
         """
         ncbi_genomes = []
-        ncbi_summ_ftp_url = "ftp://ftp.ncbi.nlm.nih.gov/genomes/{}/{}/{}".format(genome_source, division, "assembly_summary.txt")
+        ncbi_summ_ftp_url = (
+            "ftp://ftp.ncbi.nlm.nih.gov/genomes/{}/{}/{}".format(
+                genome_source, division, "assembly_summary.txt"))
         asm_summary = []
-        ncbi_response = self._get_file_content_by_url( ncbi_summ_ftp_url )
+        ncbi_response = self._get_file_content_by_url(ncbi_summ_ftp_url)
         if ncbi_response != '':
             asm_summary = ncbi_response.readlines()
 
@@ -982,21 +990,24 @@ class genome_feature_stats:
                         "genome_source": genome_source,
                         "refseq_category": columns[4],
                         "accession": columns[0],
-                        "version_status": columns[10],# latest/replaced/suppressed
+                        "version_status": columns[10],  # latest/replaced/suppressed
                         "organism_name": columns[7],
                         "asm_name": columns[15],
-                        "ftp_file_dir": columns[19], #path to the directory for download
-                        "genome_file_name": "{}_{}".format(os.path.basename(columns[19]),"genomic.gbff.gz"),
-                        "genome_url": os.path.join(columns[19], "{}_{}".format(os.path.basename(columns[19]),"genomic.gbff.gz")),
+                        "ftp_file_dir": columns[19],  # path to the directory for download
+                        "genome_file_name": (
+                            "{}_{}".format(os.path.basename(columns[19]), "genomic.gbff.gz")),
+                        "genome_url": (
+                            os.path.join(columns[19], "{}_{}".format(os.path.basename(columns[19]),
+                                         "genomic.gbff.gz"))),
                         "genome_id": columns[0].split('.')[0],
                         "genome_version": columns[0].split('.')[1],
                         "tax_id": columns[5],
-                        "assembly_level": columns[11], #Complete/Chromosome/Scaffold/Contig
-                        "release_level": columns[12],  #Majoy/Minor/Patch
-                        "genome_rep": columns[13], #Full/Partial
-                        "seq_rel_date": columns[14], #date the sequence was released
+                        "assembly_level": columns[11],  # Complete/Chromosome/Scaffold/Contig
+                        "release_level": columns[12],  # Majoy/Minor/Patch
+                        "genome_rep": columns[13],  # Full/Partial
+                        "seq_rel_date": columns[14],  # date the sequence was released
                         "gbrs_paired_asm": columns[17],
-                        "paired_asm_comp": columns[18] #'identical', 'different' or 'na'
+                        "paired_asm_comp": columns[18]  # 'identical', 'different' or 'na'
                     })
                 elif ((refseq_category == 'na' and refseq_category in columns[4])
                         or not columns[4]):
@@ -1005,10 +1016,10 @@ class genome_feature_stats:
                         "genome_source": genome_source,
                         "refseq_category": 'na',
                         "accession": columns[0],
-                        "version_status": columns[10],# latest/replaced/suppressed
+                        "version_status": columns[10],  # latest/replaced/suppressed
                         "organism_name": columns[7],
                         "asm_name": columns[15],
-                        "ftp_file_dir": columns[19], # path to the directory for download
+                        "ftp_file_dir": columns[19],  # path to the directory for download
                         "genome_file_name": ("{}_{}".format(
                                              os.path.basename(columns[19])),
                                              "genomic.gbff.gz"),
@@ -1019,19 +1030,18 @@ class genome_feature_stats:
                         "genome_id": columns[0].split('.')[0],
                         "genome_version": columns[0].split('.')[1],
                         "tax_id": columns[5],
-                        "assembly_level": columns[11], #Complete/Chromosome/Scaffold/Contig
-                        "release_level": columns[12],  #Majoy/Minor/Patch
-                        "genome_rep": columns[13], #Full/Partial
-                        "seq_rel_date": columns[14], #date the sequence was released
+                        "assembly_level": columns[11],  # Complete/Chromosome/Scaffold/Contig
+                        "release_level": columns[12],  # Majoy/Minor/Patch
+                        "genome_rep": columns[13],  # Full/Partial
+                        "seq_rel_date": columns[14],  # date the sequence was released
                         "gbrs_paired_asm": columns[17],
-                        "paired_asm_comp": columns[18] # 'identical'/'different'/'na'
+                        "paired_asm_comp": columns[18]  # 'identical'/'different'/'na'
                     })
         log("\nFound {} {} genomes in NCBI {}/{}".format(
                    str(len(ncbi_genomes)), refseq_category,
                    genome_source, division))
 
         return ncbi_genomes
-
 
     def count_ncbi_genomes(self, input_params):
         params = self.validate_parameters(input_params)
@@ -1058,4 +1068,3 @@ class genome_feature_stats:
             }
 
         return returnVal
-
