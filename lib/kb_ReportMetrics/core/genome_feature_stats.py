@@ -8,7 +8,7 @@ import gzip
 import urllib
 import urllib.request
 from pprint import pformat
-from urllib import URLError, HTTPError
+from urllib.error import URLError, HTTPError
 import errno
 
 from Bio import SeqIO

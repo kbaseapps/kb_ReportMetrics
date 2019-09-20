@@ -1,27 +1,18 @@
 import time
-import datetime
-import csv, json
+import csv
+import json
 import os
 import re
-import copy
 import uuid
-import subprocess
-import shutil
-import sys
 import zipfile
-import gzip
-from pprint import pprint, pformat
-from urllib2 import Request, urlopen
-from urllib2 import URLError, HTTPError
+from pprint import pprint
+from urllib.request import urlopen
+from urllib.error import URLError, HTTPError
 import urllib
 import errno
 
-from Bio import Entrez, SeqIO
-from numpy import median, mean, max
-
 from KBaseReport.KBaseReportClient import KBaseReport
 from kb_ReportMetrics.core.UJS_CAT_NJS_DataUtils import UJS_CAT_NJS_DataUtils
-from kb_Metrics.kb_MetricsClient import kb_Metrics
 
 
 def log(message, prefix_newline=False):
@@ -160,9 +151,7 @@ class report_utils:
         enc_data = []
         for sd in stats_data:
             # produce a new dictionary with the encoded values
-            enc_data.append(dict((k, v.encode('utf-8')
-                            if isinstance(v, unicode) else v)
-                            for k, v in sd.iteritems()))
+            enc_data.append(dict(k, v) for k, v in sd.iteritems())
 
         with open(tsv_full_path, 'wb') as metrics_tsv:
             dw = csv.DictWriter(metrics_tsv,
@@ -179,7 +168,7 @@ class report_utils:
         report_text = ('Summary of {} metrics for {}:\n\n'.format(
                                     params['stats_name'],
                                     ','.join(params['user_ids'])
-                                    if len(params['user_ids'])>0
+                                    if len(params['user_ids']) > 0
                                     else 'all_users'))
 
         report_info = self.kbr.create_extended_report({
@@ -205,8 +194,7 @@ class report_utils:
         rpt_title = 'Metrics report on {}'.format(stats_name)
 
         html_report = list()
-        html_file_path = self._write_user_html(out_dir, dt_info,
-                                            rpt_title, col_caps)
+        html_file_path = self._write_user_html(out_dir, dt_info, rpt_title, col_caps)
 
         # log(html_file_path['html_file'])
         html_report.append({'path': html_file_path['html_path'],
@@ -233,26 +221,24 @@ class report_utils:
         html_file_path = os.path.join(out_dir, 'user_report_charts.html')
 
         with open(html_file_path, 'w') as html_file:
-                html_file.write(html_str.encode('utf-8'))
+            html_file.write(html_str.encode('utf-8'))
 
         return {'html_file': html_str, 'html_path': html_file_path}
 
     def generate_app_report(self, metrics_dir, data_info, params, col_caps=None):
         if col_caps is None:
             pass
-            # output_html_files = self._generate_html_report(
-                                    # metrics_dir, data_info)
+            # output_html_files = self._generate_html_report(metrics_dir, data_info)
         else:
             pass
-            # output_html_files = self._generate_html_report(
-                                    # metrics_dir, data_info, col_caps)
+            # output_html_files = self._generate_html_report(metrics_dir, data_info, col_caps)
 
         output_files = self._generate_output_file_list(metrics_dir)
 
         # create report
         report_text = ('Summary of app metrics for {}:\n\n'.format(
                        ','.join(params['user_ids'])
-                       if len(params['user_ids'])>0 else 'all_users'))
+                       if len(params['user_ids']) > 0 else 'all_users'))
 
         report_info = self.kbr.create_extended_report({
                         'message': report_text,
@@ -317,11 +303,11 @@ class report_utils:
             elif e.errno == 110:  # [Errno ftp error] [Errno 110] timed out
                 log('Connection timed out, trying to urlopen!')
                 try:
-                    fh = urllib2.urlopen(file_url)
+                    fh = urlopen(file_url)
                     data = fh.read()
                     with open(download_file, "w") as dfh:
                         dfh.write(data)
-                except:
+                except Exception:
                     log('Connection timed out, urlopen try also failed!')
                 else:
                     pass
@@ -331,10 +317,9 @@ class report_utils:
         return download_file
 
     def _get_file_content_by_url(self, file_url):
-        req = Request(file_url)
         resp = ''
         try:
-            resp = urlopen(req)
+            resp = urlopen(file_url)
         except HTTPError as e:
             log('The server couldn\'t fulfill the request to '
                 'download {}.'.format(file_url))
@@ -391,23 +376,26 @@ class report_utils:
                     # print "Adding {} to archive.".format(absolute_path)
                     ziph.write(absolute_path, relative_path)
 
-        print "{} created successfully!".format(output_path)
+        print("{} created successfully!".format(output_path))
 
     def _write_headContent(self):
         """_write_headConten: returns the very first portion of the html file
         """
-        head_content = ("\n<html>\n<head>\n"
+        head_content = (
+            "\n<html>\n<head>\n"
             "<script type='text/javascript' src='https://www.google.com/jsapi'></script>\n"
             "<script type='text/javascript'>\n"
             "// Load the Visualization API and the controls package.\n"
-            "  google.load('visualization', '1', {packages:['controls'], callback: drawDashboard});\n"
+            "  google.load('visualization', '1', {packages:['controls'], callback: drawDashboard});"
+            "\n"
             "  google.setOnLoadCallback(drawDashboard);\n")
 
         return head_content
 
     def _write_callback_function(self, input_dt, col_caps=None):
         """
-        _write_callback_function: write the callback function according to the input_dt and column captions
+        _write_callback_function: write the callback function according to the input_dt
+        and column captions
         """
         callback_func = ("\nfunction drawDashboard() {\n"
                          "var data = new google.visualization.DataTable();\n")
@@ -438,7 +426,7 @@ class report_utils:
             if dt_rows != "":
                 dt_rows += ",\n"
             d_rows = []
-            for j, c in enumerate( cols ):
+            for j, c in enumerate(cols):
                 d_type = type(dt[c]).__name__
                 if (d_type == 'str' or d_type == 'unicode'):
                     if dt[c] is None:
@@ -487,22 +475,23 @@ class report_utils:
         if 'initSel' in kwargs:
             initSelected = kwargs['initSel']
 
-        cat_picker = ("\nvar categoryPicker = new google.visualization.ControlWrapper({\n"
-                "controlType: 'CategoryFilter',\n"
-                "containerId: 'cat_picker_div',\n"
-                "options: {\n"
-                "//filterColumnIndex: 0, // filter by this column\n"
-                "filterColumnLabel: '" + col_name + "',\n"
-                "ui: {\n"
-                "    caption: 'Choose a value',\n"
-                "    sortValues: true,\n"
-                "    allowNone: true,\n"
-                "    allowMultiple: true,\n"
-                "    allowTyping: true\n"
-                "  }\n"
-                "},\n"
-                "// Define an initial state, i.e. a set of metrics to be initially selected.\n"
-                "state: {'selectedValues': ['" + "','".join(initSelected) + "']}\n"
+        cat_picker = (
+            "\nvar categoryPicker = new google.visualization.ControlWrapper({\n"
+            "controlType: 'CategoryFilter',\n"
+            "containerId: 'cat_picker_div',\n"
+            "options: {\n"
+            "//filterColumnIndex: 0, // filter by this column\n"
+            "filterColumnLabel: '" + col_name + "',\n"
+            "ui: {\n"
+            "    caption: 'Choose a value',\n"
+            "    sortValues: true,\n"
+            "    allowNone: true,\n"
+            "    allowMultiple: true,\n"
+            "    allowTyping: true\n"
+            "  }\n"
+            "},\n"
+            "// Define an initial state, i.e. a set of metrics to be initially selected.\n"
+            "state: {'selectedValues': ['" + "','".join(initSelected) + "']}\n"
             "});\n")
 
         return cat_picker
@@ -510,7 +499,8 @@ class report_utils:
     def _write_string_filter(self, filterColumns, filter_name, filter_field=None):
         if filter_field is None:
             return ''
-        str_filter = ("\nvar " + filter_name + " = new google.visualization.ControlWrapper({\n"
+        str_filter = (
+            "\nvar " + filter_name + " = new google.visualization.ControlWrapper({\n"
             "    controlType: 'StringFilter',\n"
             "    containerId: 'string_filter_div',\n"
             "    options: {\n"
@@ -530,9 +520,11 @@ class report_utils:
         return str_filter
 
     def _write_table_chart(self, tab_div):
-        tab_chart = ("\n//create a list of columns for the table chart\n"
+        tab_chart = (
+            "\n//create a list of columns for the table chart\n"
             "var filterColumns = [{\n"
-            "// this column aggregates all of the data into one column for use with the string filter\n"
+            "// this column aggregates all of the data into one column for use"
+            " with the string filter\n"
             "type: 'string',\n"
             "calc: function (dt, row) {\n"
             "for (var i = 0, vals = [], cols = dt.getNumberOfColumns(); i < cols; i++) {\n"
@@ -562,21 +554,22 @@ class report_utils:
         return tab_chart
 
     def _write_pie_chart(self, pc_nm, pc_div, w, h, ttl, cols):
-        pie_chart = ("\n//Create a pie chart, passing some options\n"
-                "var " + pc_nm + " = new google.visualization.ChartWrapper({\n"
-                "'chartType': 'PieChart',\n"
-                "'containerId': '" + pc_div + "',\n"
-                "'options': {\n"
-                "'width': " + str(w) + ",\n"
-                "'height': " + str(h), ",\n"
-                "'pieSliceText': 'value', //'label',\n"
-                "'legend': 'none',\n"
-                "'is3D': true,\n"
-                "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15},\n"
-                "'title': '" + ttl + "'\n"
-                "},\n"
-                "'view': {'columns': [" + ",".join(str(x) for x in cols) + "]}\n"
-                "});\n")
+        pie_chart = (
+            "\n//Create a pie chart, passing some options\n"
+            "var " + pc_nm + " = new google.visualization.ChartWrapper({\n"
+            "'chartType': 'PieChart',\n"
+            "'containerId': '" + pc_div + "',\n"
+            "'options': {\n"
+            "'width': " + str(w) + ",\n"
+            "'height': " + str(h), ",\n"
+            "'pieSliceText': 'value', //'label',\n"
+            "'legend': 'none',\n"
+            "'is3D': true,\n"
+            "'chartArea': {'left': 15, 'top': 25, 'right': 0, 'bottom': 15},\n"
+            "'title': '" + ttl + "'\n"
+            "},\n"
+            "'view': {'columns': [" + ",".join(str(x) for x in cols) + "]}\n"
+            "});\n")
 
         return pie_chart
 
@@ -601,18 +594,20 @@ class report_utils:
 
         return line_chart
 
-    def _write_NumRangeFilter(self, filter_nm, containerId, col_label, minVal, maxVal, lowVal, highVal):
-        num_slider = ("\n//Create a range slider, passing some options\n"
-                      "var " + filter_nm + " = new google.visualization.ControlWrapper({\n"
-                      "'controlType': 'NumberRangeFilter',\n"
-                      "'containerId': '" + containerId + "',\n"
-                      "'options': {\n"
-                      "'filterColumnLabel': '" + col_label + "',\n"
-                      "'minValue': " + str(minVal) + ",\n"
-                      "'maxValue': " + str(maxVal) + "\n"
-                      "},\n"
-                      "'state': {'lowValue': " + str(lowVal) + ", 'highValue': " + str(highVal) + "}\n"
-                      "});\n")
+    def _write_NumRangeFilter(self, filter_nm, containerId, col_label, minVal, maxVal,
+                              lowVal, highVal):
+        num_slider = (
+            "\n//Create a range slider, passing some options\n"
+            "var " + filter_nm + " = new google.visualization.ControlWrapper({\n"
+            "'controlType': 'NumberRangeFilter',\n"
+            "'containerId': '" + containerId + "',\n"
+            "'options': {\n"
+            "'filterColumnLabel': '" + col_label + "',\n"
+            "'minValue': " + str(minVal) + ",\n"
+            "'maxValue': " + str(maxVal) + "\n"
+            "},\n"
+            "'state': {'lowValue': " + str(lowVal) + ", 'highValue': " + str(highVal) + "}\n"
+            "});\n")
         return num_slider
 
     def _write_charts(self):
@@ -625,7 +620,8 @@ class report_utils:
                                                  'queued_time', 1, 20000, 1000, 10000)
 
         line_chart = self._write_line_chart('lineChart', 'line_div', 600, 300, 'app_id', [6, 9, 10])
-        pie_chart = self._write_pie_chart('pieChart', 'pie_div', 300, 300, 'set_your_own_title', [3, 4])
+        pie_chart = self._write_pie_chart(
+            'pieChart', 'pie_div', 300, 300, 'set_your_own_title', [3, 4])
         str_filter = self._write_string_filter('filterColumns', 'stringFilter', 'username')
         tab_chart = str_filter + self._write_table_chart('table_div')
 
@@ -637,19 +633,22 @@ class report_utils:
         """
         # the dashboard components (table, charts and filters)
         dashboard = ''
-        dash_componets = ''
+        dash_components = ''
         if (stats_nm == 'user_details' or stats_nm == 'user_ws_stats'):
             field_nm = 'username'
             strfilter_nm = field_nm + 'Filter'
-            dash_components = self._write_category_picker(initSel=['qzhang', 'srividya22'],col_name=field_nm)
+            dash_components = self._write_category_picker(
+                initSel=['qzhang', 'srividya22'], col_name=field_nm)
             dash_components += self._write_table_chart('table_div')
             dash_components += self._write_string_filter('filterColumns', strfilter_nm, field_nm)
-            dashboard = ("\n"
-                         "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
-                         "dashboard.bind([categoryPicker], [table]);\n"
-                         "dashboard.bind([" + strfilter_nm + "], [table]);\n"
-                         "dashboard.draw(data);\n"
-                         "}\n")
+            dashboard = (
+                "\n"
+                "var dashboard = new google.visualization.Dashboard("
+                "document.querySelector('#dashboard_div'));\n"
+                "dashboard.bind([categoryPicker], [table]);\n"
+                "dashboard.bind([" + strfilter_nm + "], [table]);\n"
+                "dashboard.draw(data);\n"
+                "}\n")
         elif stats_nm == 'user_counts_per_day':
             field_nm = 'yyyy-mm-dd'
             strfilter_nm = field_nm.replace('-', '_') + 'Filter'
@@ -659,13 +658,15 @@ class report_utils:
             dash_components += self._write_NumRangeFilter(slider_nm, 'number_filter_div1',
                                                           'numOfUsers', 1, 100, 1, 50)
             dash_components += self._write_line_chart('lineChart', 'line_div',
-                                                      660, 500, 'user counts per day', [0,1])
-            dashboard = ("\n"
-                         "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
-                         "dashboard.bind([" + slider_nm + "," + strfilter_nm + "], [table]);\n"
-                         "dashboard.bind([" + slider_nm + "," + strfilter_nm + "], [lineChart]);\n"
-                         "dashboard.draw(data);\n"
-                         "}\n")
+                                                      660, 500, 'user counts per day', [0, 1])
+            dashboard = (
+                "\n"
+                "var dashboard = new google.visualization.Dashboard("
+                "document.querySelector('#dashboard_div'));\n"
+                "dashboard.bind([" + slider_nm + "," + strfilter_nm + "], [table]);\n"
+                "dashboard.bind([" + slider_nm + "," + strfilter_nm + "], [lineChart]);\n"
+                "dashboard.draw(data);\n"
+                "}\n")
 
         return dash_components + dashboard
 
@@ -675,14 +676,16 @@ class report_utils:
         """
         # the dashboard components (table, charts and filters)
         dash_components = self._write_charts()
-        dashboard = ("\n"
-                     "var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard_div'));\n"
-                     "dashboard.bind([categoryPicker], [pieChart, lineChart],[table]);\n"
-                     "//dashboard.bind([callsRangeSlider], [pieChart]);\n"
-                     "dashboard.bind([timeRangeSlider], [pieChart, lineChart]);\n"
-                     "dashboard.bind([stringFilter], [table]);\n"
-                     "dashboard.draw(data);\n"
-                     "}\n")
+        dashboard = (
+            "\n"
+            "var dashboard = new google.visualization.Dashboard("
+            "document.querySelector('#dashboard_div'));\n"
+            "dashboard.bind([categoryPicker], [pieChart, lineChart],[table]);\n"
+            "//dashboard.bind([callsRangeSlider], [pieChart]);\n"
+            "dashboard.bind([timeRangeSlider], [pieChart, lineChart]);\n"
+            "dashboard.bind([stringFilter], [table]);\n"
+            "dashboard.draw(data);\n"
+            "}\n")
 
         return dash_components + dashboard
 
@@ -737,10 +740,9 @@ class report_utils:
         html_file_path = os.path.join(out_dir, 'metrics_report_charts.html')
 
         with open(html_file_path, 'w') as html_file:
-                html_file.write(html_str)
+            html_file.write(html_str)
 
         return {'html_file': html_str, 'html_path': html_file_path}
-
 
     def _generate_html_report(self, out_dir, dt_info, col_caps=None):
         """
@@ -761,10 +763,6 @@ class report_utils:
         html_report.append({'path': html_file_path['html_path'],
                             'name': rpt_title,
                             'label': rpt_title,
-                            'description': 'The report with charts'
-                        })
+                            'description': 'The report with charts'})
 
         return html_report
-
-
-
