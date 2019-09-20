@@ -8,7 +8,7 @@ import time
 from os import environ
 try:
     from ConfigParser import ConfigParser  # py2
-except:
+except ImportError:
     from configparser import ConfigParser  # py3
 
 from pprint import pprint, pformat  # noqa: F401
@@ -51,8 +51,8 @@ class kb_ReportMetricsTest(unittest.TestCase):
         cls.wsClient = workspaceService(cls.wsURL)
         cls.serviceImpl = kb_ReportMetrics(cls.cfg)
         cls.scratch = cls.cfg['scratch']
-        cls.callback_url = os.environ['SDK_CALLBACK_URL']
         cls.srv_wiz_url = cls.cfg['srv-wiz-url']
+        cls.callback_url = os.environ['SDK_CALLBACK_URL']
 
     """
     for testing to kb_Metrics service

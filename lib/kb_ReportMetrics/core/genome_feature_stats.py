@@ -2,20 +2,16 @@ import time
 import json
 import os
 import re
-import copy
 import uuid
-import subprocess
-import shutil
-import sys
 import zipfile
 import gzip
-from pprint import pprint, pformat
-from urllib2 import Request, urlopen
-from urllib2 import URLError, HTTPError
 import urllib
+import urllib.request
+from pprint import pformat
+from urllib import URLError, HTTPError
 import errno
 
-from Bio import Entrez, SeqIO
+from Bio import SeqIO
 from numpy import median, mean, max
 
 from Workspace.WorkspaceClient import Workspace as Workspace
@@ -384,7 +380,7 @@ class genome_feature_stats:
         if len(feature_data_list) == 0:
             return {}
 
-        across_genomes_feature_counts = []
+        # across_genomes_feature_counts = []
         total_feature_count_dict = dict()
         genome_count_dict = dict()
         combined_feature_lens_dict = dict()
@@ -545,11 +541,11 @@ class genome_feature_stats:
             elif e.errno == 110:  # [Errno ftp error] [Errno 110] Connection timed out
                 log('Connection timed out, trying to urlopen!')
                 try:
-                    fh = urllib2.urlopen(file_url)
+                    fh = urllib.request.urlopen(file_url)
                     data = fh.read()
                     with open(download_file, "w") as dfh:
                         dfh.write(data)
-                except:
+                except URLError:
                     log('Connection timed out, urlopen try also failed!')
                 else:
                     pass
@@ -559,10 +555,9 @@ class genome_feature_stats:
         return download_file
 
     def _get_file_content_by_url(self, file_url):
-        req = Request(file_url)
         resp = ''
         try:
-            resp = urlopen(req)
+            resp = urllib.request.urlopen(file_url)
         except HTTPError as e:
             log('The server couldn\'t fulfill the request to download {}.'.format(file_url))
             log('Error code: ', e.code)
@@ -642,7 +637,7 @@ class genome_feature_stats:
                     # print "Adding {} to archive.".format(absolute_path)
                     ziph.write(absolute_path, relative_path)
 
-        print "{} created successfully.".format(output_path)
+        print("{} created successfully.".format(output_path))
 
     def _write_feature_html(self, out_dir, feat_dt, params):
         # log('\nInput json:\n' + pformat(feat_dt))
