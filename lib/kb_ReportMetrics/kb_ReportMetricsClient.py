@@ -12,7 +12,7 @@ from __future__ import print_function
 try:
     # baseclient and this client are in a package
     from .baseclient import BaseClient as _BaseClient  # @UnusedImport
-except:
+except ImportError:
     # no they aren't
     from baseclient import BaseClient as _BaseClient  # @Reimport
 
@@ -23,7 +23,7 @@ class kb_ReportMetrics(object):
             self, url=None, timeout=30 * 60, user_id=None,
             password=None, token=None, ignore_authrc=False,
             trust_all_ssl_certificates=False,
-            auth_svc='https://kbase.us/services/authorization/Sessions/Login'):
+            auth_svc='https://ci.kbase.us/services/auth/api/legacy/KBase/Sessions/Login'):
         if url is None:
             raise ValueError('A url is required')
         self._service_ver = None
@@ -61,9 +61,8 @@ class kb_ReportMetrics(object):
            Report.) -> structure: parameter "report_name" of String,
            parameter "report_ref" of String
         """
-        return self._client.call_method(
-            'kb_ReportMetrics.count_ncbi_genomes',
-            [params], self._service_ver, context)
+        return self._client.call_method('kb_ReportMetrics.count_ncbi_genomes',
+                                        [params], self._service_ver, context)
 
     def count_ncbi_genome_features(self, params, context=None):
         """
@@ -82,9 +81,8 @@ class kb_ReportMetrics(object):
            Report.) -> structure: parameter "report_name" of String,
            parameter "report_ref" of String
         """
-        return self._client.call_method(
-            'kb_ReportMetrics.count_ncbi_genome_features',
-            [params], self._service_ver, context)
+        return self._client.call_method('kb_ReportMetrics.count_ncbi_genome_features',
+                                        [params], self._service_ver, context)
 
     def count_genome_features_from_files(self, params, context=None):
         """
@@ -103,9 +101,8 @@ class kb_ReportMetrics(object):
            Report.) -> structure: parameter "report_name" of String,
            parameter "report_ref" of String
         """
-        return self._client.call_method(
-            'kb_ReportMetrics.count_genome_features_from_files',
-            [params], self._service_ver, context)
+        return self._client.call_method('kb_ReportMetrics.count_genome_features_from_files',
+                                        [params], self._service_ver, context)
 
     def report_metrics(self, params, context=None):
         """
@@ -129,9 +126,8 @@ class kb_ReportMetrics(object):
            Report.) -> structure: parameter "report_name" of String,
            parameter "report_ref" of String
         """
-        return self._client.call_method(
-            'kb_ReportMetrics.report_metrics',
-            [params], self._service_ver, context)
+        return self._client.call_method('kb_ReportMetrics.report_metrics',
+                                        [params], self._service_ver, context)
 
     def dummy_test0(self, params, context=None):
         """
@@ -155,9 +151,8 @@ class kb_ReportMetrics(object):
            Report.) -> structure: parameter "report_name" of String,
            parameter "report_ref" of String
         """
-        return self._client.call_method(
-            'kb_ReportMetrics.dummy_test0',
-            [params], self._service_ver, context)
+        return self._client.call_method('kb_ReportMetrics.dummy_test0',
+                                        [params], self._service_ver, context)
 
     def status(self, context=None):
         return self._client.call_method('kb_ReportMetrics.status',
